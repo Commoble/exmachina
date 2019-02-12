@@ -29,18 +29,18 @@ public class ItemRegistrar
 	};
 	
 	//itemblocks
-	@ObjectHolder("sandbox:ash")
+	@ObjectHolder("exmachina:ash")
 	public static final Item ash = null;
 
-	@ObjectHolder("sandbox:battery")
+	@ObjectHolder("exmachina:battery")
 	public static final Item battery = null;
-	@ObjectHolder("sandbox:lightbulb")
+	@ObjectHolder("exmachina:lightbulb")
 	public static final Item lightbulb = null;
-	@ObjectHolder("sandbox:wire")
+	@ObjectHolder("exmachina:wire")
 	public static final Item wire = null;
 	
 	// real items
-	@ObjectHolder("sandbox:mondometer")
+	@ObjectHolder("exmachina:mondometer")
 	public static final Item mondometer = null;
 	
 	

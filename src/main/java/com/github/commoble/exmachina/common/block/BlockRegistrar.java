@@ -15,16 +15,16 @@ public class BlockRegistrar
 {	
 	//public static final String TRANSPORTER_REGISTRY_NAME = "transporter";
 	
-	@ObjectHolder("sandbox:ash")
+	@ObjectHolder("exmachina:ash")
 	public static final BlockAsh ash = null;
 	
-	@ObjectHolder("sandbox:battery")
+	@ObjectHolder("exmachina:battery")
 	public static final BlockBattery battery = null;
 	
-	@ObjectHolder("sandbox:wire")
+	@ObjectHolder("exmachina:wire")
 	public static final BlockWire wire = null;
 	
-	@ObjectHolder("sandbox:lightbulb")
+	@ObjectHolder("exmachina:lightbulb")
 	public static final BlockLightbulb lightbulb = null;
 	
 	
