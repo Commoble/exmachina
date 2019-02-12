@@ -1,0 +1,29 @@
+{
+    "forge_marker": 1,
+    "defaults":
+    {
+        "textures":
+        {
+            "up": "sandbox:blocks/battery_side",
+            "north": "sandbox:blocks/battery_side_flipped",
+            "down": "sandbox:blocks/battery_side",
+            "south": "sandbox:blocks/battery_side",
+            "west":  "sandbox:blocks/battery_plus",
+            "east": "sandbox:blocks/battery_minus",
+            "particle": "sandbox:blocks/battery_side"
+        },
+        "model": "cube",
+        "uvlock": false
+    },
+    "variants":
+    {
+        "normal": [{}],
+        "inventory": [{}],
+        "facing=down":[{"z": 270}],
+        "facing=up":[{"z": 90}],
+        "facing=south": [{"y": 270 }],
+        "facing=west": [{}],
+        "facing=north": [{"y": 90 }],
+        "facing=east": [{"y": 180 }]
+    }
+}

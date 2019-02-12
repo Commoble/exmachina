@@ -1,0 +1,17 @@
+{
+    "forge_marker": 1,
+    "defaults":
+    {
+        "textures":
+        {
+            "all": "expandedmultiverse:blocks/wormholecore"
+        },
+        "model": "cube_all",
+        "uvlock": true
+    },
+    "variants":
+    {
+        "normal": [{}],
+        "inventory": [{}]
+    }
+}
