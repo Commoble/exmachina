@@ -9,13 +9,15 @@ import net.minecraft.world.World;
  * indicating the component's position, as well as its adjacent
  * nodes and its electrical characteristics
  */
-public class CircuitElement
+public abstract class CircuitElement
 {
 	public BlockPos componentPos;
 	public IBlockState componentState;
 	public Node nodeA;
 	public Node nodeB;
 		// they may be the same node
+	
+	public double power;	// this is set whenever the circuit is built or rebuilt
 
 	public int identifier; // identifier of the component as seen by the circuit it is contained in
 		// (determined when solving the circuit)
@@ -41,4 +43,6 @@ public class CircuitElement
 	{
 		return (o instanceof CircuitElement && ((CircuitElement)o).componentPos.equals(this.componentPos));
 	}
+	
+	public abstract double getCurrent();
 }

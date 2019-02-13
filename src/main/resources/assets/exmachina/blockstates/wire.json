@@ -4,7 +4,7 @@
     {
         "textures":
         {
-            "all": "sandbox:blocks/wire"
+            "all": "exmachina:blocks/wire"
         },
         "model": "cube_all",
         "uvlock": true

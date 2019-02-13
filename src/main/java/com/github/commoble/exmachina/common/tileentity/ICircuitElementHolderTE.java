@@ -14,4 +14,5 @@ public interface ICircuitElementHolderTE
 	 * and then return the CircuitElement
 	 */
 	public CircuitElement createCircuitElement(Node nodeA, Node nodeB);
+	public CircuitElement getCircuitElement();
 }

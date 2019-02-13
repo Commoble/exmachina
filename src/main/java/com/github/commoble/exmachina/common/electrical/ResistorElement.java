@@ -20,4 +20,10 @@ public class ResistorElement extends CircuitElement
 	{
 		return this.nominalResistance;
 	}
+	
+	@Override
+	public double getCurrent()
+	{
+		return Math.sqrt(this.power / this.nominalResistance);
+	}
 }

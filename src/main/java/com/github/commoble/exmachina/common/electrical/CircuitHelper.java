@@ -1,14 +1,22 @@
 package com.github.commoble.exmachina.common.electrical;
 
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.PriorityQueue;
+import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.github.commoble.exmachina.common.block.CategoriesOfBlocks;
 import com.github.commoble.exmachina.common.block.IElectricalBlock;
+import com.github.commoble.exmachina.common.tileentity.ICircuitElementHolderTE;
+import com.github.commoble.exmachina.common.util.BlockPosWithDist;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -123,5 +131,96 @@ public class CircuitHelper
 	{
 		HashSet<BlockPos> traversed = new HashSet<BlockPos>();
 		traversed.add(pos);
+	}
+	
+	/** Gets the nearest CircuitElement to a given wire block position
+	 * following along IElectricalBlocks
+	 * returns Null if none is found
+	 */
+	@Nullable
+	public static CircuitElement getNearestCircuitElement(World world, BlockPos startPos)
+	{
+		// current implementation is based on Djikstra's algorithm
+		// 
+		HashMap<BlockPos, Integer> dists = new HashMap<BlockPos, Integer>();	// known distance from position to start
+		//HashMap<BlockPos, BlockPos> prevs = new HashMap<BlockPos, BlockPos>();	// pos -> previous pos in search
+		CircuitElement nearestCircuitElement = null;
+
+		// the head of this queue is the "lowest" member of the queue
+		// in this case, it will be the blockpos with the lowest/shortest distance to the start
+		PriorityQueue<BlockPosWithDist> pq = new PriorityQueue<BlockPosWithDist>();
+		pq.add(new BlockPosWithDist(0, startPos));
+		dists.put(startPos, 0);
+		ICircuitElementHolderTE nearestRelevantTE = null;
+		int nrtedist = Integer.MAX_VALUE;
+		
+		while(!pq.isEmpty())
+		{
+			BlockPosWithDist closest = pq.poll();// won't be null because PQ is not empty
+			if (nearestRelevantTE == null || closest.dist < nrtedist)
+			{
+				IBlockState closestState = world.getBlockState(closest.pos);
+				Block closestBlock = closestState.getBlock();
+				
+				TileEntity te = world.getTileEntity(closest.pos);
+				if (te instanceof ICircuitElementHolderTE)
+				{
+					nearestRelevantTE = (ICircuitElementHolderTE)te;
+					nrtedist = closest.dist;
+				}
+			}
+			// get all adjacent connected blocks
+			for (EnumFacing face : CircuitHelper.getBiConnectedElectricalBlocks(world, closest.pos))
+			{
+				BlockPos nextPos = closest.pos;
+				if (!dists.containsKey(nextPos) || dists.get(nextPos) > closest.dist + 1)	// TODO replace with wire resist
+				{
+					dists.put(nextPos, closest.dist+1);
+					//prevs.put(nextPos, closest.pos);
+					pq.add(new BlockPosWithDist(closest.dist+1, nextPos));
+				}
+			}
+		}
+		
+		if (nearestRelevantTE == null)
+		{
+			return null;
+		}
+		else
+		{
+			return nearestRelevantTE.getCircuitElement();
+		}
+	}
+	
+	/** get a set of the faces that this block connects to that also connect back to this block **/
+	@Nonnull
+	public static EnumSet<EnumFacing> getBiConnectedElectricalBlocks(World world, BlockPos pos)
+	{
+		IBlockState checkState = world.getBlockState(pos);
+		Block checkBlock = checkState.getBlock();
+		EnumSet<EnumFacing> returnFaces = EnumSet.noneOf(EnumFacing.class);
+		
+		if (checkBlock instanceof IElectricalBlock)
+		{
+			Set<EnumFacing> checkFaces = ((IElectricalBlock)checkBlock).getConnectingFaces(world, checkState, pos);
+			for (EnumFacing face : checkFaces)
+			{
+				BlockPos nextPos = pos.offset(face);
+				IBlockState nextState = world.getBlockState(nextPos);
+				Block nextBlock = nextState.getBlock();
+				if (nextBlock instanceof IElectricalBlock)
+				{
+					Set<EnumFacing> nextBlocksFaces = ((IElectricalBlock)nextBlock).getConnectingFaces(world, nextState, nextPos);
+					for (EnumFacing nextFace : nextBlocksFaces)
+					{
+						if (nextFace.getOpposite() == face)
+						{
+							returnFaces.add(face);
+						}
+					}
+				}
+			}
+		}
+		return returnFaces;
 	}
 }

@@ -4,13 +4,13 @@
     {
         "textures":
         {
-            "up": "sandbox:blocks/battery_side",
-            "north": "sandbox:blocks/battery_side_flipped",
-            "down": "sandbox:blocks/battery_side",
-            "south": "sandbox:blocks/battery_side",
-            "west":  "sandbox:blocks/battery_plus",
-            "east": "sandbox:blocks/battery_minus",
-            "particle": "sandbox:blocks/battery_side"
+            "up": "exmachina:blocks/battery_side",
+            "north": "exmachina:blocks/battery_side_flipped",
+            "down": "exmachina:blocks/battery_side",
+            "south": "exmachina:blocks/battery_side",
+            "west":  "exmachina:blocks/battery_plus",
+            "east": "exmachina:blocks/battery_minus",
+            "particle": "exmachina:blocks/battery_side"
         },
         "model": "cube",
         "uvlock": false

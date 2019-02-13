@@ -1,2 +1,3 @@
-tile.sandbox:ash.name=Ash Pile
-itemGroup.sandbox=Sandbox
+tile.exmachina:ash.name=Ash Pile
+itemGroup.exmachina=exmachina
+item.exmachina:mondometer.name=Mondometer

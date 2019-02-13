@@ -3,6 +3,7 @@ package com.github.commoble.exmachina.common.block;
 import java.util.EnumSet;
 import java.util.Set;
 
+import com.github.commoble.exmachina.common.electrical.ElectricalValues;
 import com.github.commoble.exmachina.common.item.ItemRegistrar;
 import com.github.commoble.exmachina.common.tileentity.TileEntityBattery;
 import com.github.commoble.exmachina.common.tileentity.TileEntityLightbulb;
@@ -47,6 +48,17 @@ public class BlockLightbulb extends Block implements IElectricalBlock
 	{
 		// TODO Auto-generated method stub
 		return this.CONNECTABLE_FACES;
+	}
+
+	@Override
+	public ElectricalValues getElectricalValues(World world, IBlockState blockState, BlockPos pos)
+	{
+		TileEntity te = world.getTileEntity(pos);
+		if (te instanceof TileEntityLightbulb)
+		{
+			return ((TileEntityLightbulb)te).getElectricalValues();
+		}
+		return null;
 	}
 
 }

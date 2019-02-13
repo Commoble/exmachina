@@ -30,4 +30,10 @@ public class VoltageSourceElement extends CircuitElement
 	{
 		return this.nodeB;
 	}
+
+	@Override
+	public double getCurrent()
+	{
+		return this.power * this.nominalVoltage;
+	}
 }

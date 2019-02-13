@@ -4,7 +4,7 @@
     {
         "textures":
         {
-            "all": "sandbox:blocks/incandescent_bulb"
+            "all": "exmachina:blocks/incandescent_bulb"
         },
         "model": "cube_all",
         "uvlock": true

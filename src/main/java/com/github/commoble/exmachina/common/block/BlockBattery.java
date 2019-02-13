@@ -3,6 +3,7 @@ package com.github.commoble.exmachina.common.block;
 import java.util.EnumSet;
 import java.util.Set;
 
+import com.github.commoble.exmachina.common.electrical.ElectricalValues;
 import com.github.commoble.exmachina.common.item.ItemRegistrar;
 import com.github.commoble.exmachina.common.tileentity.TileEntityBattery;
 
@@ -79,5 +80,16 @@ public class BlockBattery extends BlockWithFacing implements IElectricalBlock, I
 	public EnumFacing getNegativeFace(World world, BlockPos pos)
 	{
 		return this.getFacingOfBlockState(world.getBlockState(pos)).getOpposite();
+	}
+
+	@Override
+	public ElectricalValues getElectricalValues(World world, IBlockState blockState, BlockPos pos)
+	{
+		TileEntity te = world.getTileEntity(pos);
+		if (te instanceof TileEntityBattery)
+		{
+			return ((TileEntityBattery)te).getElectricalValues();
+		}
+		return null;
 	}
 }

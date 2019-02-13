@@ -275,6 +275,7 @@ public class Circuit
 			double vB = (nodeIDB == -1 ? 0D : vectorX.getEntry(nodeIDB));
 			double voltageDiff = Math.abs(vA - vB);
 			double power = voltageDiff * voltageDiff / resistor.getNominalResistance();	// P = V^2 / R
+			resistor.power = power;
 			System.out.println("Resistor R" + resistor.identifier + " between nodes N" + (nodeIDA + 1) + " and N" + (nodeIDB + 1) + " has power of " + EngineeringNotation.toSIUnit(power, "W"));
 		}
 		for (VoltageSourceElement source : vSourceArray)
@@ -282,6 +283,7 @@ public class Circuit
 			int nodeIDA = source.nodeA.identifier;
 			int nodeIDB = source.nodeB.identifier;
 			double power = source.getNominalVoltage() * vectorX.getEntry(nonGroundNodeCount + source.identifier);	// P = V * I
+			source.power = power;
 			System.out.println("Source V" + source.identifier + " between nodes N" + (nodeIDA + 1) + " and N" + (nodeIDB + 1) + " has power of " + EngineeringNotation.toSIUnit(power, "W"));
 		}
 	}

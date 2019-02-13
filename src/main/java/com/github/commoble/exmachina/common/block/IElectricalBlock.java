@@ -2,6 +2,8 @@ package com.github.commoble.exmachina.common.block;
 
 import java.util.Set;
 
+import com.github.commoble.exmachina.common.electrical.ElectricalValues;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -14,4 +16,5 @@ public interface IElectricalBlock
 	 * block(state) is allowed to connect to
 	 */
 	public Set<EnumFacing> getConnectingFaces(World world, IBlockState blockState, BlockPos pos);
+	public ElectricalValues getElectricalValues(World world, IBlockState blockState, BlockPos pos);
 }

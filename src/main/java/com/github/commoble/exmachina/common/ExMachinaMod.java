@@ -12,15 +12,15 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 @Mod(modid = ExMachinaMod.MODID, version = ExMachinaMod.VERSION, name=ExMachinaMod.NAME)
 public class ExMachinaMod
 {
-	@Instance("sandbox")	// the static instance of the mod class
+	@Instance("exmachina")	// the static instance of the mod class
 	public static ExMachinaMod instance = new ExMachinaMod();
 	
     public static final String MODID = "exmachina";
     public static final String VERSION = "1.0.0.0";
     public static final String NAME="Ex-Machina";
     
-    @SidedProxy(clientSide="com.github.commoble.ex-machina.client.CombinedClientProxy",
-    		serverSide = "com.github.commoble.ex-machina.server.DedicatedServerProxy")
+    @SidedProxy(clientSide="com.github.commoble.exmachina.client.CombinedClientProxy",
+    		serverSide = "com.github.commoble.exmachina.server.DedicatedServerProxy")
     public static CommonProxy proxy;
     
     /**
