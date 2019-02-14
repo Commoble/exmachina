@@ -34,6 +34,6 @@ public class VoltageSourceElement extends CircuitElement
 	@Override
 	public double getCurrent()
 	{
-		return this.power * this.nominalVoltage;
+		return this.power / this.nominalVoltage;
 	}
 }

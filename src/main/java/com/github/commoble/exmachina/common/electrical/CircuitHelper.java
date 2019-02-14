@@ -170,9 +170,10 @@ public class CircuitHelper
 				}
 			}
 			// get all adjacent connected blocks
-			for (EnumFacing face : CircuitHelper.getBiConnectedElectricalBlocks(world, closest.pos))
+			EnumSet<EnumFacing> checkFaces = CircuitHelper.getBiConnectedElectricalBlocks(world, closest.pos);
+			for (EnumFacing face : checkFaces)
 			{
-				BlockPos nextPos = closest.pos;
+				BlockPos nextPos = closest.pos.offset(face);
 				if (!dists.containsKey(nextPos) || dists.get(nextPos) > closest.dist + 1)	// TODO replace with wire resist
 				{
 					dists.put(nextPos, closest.dist+1);

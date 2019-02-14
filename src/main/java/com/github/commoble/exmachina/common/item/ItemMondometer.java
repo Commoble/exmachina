@@ -12,6 +12,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 
 public class ItemMondometer extends Item
@@ -34,10 +35,12 @@ public class ItemMondometer extends Item
         	if (world.getBlockState(pos).getBlock() instanceof IElectricalBlock)
         	{
         		ElectricalValues ev = ((IElectricalBlock)block).getElectricalValues(world, state, pos);
-        		System.out.println(EngineeringNotation.toSIUnit(ev.voltage, "V"));
-        		System.out.println(EngineeringNotation.toSIUnit(ev.current, "A"));
-        		System.out.println(EngineeringNotation.toSIUnit(ev.resistance, "Ω"));
-        		System.out.println(EngineeringNotation.toSIUnit(ev.power, "W"));
+
+                player.sendStatusMessage(new TextComponentTranslation(
+                		EngineeringNotation.toSIUnit(ev.voltage, "V") + "    " +
+                		EngineeringNotation.toSIUnit(ev.current, "A") + "    " +
+                		EngineeringNotation.toSIUnit(ev.resistance, "Ω") + "    " +
+                		EngineeringNotation.toSIUnit(ev.power, "W"), new Object[0]), false);
         		
         		return EnumActionResult.SUCCESS;
         	}

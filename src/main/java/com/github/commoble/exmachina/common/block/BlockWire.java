@@ -51,11 +51,11 @@ public class BlockWire extends Block implements IElectricalBlock
 		CircuitElement element = CircuitHelper.getNearestCircuitElement(world, pos);
 		if (element == null)
 		{
-			return ElectricalValues.NULL_VALUES;
+			return new ElectricalValues(0D, 0D, BlockWire.WIRE_RESISTANCE, 0D);
 		}
 		else
 		{
-			double current = element.getCurrent();
+			double current = Math.abs(element.getCurrent());
 			double resistance = BlockWire.WIRE_RESISTANCE;
 			double voltage = current*resistance;
 			double power = voltage*current;

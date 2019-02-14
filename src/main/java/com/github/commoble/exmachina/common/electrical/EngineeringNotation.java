@@ -21,31 +21,43 @@ public class EngineeringNotation
 	public static String toSIUnit(double value, String baseUnits, int significantDigits)
 	{
 		int magnitude = 0;
-		while (Math.abs(value) < 1D && magnitude > -8)
+		String sign = value < 0 ? "-" : "";
+		value = Math.abs(value);
+		while (value < 1D && magnitude > -9)
 		{
 			magnitude--;
 			value *= 1000;
 		}
-		while (Math.abs(value) >= 1000D && magnitude < 8)
+		while (value >= 1000D && magnitude < 9)
 		{
 			magnitude++;
 			value *= 0.001;
 		}
-		String scalePrefix = getScalePrefix(magnitude);
-		String formatString = "%." + significantDigits + "g ";
-		return String.format(formatString, value) + scalePrefix + baseUnits;
+		if (magnitude >= 9)
+		{
+			return sign + "∞" + baseUnits;
+		}
+		else
+		{
+			if (magnitude <= -9) value = 0D;	// if magnitude is really small return e.g. "0V"
+			String scalePrefix = getScalePrefix(magnitude);
+			String formatString = "%." + significantDigits + "g ";
+			return sign + String.format(formatString, value) + scalePrefix + baseUnits;
+		}
 	}
 	
 	/** as above but with 3 significant digits as the default **/
 	public static String toSIUnit(double value, String baseUnits)
 	{
-		return toSIUnit(value, baseUnits, 3);
+		return toSIUnit(value, baseUnits, 4);
 	}
 	
 	public static String getScalePrefix(int magnitude)
 	{
 		switch(magnitude)
 		{
+			case 9:
+				return "";
 			case 8:
 				return "Y";
 			case 7:
@@ -67,7 +79,7 @@ public class EngineeringNotation
 			case -1:
 				return "m";
 			case -2:
-				return "�";
+				return "µ";
 			case -3:
 				return "n";
 			case -4:
@@ -80,15 +92,10 @@ public class EngineeringNotation
 				return "z";
 			case -8:
 				return "y";
+			case -9:
+				return "";
 			default:
-				if (magnitude > 0)
-				{
-					return "super";
-				}
-				else
-				{
-					return "mini";
-				}
+				return "";
 		}
 	}
 }
