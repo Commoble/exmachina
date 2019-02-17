@@ -97,7 +97,7 @@ public class CircuitHelper
 		Node groundNode = Node.buildNodeFrom(world, sourcePos, endPos);
 		if (groundNode == null)
 		{
-			world.setBlockToAir(sourcePos);
+			world.removeBlock(sourcePos);
 			world.createExplosion(null, sourcePos.getX(), sourcePos.getY(), sourcePos.getZ(), 1F, false);
 			System.out.println("Ground node returned null, exploding");
 			return null;
@@ -106,7 +106,7 @@ public class CircuitHelper
 		if (circuit == null)
 		{
 			System.out.println("Circuit returned null, exploding");
-			world.setBlockToAir(sourcePos);
+			world.removeBlock(sourcePos);
 			world.createExplosion(null, sourcePos.getX(), sourcePos.getY(), sourcePos.getZ(), 1F, false);
 			return null;
 		}

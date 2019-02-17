@@ -8,7 +8,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.gen.feature.WorldGenMinable;
 import net.minecraftforge.fml.common.IWorldGenerator;
 
 public class WorldGenManager implements IWorldGenerator
@@ -22,7 +21,7 @@ public class WorldGenManager implements IWorldGenerator
 	{
 		// check which plane we're generating in;
 		// -1 = nether, 0 = overworld, 1 = END, other ID = some mod
-		switch(world.provider.getDimension())
+		/*switch(world.provider.getDimension())
 		{
 			case -1:
 				this.generateNether(world, random, chunkX*16, chunkZ*16);
@@ -30,7 +29,7 @@ public class WorldGenManager implements IWorldGenerator
 				this.generateSurface(world, random, chunkX*16, chunkZ*16);
 			case 1:
 				this.generateEnd(world, random, chunkX*16, chunkZ*16);
-		}
+		}*/
 	}
 	
 	/**
@@ -69,7 +68,7 @@ public class WorldGenManager implements IWorldGenerator
 		assert zMax > 0 && zMax <= 16 : "addOreSingle: The Maximum Z must be greater than 0 and no more than 16";
 		assert yMax < 256 && yMax > 0 : "addOreSingle: The Maximum Y must be less than 256 but greater than 0";
 		
-		WorldGenSingleMinable gen = new WorldGenSingleMinable(block);
+	/*	WorldGenSingleMinable gen = new WorldGenSingleMinable(block);
 		for (int i=0; i<chancesToSpawn; i++)
 		{
 			int posX = x + random.nextInt(xMax);
@@ -77,7 +76,7 @@ public class WorldGenManager implements IWorldGenerator
 			int posY = yMin + random.nextInt(yMax - yMin);
 			BlockPos pos = new BlockPos(posX, posY, posZ);
 			gen.generate(world, random, pos);
-		}
+		}*/
 	}
 	
 	private void addOreVein(IBlockState block, World world, Random random, int x, int z, int xMax, int zMax, int maxVeinSize, int chancesToSpawn, int yMin, int yMax)
@@ -88,7 +87,7 @@ public class WorldGenManager implements IWorldGenerator
 		assert zMax > 0 && zMax <= 16 : "addOreVein: The Maximum Z must be greater than 0 and no more than 16";
 		assert yMax < 256 && yMax > 0 : "addOreVein: The Maximum Y must be less than 256 but greater than 0";
 		
-		WorldGenMinable gen = new WorldGenMinable(block, maxVeinSize);
+		/*WorldGenMinable gen = new WorldGenMinable(block, maxVeinSize);
 		
 		for (int i=0; i<chancesToSpawn; i++)
 		{
@@ -96,7 +95,7 @@ public class WorldGenManager implements IWorldGenerator
 			int posZ = z + random.nextInt(zMax);
 			int posY = yMin + random.nextInt(yMax - yMin);
 			gen.generate(world, random, new BlockPos(posX, posY, posZ));
-		}
+		}*/
 	}
 	
 }

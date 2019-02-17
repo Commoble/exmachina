@@ -4,6 +4,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 
 /**
  * Abstract base template for TileEntities requiring the persistance and synchronization methods
@@ -11,19 +12,26 @@ import net.minecraft.tileentity.TileEntity;
 public abstract class PersistantSynchronousTileEntity extends TileEntity
 {
 	
+	public PersistantSynchronousTileEntity(TileEntityType<?> tileEntityTypeIn)
+	{
+		super(tileEntityTypeIn);
+		// TODO Auto-generated constructor stub
+	}
+
+
 	@Override
-	public void readFromNBT(NBTTagCompound compound)
+	public void read(NBTTagCompound compound)
 	{
 		this.readDataFromNBTIntoTE(compound);
-		super.readFromNBT(compound);
+		super.read(compound);
 	}
 	
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound)
+	public NBTTagCompound write(NBTTagCompound compound)
 	{
 		this.writeDataFromTEIntoNBT(compound);
-		return super.writeToNBT(compound);
+		return super.write(compound);
 	}
 
 	protected abstract void readDataFromNBTIntoTE(NBTTagCompound compound);
@@ -36,7 +44,7 @@ public abstract class PersistantSynchronousTileEntity extends TileEntity
 	@Override
 	public NBTTagCompound getUpdateTag()
 	{
-		return writeToNBT(new NBTTagCompound());
+		return write(new NBTTagCompound());
 	}
 	
 	/**
@@ -48,13 +56,13 @@ public abstract class PersistantSynchronousTileEntity extends TileEntity
 	public SPacketUpdateTileEntity getUpdatePacket()
 	{
 		NBTTagCompound nbt = new NBTTagCompound();
-		this.writeToNBT(nbt);
+		this.write(nbt);
 		return new SPacketUpdateTileEntity(getPos(), 1, nbt);
 	}
 	
 	@Override
 	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
 	{
-		this.readFromNBT(packet.getNbtCompound());
+		this.read(packet.getNbtCompound());
 	}
 }

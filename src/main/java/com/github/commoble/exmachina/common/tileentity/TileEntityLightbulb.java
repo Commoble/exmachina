@@ -6,10 +6,22 @@ import com.github.commoble.exmachina.common.electrical.Node;
 import com.github.commoble.exmachina.common.electrical.ResistorElement;
 
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 
 public class TileEntityLightbulb extends TileEntity implements ICircuitElementHolderTE
 {
 	public ResistorElement element;
+	
+	public TileEntityLightbulb(TileEntityType<?> tileEntityTypeIn)
+	{
+		super(tileEntityTypeIn);
+		// TODO Auto-generated constructor stub
+	}
+	
+	public TileEntityLightbulb()
+	{
+		super(TileEntityRegistrar.teLightbulbType);
+	}
 
 	@Override
 	public CircuitElement createCircuitElement(Node nodeA, Node nodeB)

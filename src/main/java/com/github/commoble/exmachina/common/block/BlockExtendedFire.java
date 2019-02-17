@@ -6,6 +6,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockFire;
 import net.minecraft.block.BlockTNT;
 import net.minecraft.block.SoundType;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.material.MaterialColor;
+import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
@@ -23,128 +26,108 @@ public class BlockExtendedFire extends BlockFire
 	
 	public BlockExtendedFire()
 	{
-		super();
-		this.setHardness(0.0F);
-		this.setLightLevel(1.0F);
-		this.setSoundType(SoundType.CLOTH);
-		this.disableStats();
+		super(Block.Properties.create(Material.FIRE, MaterialColor.TNT).doesNotBlockMovement().needsRandomTick().hardnessAndResistance(0.0F).lightValue(15).sound(SoundType.CLOTH));
 	}
 	
-	@Override
+	// TODO fix ATs
+	
+	/*@Override
 	// too lazy to access transform, copied from BlockFire
-	public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
-    {
-		if (worldIn.getGameRules().getBoolean("doFireTick"))
-        {
-            if (!worldIn.isAreaLoaded(pos, 2)) return; // Forge: prevent loading unloaded chunks when spreading fire
-            if (!this.canPlaceBlockAt(worldIn, pos))
-            {
-                worldIn.setBlockToAir(pos);
-            }
+	public void tick(IBlockState state, World worldIn, BlockPos pos, Random random)
+	{
+	      if (worldIn.getGameRules().getBoolean("doFireTick"))
+	      {
+	         if (!worldIn.isAreaLoaded(pos, 2)) return; // Forge: prevent loading unloaded chunks when spreading fire
+	         if (!state.isValidPosition(worldIn, pos)) {
+	            worldIn.removeBlock(pos);
+	         }
 
-            Block block = worldIn.getBlockState(pos.down()).getBlock();
-            boolean flag = block.isFireSource(worldIn, pos.down(), EnumFacing.UP);
+	         IBlockState other = worldIn.getBlockState(pos.down());
+	         boolean flag = other.isFireSource(worldIn, pos.down(), EnumFacing.UP);
+	         int i = state.get(AGE);
+	         if (!flag && worldIn.isRaining() && this.canDie(worldIn, pos) && random.nextFloat() < 0.2F + (float)i * 0.03F) {
+	            worldIn.removeBlock(pos);
+	         }
+	         else
+	         {
+	            int j = Math.min(15, i + random.nextInt(3) / 2);
+	            if (i != j)
+	            {
+	               state = state.with(AGE, Integer.valueOf(j));
+	               worldIn.setBlockState(pos, state, 4);
+	            }
 
-            int i = ((Integer)state.getValue(AGE)).intValue();
+	            if (!flag)
+	            {
+	               worldIn.getPendingBlockTicks().scheduleTick(pos, this, this.tickRate(worldIn) + random.nextInt(10));
+	               if (!this.func_196447_a(worldIn, pos))
+	               {
+	                  if (worldIn.getBlockState(pos.down()).getBlockFaceShape(worldIn, pos.down(), EnumFacing.UP) != BlockFaceShape.SOLID || i > 3)
+	                  {
+	                     worldIn.removeBlock(pos);
+	                  }
 
-            if (!flag && worldIn.isRaining() && this.canDie(worldIn, pos) && rand.nextFloat() < 0.2F + (float)i * 0.03F)
-            {
-                worldIn.setBlockToAir(pos);
-            }
-            else
-            {
-                if (i < 15)
-                {
-                    state = state.withProperty(AGE, Integer.valueOf(i + rand.nextInt(3) / 2));
-                    worldIn.setBlockState(pos, state, 4);
-                }
+	                  return;
+	               }
 
-                worldIn.scheduleUpdate(pos, this, this.tickRate(worldIn) + rand.nextInt(10));
+	               if (i == 15 && random.nextInt(4) == 0 && !this.canCatchFire(worldIn, pos.down(), EnumFacing.UP))
+	               {
+	                  worldIn.removeBlock(pos);
+	                  return;
+	               }
+	            }
 
-                if (!flag)
-                {
-                    if (!this.canNeighborCatchFire(worldIn, pos))
-                    {
-                        if (!worldIn.getBlockState(pos.down()).isSideSolid(worldIn, pos.down(), EnumFacing.UP) || i > 3)
-                        {
-                            worldIn.setBlockToAir(pos);
-                        }
+	            boolean flag1 = worldIn.isBlockinHighHumidity(pos);
+	            int k = flag1 ? -50 : 0;
+	            this.tryBurn(worldIn, pos.east(), 300 + k, random, i, EnumFacing.WEST);
+	            this.tryBurn(worldIn, pos.west(), 300 + k, random, i, EnumFacing.EAST);
+	            this.tryBurn(worldIn, pos.down(), 250 + k, random, i, EnumFacing.UP);
+	            this.tryBurn(worldIn, pos.up(), 250 + k, random, i, EnumFacing.DOWN);
+	            this.tryBurn(worldIn, pos.north(), 300 + k, random, i, EnumFacing.SOUTH);
+	            this.tryBurn(worldIn, pos.south(), 300 + k, random, i, EnumFacing.NORTH);
+	            BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
 
-                        return;
-                    }
+	            for(int l = -1; l <= 1; ++l)
+	            {
+	               for(int i1 = -1; i1 <= 1; ++i1)
+	               {
+	                  for(int j1 = -1; j1 <= 4; ++j1)
+	                  {
+	                     if (l != 0 || j1 != 0 || i1 != 0)
+	                     {
+	                        int k1 = 100;
+	                        if (j1 > 1)
+	                        {
+	                           k1 += (j1 - 1) * 100;
+	                        }
 
-                    if (!this.canCatchFire(worldIn, pos.down(), EnumFacing.UP) && i == 15 && rand.nextInt(4) == 0)
-                    {
-                        worldIn.setBlockToAir(pos);
-                        return;
-                    }
-                }
+	                        blockpos$mutableblockpos.setPos(pos).move(l, j1, i1);
+	                        int l1 = this.getNeighborEncouragement(worldIn, blockpos$mutableblockpos);
+	                        if (l1 > 0)
+	                        {
+	                           int i2 = (l1 + 40 + worldIn.getDifficulty().getId() * 7) / (i + 30);
+	                           if (flag1)
+	                           {
+	                              i2 /= 2;
+	                           }
 
-                boolean flag1 = worldIn.isBlockinHighHumidity(pos);
-                int j = 0;
+	                           if (i2 > 0 && random.nextInt(k1) <= i2 && (!worldIn.isRaining() || !this.canDie(worldIn, blockpos$mutableblockpos)))
+	                           {
+	                              int j2 = Math.min(15, i + random.nextInt(5) / 4);
+	                              worldIn.setBlockState(blockpos$mutableblockpos, this.getStateForPlacement(worldIn, blockpos$mutableblockpos).with(AGE, Integer.valueOf(j2)), 3);
+	                           }
+	                        }
+	                     }
+	                  }
+	               }
+	            }
 
-                if (flag1)
-                {
-                    j = -50;
-                }
-
-                this.tryBurn(worldIn, pos.east(), 300 + j, rand, i, EnumFacing.WEST);
-                this.tryBurn(worldIn, pos.west(), 300 + j, rand, i, EnumFacing.EAST);
-                this.tryBurn(worldIn, pos.down(), 250 + j, rand, i, EnumFacing.UP);
-                this.tryBurn(worldIn, pos.up(), 250 + j, rand, i, EnumFacing.DOWN);
-                this.tryBurn(worldIn, pos.north(), 300 + j, rand, i, EnumFacing.SOUTH);
-                this.tryBurn(worldIn, pos.south(), 300 + j, rand, i, EnumFacing.NORTH);
-
-                for (int k = -1; k <= 1; ++k)
-                {
-                    for (int l = -1; l <= 1; ++l)
-                    {
-                        for (int i1 = -1; i1 <= 4; ++i1)
-                        {
-                            if (k != 0 || i1 != 0 || l != 0)
-                            {
-                                int j1 = 100;
-
-                                if (i1 > 1)
-                                {
-                                    j1 += (i1 - 1) * 100;
-                                }
-
-                                BlockPos blockpos = pos.add(k, i1, l);
-                                int k1 = this.getNeighborEncouragement(worldIn, blockpos);
-
-                                if (k1 > 0)
-                                {
-                                    int l1 = (k1 + 40 + worldIn.getDifficulty().getId() * 7) / (i + 30);
-
-                                    if (flag1)
-                                    {
-                                        l1 /= 2;
-                                    }
-
-                                    if (l1 > 0 && rand.nextInt(j1) <= l1 && (!worldIn.isRaining() || !this.canDie(worldIn, blockpos)))
-                                    {
-                                        int i2 = i + rand.nextInt(5) / 4;
-
-                                        if (i2 > 15)
-                                        {
-                                            i2 = 15;
-                                        }
-
-                                        worldIn.setBlockState(blockpos, state.withProperty(AGE, Integer.valueOf(i2)), 3);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-		}
-        
-    }
+	         }
+	      }
+	   }
 	
 	// mostly copied from private void tryCatchFire in BlockFire, with edit to burn to ash instead of removing block
-	public void tryBurn(World worldIn, BlockPos pos, int chance, Random random, int age, EnumFacing face)
+	private void tryBurn(World worldIn, BlockPos pos, int chance, Random random, int age, EnumFacing face)
     {
         int i = worldIn.getBlockState(pos).getBlock().getFlammability(worldIn, pos, face);
         IBlockState iblockstate = worldIn.getBlockState(pos);
@@ -186,5 +169,5 @@ public class BlockExtendedFire extends BlockFire
                 Blocks.TNT.onPlayerDestroy(worldIn, pos, iblockstate.withProperty(BlockTNT.EXPLODE, Boolean.valueOf(true)));
             }
         }
-    }
+    }*/
 }

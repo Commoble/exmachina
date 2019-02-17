@@ -1,16 +1,25 @@
 package com.github.commoble.exmachina.common.tileentity;
 
 import com.github.commoble.exmachina.common.ExMachinaMod;
+import com.github.commoble.exmachina.common.block.BlockNames;
+import com.github.commoble.exmachina.common.block.BlockRegistrar;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.registries.ObjectHolder;
 
 public class TileEntityRegistrar
 {
-	public static void registerTileEntities()
+	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.BATTERY_NAME)
+	public static TileEntityType<TileEntityBattery> teBatteryType;
+	
+
+	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.LIGHTBULB_NAME)
+	public static TileEntityType<TileEntityBattery> teLightbulbType;
+	
+	public static void registerTileEntities(RegistryEvent.Register<TileEntityType<?>> event)
 	{
-		GameRegistry.registerTileEntity(TileEntityBattery.class, new ResourceLocation(ExMachinaMod.MODID, "te_battery"));
-		GameRegistry.registerTileEntity(TileEntityLightbulb.class, new ResourceLocation(ExMachinaMod.MODID, "te_lightbulb"));
-		
+		TileEntityType.register(BlockRegistrar.battery.getRegistryName().toString(), TileEntityType.Builder.create(TileEntityBattery::new));
+		TileEntityType.register(BlockRegistrar.lightbulb.getRegistryName().toString(), TileEntityType.Builder.create(TileEntityLightbulb::new));
 	}
 }

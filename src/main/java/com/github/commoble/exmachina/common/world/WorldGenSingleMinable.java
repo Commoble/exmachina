@@ -8,11 +8,10 @@ import net.minecraft.block.state.pattern.BlockMatcher;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.gen.feature.WorldGenerator;
 
-public class WorldGenSingleMinable extends WorldGenerator
+public class WorldGenSingleMinable// extends WorldGenerator
 {
-	private Block block;
+/*	private Block block;
 	private int blockmeta;
 	private Block target;
 	
@@ -43,5 +42,5 @@ public class WorldGenSingleMinable extends WorldGenerator
 			world.setBlockState(pos,  block.getStateFromMeta(this.blockmeta));
 		}
 		return true;
-	}
+	}*/
 }

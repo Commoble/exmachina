@@ -1,14 +1,14 @@
 [
 {
-  "modid": "examplemod",
-  "name": "Example Mod",
-  "description": "Example placeholder mod.",
+  "modid": "exmachina",
+  "name": "Ex Machina",
+  "description": "A mod that adds electrical circuitry.",
   "version": "${version}",
-  "mcversion": "${mcversion}",
+  "mcversion": "$1.13.2",
   "url": "",
   "updateUrl": "",
-  "authorList": ["ExampleDude"],
-  "credits": "The Forge and FML guys, for making this example",
+  "authorList": ["Commoble"],
+  "credits": "I hear the Forge guys and the FML guys and the MCP guys are the cat's bananas",
   "logoFile": "",
   "screenshots": [],
   "dependencies": []

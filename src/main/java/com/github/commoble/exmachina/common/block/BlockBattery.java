@@ -4,11 +4,9 @@ import java.util.EnumSet;
 import java.util.Set;
 
 import com.github.commoble.exmachina.common.electrical.ElectricalValues;
-import com.github.commoble.exmachina.common.item.ItemRegistrar;
 import com.github.commoble.exmachina.common.tileentity.TileEntityBattery;
 
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
@@ -21,15 +19,11 @@ public class BlockBattery extends BlockWithFacing implements IElectricalBlock, I
 {
 	// facing of block = facing of positive side
 	
-	public BlockBattery()
+	public BlockBattery(Block.Properties props)
 	{
-		super(Material.IRON);
-		this.setCreativeTab(ItemRegistrar.tab);
-		this.setSoundType(SoundType.METAL);
-		this.setHardness(2.0F);
-		this.setResistance(5.0F);
-		
-		this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.WEST));
+		super(props);
+
+		this.setDefaultState(this.stateContainer.getBaseState().with(FACING, EnumFacing.WEST));
         
 	}
 	
@@ -37,13 +31,6 @@ public class BlockBattery extends BlockWithFacing implements IElectricalBlock, I
 	public boolean hasTileEntity(IBlockState state)
 	{
 		return true;
-	}
-
-	@Override
-	public TileEntity createTileEntity(World worldIn, IBlockState state)
-	{
-		// TODO Auto-generated method stub
-		return new TileEntityBattery();
 	}
 	
 	@Override

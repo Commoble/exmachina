@@ -11,15 +11,27 @@ import com.github.commoble.exmachina.common.electrical.VoltageSourceElement;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 
 public class TileEntityBattery extends TileEntity implements ITickable, ICircuitElementHolderTE
 {
-	
+
 	protected EnumFacing positiveSide;
 	protected EnumFacing negativeSide;
+	
+	public TileEntityBattery(TileEntityType<?> tileEntityTypeIn)
+	{
+		super(tileEntityTypeIn);
+		// TODO Auto-generated constructor stub
+	}
+	
+	public TileEntityBattery()
+	{
+		super(TileEntityRegistrar.teBatteryType);
+	}
 
 	public boolean circuit_update_check_pending = false;	// only set this on server
 	
@@ -53,7 +65,7 @@ public class TileEntityBattery extends TileEntity implements ITickable, ICircuit
 	}
 
 	@Override
-	public void update()
+	public void tick()
 	{
 		if (this.circuit_update_check_pending)
 		{
