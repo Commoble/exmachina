@@ -12,13 +12,14 @@ import net.minecraft.util.SoundEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 
 /**
  * Event handler for registering Blocks, Enchantments, Items, Potions, SoundEvents, and Biomes
  * @author Joseph
  *
  */
-@Mod.EventBusSubscriber(modid = ExMachinaMod.MODID)
+@Mod.EventBusSubscriber(modid = ExMachinaMod.MODID, bus=Bus.MOD)
 public class RegistryEventHandler
 {
 	@SubscribeEvent

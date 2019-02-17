@@ -37,9 +37,9 @@ public class BlockRegistrar
 		//BlockLedger.blockTransporter = (BlockTransporter)registerBlock(event.getRegistry(), new BlockTransporter(), BlockLedger.TRANSPORTER_REGISTRY_NAME);
 		
 		// override default fire block
-		BlockExtendedFire blockExtendedFire = new BlockExtendedFire();
-		blockExtendedFire.setRegistryName("minecraft:fire");
-		registry.register(blockExtendedFire);
+		//BlockExtendedFire blockExtendedFire = new BlockExtendedFire(Block.Properties.create(Material.FIRE, MaterialColor.TNT).doesNotBlockMovement().needsRandomTick().hardnessAndResistance(0.0F).lightValue(15).sound(SoundType.CLOTH));
+		//blockExtendedFire.setRegistryName("minecraft:fire");
+		//registry.register(blockExtendedFire);
 		
 		registerBlock(registry, new BlockAsh(Block.Properties.create(Material.SAND, MaterialColor.GRAY).needsRandomTick()), BlockNames.ASH_NAME);
 		registerBlock(registry, new BlockBattery(Block.Properties.create(Material.IRON, MaterialColor.BROWN).hardnessAndResistance(2F, 5F)), BlockNames.BATTERY_NAME);
@@ -53,7 +53,7 @@ public class BlockRegistrar
 		
 		// redo flammability init
 		// must delay until this point or it'll affect the vanilla fire block instead
-		BlockExtendedFire.init();
+		//BlockExtendedFire.init();
 	}
 	
 	private static <T extends Block> T registerBlock(IForgeRegistry<Block> registry, T newBlock, String name)

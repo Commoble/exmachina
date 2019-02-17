@@ -24,9 +24,9 @@ public class BlockExtendedFire extends BlockFire
 {
 	public static final float ASH_CHANCE = 1.0F;
 	
-	public BlockExtendedFire()
+	public BlockExtendedFire(Block.Properties props)
 	{
-		super(Block.Properties.create(Material.FIRE, MaterialColor.TNT).doesNotBlockMovement().needsRandomTick().hardnessAndResistance(0.0F).lightValue(15).sound(SoundType.CLOTH));
+		super(props);
 	}
 	
 	// TODO fix ATs
