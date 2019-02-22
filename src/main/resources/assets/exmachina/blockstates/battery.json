@@ -1,29 +1,10 @@
 {
-    "forge_marker": 1,
-    "defaults":
-    {
-        "textures":
-        {
-            "up": "exmachina:blocks/battery_side",
-            "north": "exmachina:blocks/battery_side_flipped",
-            "down": "exmachina:blocks/battery_side",
-            "south": "exmachina:blocks/battery_side",
-            "west":  "exmachina:blocks/battery_plus",
-            "east": "exmachina:blocks/battery_minus",
-            "particle": "exmachina:blocks/battery_side"
-        },
-        "model": "cube",
-        "uvlock": false
-    },
-    "variants":
-    {
-        "normal": [{}],
-        "inventory": [{}],
-        "facing=down":[{"z": 270}],
-        "facing=up":[{"z": 90}],
-        "facing=south": [{"y": 270 }],
-        "facing=west": [{}],
-        "facing=north": [{"y": 90 }],
-        "facing=east": [{"y": 180 }]
+    "variants": {
+        "facing=down":  { "model": "exmachina:block/battery", "z": 270 },
+        "facing=up":    { "model": "exmachina:block/battery", "z": 90},
+        "facing=north": { "model": "exmachina:block/battery", "y": 90},
+        "facing=south": { "model": "exmachina:block/battery", "y": 270 },
+        "facing=west":  { "model": "exmachina:block/battery" },
+        "facing=east":  { "model": "exmachina:block/battery", "y": 180 }
     }
 }

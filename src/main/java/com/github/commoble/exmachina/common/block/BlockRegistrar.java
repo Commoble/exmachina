@@ -46,9 +46,6 @@ public class BlockRegistrar
 		registerBlock(registry, new BlockWire(Block.Properties.create(Material.CIRCUITS, MaterialColor.ORANGE_TERRACOTTA).hardnessAndResistance(0.2F, 0F).sound(SoundType.STONE)), BlockNames.WIRE_NAME);
 		registerBlock(registry, new BlockLightbulb(Block.Properties.create(Material.GLASS, MaterialColor.GOLD).hardnessAndResistance(0.3F, 0F)), BlockNames.LIGHTBULB_NAME);
 		
-		CategoriesOfBlocks.addWireBlock(BlockRegistrar.wire);
-		CategoriesOfBlocks.addActiveComponentBlock(BlockRegistrar.battery);
-		CategoriesOfBlocks.addPassiveComponentBlock(BlockRegistrar.lightbulb);
 		// register recipes
 		
 		// redo flammability init
@@ -62,5 +59,13 @@ public class BlockRegistrar
 		newBlock.setRegistryName(prefixedName);
 		registry.register(newBlock);
 		return newBlock;
+	}
+	
+	//TODO make block categories configurable
+	public static void defineBlockCategories()
+	{
+		CategoriesOfBlocks.addWireBlock(BlockRegistrar.wire);
+		CategoriesOfBlocks.addActiveComponentBlock(BlockRegistrar.battery);
+		CategoriesOfBlocks.addPassiveComponentBlock(BlockRegistrar.lightbulb);
 	}
 }

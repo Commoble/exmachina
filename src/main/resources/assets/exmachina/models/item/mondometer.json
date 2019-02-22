@@ -2,6 +2,6 @@
     "parent": "item/handheld",
     "textures":
     {
-        "layer0": "exmachina:items/mondometer"
+        "layer0": "exmachina:item/mondometer"
     }
 }

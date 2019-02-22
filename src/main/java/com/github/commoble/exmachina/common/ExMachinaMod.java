@@ -1,7 +1,7 @@
 package com.github.commoble.exmachina.common;
 
 import com.github.commoble.exmachina.client.CombinedClientProxy;
-import com.github.commoble.exmachina.common.world.WorldGenManager;
+//import com.github.commoble.exmachina.common.world.WorldGenManager;
 import com.github.commoble.exmachina.server.DedicatedServerProxy;
 
 import net.minecraftforge.fml.DistExecutor;
@@ -21,7 +21,7 @@ public class ExMachinaMod
     public static CommonProxy proxy;*/
     public static final IProxy PROXY = DistExecutor.runForDist( () -> () -> new CombinedClientProxy(), () -> () -> new DedicatedServerProxy() );
 
-	public static WorldGenManager worldGenManager = new WorldGenManager();
+	//public static WorldGenManager worldGenManager = new WorldGenManager();
 
 	public static int modEntityID = 0;
 	

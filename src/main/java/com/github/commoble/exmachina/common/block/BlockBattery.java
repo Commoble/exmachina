@@ -7,15 +7,19 @@ import com.github.commoble.exmachina.common.electrical.ElectricalValues;
 import com.github.commoble.exmachina.common.tileentity.TileEntityBattery;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
-public class BlockBattery extends BlockWithFacing implements IElectricalBlock, ITwoTerminalVoltageSource
+import javax.annotation.Nullable;
+
+public class BlockBattery extends BlockWithFacing implements ITileEntityProvider, IElectricalBlock, ITwoTerminalVoltageSource
 {
 	// facing of block = facing of positive side
 	
@@ -31,6 +35,18 @@ public class BlockBattery extends BlockWithFacing implements IElectricalBlock, I
 	public boolean hasTileEntity(IBlockState state)
 	{
 		return true;
+	}
+
+	@Nullable
+	@Override
+	public TileEntity createNewTileEntity(IBlockReader worldIn)
+	{
+		return createTileEntity(worldIn, getDefaultState());
+	}
+
+	public TileEntity createTileEntity(IBlockReader world, IBlockState state)
+	{
+		return new TileEntityBattery();
 	}
 	
 	@Override

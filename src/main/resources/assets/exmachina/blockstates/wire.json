@@ -1,17 +1,6 @@
 {
-    "forge_marker": 1,
-    "defaults":
-    {
-        "textures":
-        {
-            "all": "exmachina:blocks/wire"
-        },
-        "model": "cube_all",
-        "uvlock": true
-    },
     "variants":
     {
-        "normal": [{}],
-        "inventory": [{}]
+    	"": { "model": "exmachina:block/wire"}
     }
 }

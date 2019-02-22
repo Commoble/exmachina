@@ -4,16 +4,21 @@ import java.util.EnumSet;
 import java.util.Set;
 
 import com.github.commoble.exmachina.common.electrical.ElectricalValues;
+import com.github.commoble.exmachina.common.tileentity.TileEntityBattery;
 import com.github.commoble.exmachina.common.tileentity.TileEntityLightbulb;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
-public class BlockLightbulb extends Block implements IElectricalBlock
+import javax.annotation.Nullable;
+
+public class BlockLightbulb extends Block implements IElectricalBlock, ITileEntityProvider
 {
 	public static final EnumSet<EnumFacing> CONNECTABLE_FACES = EnumSet.allOf(EnumFacing.class);
 
@@ -26,6 +31,19 @@ public class BlockLightbulb extends Block implements IElectricalBlock
 	public boolean hasTileEntity(IBlockState state)
 	{
 		return true;
+	}
+
+	@Nullable
+	@Override
+	public TileEntity createNewTileEntity(IBlockReader worldIn)
+	{
+		System.out.println(BlockRegistrar.wire.toString());
+		return createTileEntity(worldIn, getDefaultState());
+	}
+
+	public TileEntity createTileEntity(IBlockReader world, IBlockState state)
+	{
+		return new TileEntityLightbulb();
 	}
 
 	@Override

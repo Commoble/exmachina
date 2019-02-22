@@ -15,7 +15,7 @@ public class TileEntityRegistrar
 	
 
 	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.LIGHTBULB_NAME)
-	public static TileEntityType<TileEntityBattery> teLightbulbType;
+	public static TileEntityType<TileEntityLightbulb> teLightbulbType;
 	
 	public static void registerTileEntities(RegistryEvent.Register<TileEntityType<?>> event)
 	{

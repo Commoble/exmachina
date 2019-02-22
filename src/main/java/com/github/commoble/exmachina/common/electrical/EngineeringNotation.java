@@ -79,7 +79,7 @@ public class EngineeringNotation
 			case -1:
 				return "m";
 			case -2:
-				return "µ";
+				return "μ";
 			case -3:
 				return "n";
 			case -4:

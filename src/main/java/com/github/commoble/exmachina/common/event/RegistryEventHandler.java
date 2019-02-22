@@ -1,5 +1,6 @@
-package com.github.commoble.exmachina.common;
+package com.github.commoble.exmachina.common.event;
 
+import com.github.commoble.exmachina.common.ExMachinaMod;
 import com.github.commoble.exmachina.common.block.BlockRegistrar;
 import com.github.commoble.exmachina.common.item.ItemRegistrar;
 import com.github.commoble.exmachina.common.sound.SoundLedger;
