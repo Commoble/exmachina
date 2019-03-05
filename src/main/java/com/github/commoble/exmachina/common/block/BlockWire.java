@@ -8,13 +8,9 @@ import javax.annotation.Nonnull;
 import com.github.commoble.exmachina.common.electrical.CircuitElement;
 import com.github.commoble.exmachina.common.electrical.CircuitHelper;
 import com.github.commoble.exmachina.common.electrical.ElectricalValues;
-import com.github.commoble.exmachina.common.tileentity.TileEntityLightbulb;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;

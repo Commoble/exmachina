@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import com.github.commoble.exmachina.common.block.CategoriesOfBlocks;
 import com.github.commoble.exmachina.common.block.IElectricalBlock;
@@ -146,36 +145,6 @@ public class Node
 		{
 			return Node.EMPTY_NODE;
 		}
-		/*Node node = new Node();
-		node.connectedComponents.add(firstComponentPos);
-		Block firstBlockInNode = world.getBlockState(firstWirePos).getBlock();
-		
-		if (!(firstBlockInNode instanceof IElectricalBlock))
-		{
-			//System.out.println("Wire block at " + firstWirePos.toString() + " not marked electrical, returning null node");
-			return Node.createDeadNode(firstComponentPos);
-		}
-		
-		if (CategoriesOfBlocks.wireBlocks.contains(firstBlockInNode))
-		{	// Node contains at least one wire, find the volume of the node and the components that touch it
-			node = recursivelyBuildNodeFrom(world, node, firstWirePos, firstComponentPos);
-			return node;
-		}
-		else if (CategoriesOfBlocks.passiveComponentBlocks.contains(firstBlockInNode))
-		{	// The "Node" contains no physical blocks, it just connects two adjacent components
-			node.connectedComponents.add(firstWirePos);
-			return node;
-		}
-		else if (CategoriesOfBlocks.activeComponentBlocks.contains(firstBlockInNode))
-		{	// The "Node" contains no physical blocks, it just connects two adjacent components
-			node.connectedComponents.add(firstWirePos);
-			return node;
-		}
-		else
-		{
-			System.out.println("Node block at " + firstWirePos.toString() + " not marked as any block category, returning null node");
-			return null;
-		}*/
 	}
 	
 	@Nonnull
@@ -212,36 +181,7 @@ public class Node
 		{
 			node.connectedComponents.add(startPos);
 			return node;
-			/*Set<EnumFacing> facesToCheck = ((IElectricalBlock)checkBlock).getConnectingFaces(world, checkState, checkPos);
-			
-			for(EnumFacing face : facesToCheck)
-			{
-				BlockPos nextCheck = checkPos.offset(face);
-				if (!nextCheck.equals(prevPos)
-						&& world.getBlockState(nextCheck).getBlock() instanceof IElectricalBlock)
-				{
-					node.connectedComponents.add(checkPos);
-
-					return node;
-				}
-			}*/
 		}
-		/*else if (CategoriesOfBlocks.activeComponentBlocks.contains(checkBlock))
-		{
-			Set<EnumFacing> facesToCheck = ((IElectricalBlock)checkBlock).getConnectingFaces(world, checkState, checkPos);
-			
-			for(EnumFacing face : facesToCheck)
-			{
-				BlockPos nextCheck = checkPos.offset(face);
-				if (!nextCheck.equals(prevPos)
-						&& world.getBlockState(nextCheck).getBlock() instanceof IElectricalBlock)
-				{
-					node.connectedComponents.add(checkPos);
-
-					return node;
-				}
-			}
-		}*/
 
 		return node;
 	}

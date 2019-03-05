@@ -3,23 +3,20 @@ package com.github.commoble.exmachina.common.block;
 import java.util.EnumSet;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import com.github.commoble.exmachina.common.electrical.ElectricalValues;
 import com.github.commoble.exmachina.common.tileentity.TileEntityBattery;
-import com.github.commoble.exmachina.common.tileentity.TileEntityLightbulb;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
-
-import javax.annotation.Nullable;
 
 public class BlockBattery extends BlockWithFacing implements ITileEntityProvider, IElectricalBlock, ITwoTerminalComponent
 {
@@ -50,21 +47,6 @@ public class BlockBattery extends BlockWithFacing implements ITileEntityProvider
 	{
 		return new TileEntityBattery();
 	}
-	
-//	@Override
-//	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
-//	{
-//		TileEntity te = world.getTileEntity(pos);
-//		if (te instanceof TileEntityBattery)
-//		{
-//			TileEntityBattery tel = (TileEntityBattery)te;
-//			if (!world.isRemote)
-//			{
-//				((TileEntityBattery)te).invalidateCircuit();
-//			}
-//		}
-//		super.onBlockPlacedBy(world, pos, state, placer, stack);
-//	}
 
 	@Override
 	public Set<EnumFacing> getConnectingFaces(IWorld world, IBlockState blockState, BlockPos pos)

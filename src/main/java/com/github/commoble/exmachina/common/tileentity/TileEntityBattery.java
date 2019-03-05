@@ -10,7 +10,6 @@ import com.github.commoble.exmachina.common.electrical.ElectricalValues;
 import com.github.commoble.exmachina.common.electrical.Node;
 import com.github.commoble.exmachina.common.electrical.VoltageSourceElement;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;

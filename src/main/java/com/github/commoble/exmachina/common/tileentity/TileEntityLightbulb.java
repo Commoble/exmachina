@@ -3,7 +3,6 @@ package com.github.commoble.exmachina.common.tileentity;
 import javax.annotation.Nonnull;
 
 import com.github.commoble.exmachina.common.block.BlockWithFacing;
-import com.github.commoble.exmachina.common.block.IElectricalBlock;
 import com.github.commoble.exmachina.common.electrical.Circuit;
 import com.github.commoble.exmachina.common.electrical.CircuitElement;
 import com.github.commoble.exmachina.common.electrical.CircuitHelper;
@@ -11,7 +10,6 @@ import com.github.commoble.exmachina.common.electrical.ElectricalValues;
 import com.github.commoble.exmachina.common.electrical.Node;
 import com.github.commoble.exmachina.common.electrical.ResistorElement;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;

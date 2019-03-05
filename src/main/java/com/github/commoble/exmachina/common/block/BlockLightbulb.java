@@ -3,15 +3,12 @@ package com.github.commoble.exmachina.common.block;
 import java.util.EnumSet;
 import java.util.Set;
 
-import com.github.commoble.exmachina.common.electrical.CircuitHelper;
 import com.github.commoble.exmachina.common.electrical.ElectricalValues;
 import com.github.commoble.exmachina.common.tileentity.TileEntityLightbulb;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -48,22 +45,6 @@ public class BlockLightbulb extends BlockWithFacing implements IElectricalBlock,
 	{
 		return new TileEntityLightbulb();
 	}
-	
-//	@Override
-//	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
-//	{
-//		TileEntity te = world.getTileEntity(pos);
-//		if (te instanceof TileEntityLightbulb)
-//		{
-//			TileEntityLightbulb tel = (TileEntityLightbulb)te;
-//			if (!world.isRemote)
-//			{
-//				System.out.println("Updating circuit from lightbulb placement");
-//				((TileEntityLightbulb)te).invalidateCircuit();
-//			}
-//		}
-//		super.onBlockPlacedBy(world, pos, state, placer, stack);
-//	}
 
 	@Override
 	public Set<EnumFacing> getConnectingFaces(IWorld world, IBlockState blockState, BlockPos pos)
