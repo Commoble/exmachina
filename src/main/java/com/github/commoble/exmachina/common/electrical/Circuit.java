@@ -4,11 +4,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.github.commoble.exmachina.common.block.CategoriesOfBlocks;
 import com.github.commoble.exmachina.common.block.IElectricalBlock;
-import com.github.commoble.exmachina.common.block.ITwoTerminalVoltageSource;
+import com.github.commoble.exmachina.common.block.ITwoTerminalComponent;
 import com.github.commoble.exmachina.common.tileentity.ICircuitElementHolderTE;
 
 import net.minecraft.block.Block;
@@ -23,14 +24,18 @@ import repackage.org.apache.commons.math3.linear.DecompositionSolver;
 import repackage.org.apache.commons.math3.linear.LUDecomposition;
 import repackage.org.apache.commons.math3.linear.RealMatrix;
 import repackage.org.apache.commons.math3.linear.RealVector;
+import repackage.org.apache.commons.math3.linear.SingularMatrixException;
 
 public class Circuit
 {
 	public HashSet<Node> nodes = new HashSet<Node>();
 	public HashMap<BlockPos, CircuitElement> components = new HashMap<BlockPos, CircuitElement>();
 	
-	/** If this is true, the circuit needs an update and must be rebuilt **/
-	public boolean nullified = false;
+	// use instead of null circuit
+	public static final Circuit INVALID_CIRCUIT = new Circuit().invalidate(null);
+	
+	/** If this is true, the circuit needs an update and must be rebuilt // use isValid to get **/
+	private boolean invalidated = false;
 	
 	public boolean isPositionInAnyKnownNode(BlockPos pos)
 	{
@@ -44,17 +49,76 @@ public class Circuit
 		return false;
 	}
 	
+	/**
+	 * Mark this circuit as invalidated and possibly ask each former component within it to run an update check
+	 * If forceUpdate is false, updates will only be checked if the circuit was not already invalidated
+	 * before calling the method
+	 * If forceUpdate is true, the update checks will be carried out in any case
+	 * 
+	 * When would I want the circuit to do update checks even if it was already invalidated?
+		-In case the invalidated circuit becomes valid (blocks added or replaced)
+		-When neighbor is updated (context is ambiguous)
+
+		When would I not want the circuit to do update checks if it was already invalidated?
+		-when an invalidated circuit will not become valid (blocks removed)
+		-problem: removal of block is handled by onBlockReplaced
+		// could check for air but that's probably not necessary
+		 * don't worry about forcing updates for now, just do it every time
+	 * @return
+	 */
+	@Nonnull
+	public Circuit invalidate(World world)
+	{
+		
+		this.invalidated = true;
+		/*if (world != null)
+		{
+			for (CircuitElement element : this.components.values())
+			{
+				BlockPos pos = element.componentPos;
+				IBlockState state = world.getBlockState(pos);
+				if (state.hasTileEntity())
+				{
+					TileEntity te = world.getTileEntity(pos);
+					if (te instanceof ICircuitElementHolderTE)
+					{
+						((ICircuitElementHolderTE)te).onPossibleCircuitUpdate();
+					}
+				}
+			}
+		}*/
+		return this;
+	}
+	
+	public boolean isValid()
+	{
+		return !this.invalidated;
+	}
+	
 	public void addCircuitComponent(World world, BlockPos pos, Node nodeA, Node nodeB)
 	{
+		// consolidate node instances
+		for (Node node : this.nodes)
+		{
+			if (nodeA.equals(node))
+			{
+				nodeA = node;
+			}
+			if (nodeB.equals(node))
+			{
+				nodeB = node;
+			}
+		}
 		IBlockState state = world.getBlockState(pos);
 		Block block = state.getBlock();
 		TileEntity te = world.getTileEntity(pos);
 		if (te != null && te instanceof ICircuitElementHolderTE)
 		{
+			((ICircuitElementHolderTE)te).setCircuit(this);
 			CircuitElement element;
-			if (block instanceof ITwoTerminalVoltageSource)
+			if (block instanceof ITwoTerminalComponent)
 			{
-				BlockPos positiveEnd = pos.offset(((ITwoTerminalVoltageSource)block).getPositiveFace(world, pos));
+				BlockPos positiveEnd = pos.offset(((ITwoTerminalComponent)block).getPositiveFace(world, pos));
 				if (nodeA.contains(positiveEnd))
 				{
 					element = ((ICircuitElementHolderTE)te).createCircuitElement(nodeA, nodeB);
@@ -80,11 +144,14 @@ public class Circuit
 	/**
 	 * Given a starting ground node, build the rest of the circuit and return that circuit
 	 */
+	@Nonnull
 	public static Circuit buildCircuitFromGround(World world, Node groundNode)
 	{
 		Circuit circuit = new Circuit();
 		
 		circuit = expandCircuitFromNode(world, circuit, groundNode);		
+		
+		circuit.invalidated = false;
 		
 		circuit.doAnalysis(world, groundNode);
 		
@@ -109,7 +176,7 @@ public class Circuit
 		// start by getting nodes, sources, and resistors at least sort of organized
 		int nodeCount = this.nodes.size();
 		int nonGroundNodeCount = nodeCount - 1;
-		Node nonGroundNodes[] = new Node[nodeCount - 1];
+		Node nonGroundNodes[] = nonGroundNodeCount > 0 ? new Node[nonGroundNodeCount] : null;
 		int nodeCounter = 0;
 		for (Node node : this.nodes)
 		{
@@ -118,6 +185,10 @@ public class Circuit
 				nonGroundNodes[nodeCounter] = node;
 				node.identifier = nodeCounter;
 				nodeCounter++;
+			}
+			else
+			{
+				node.identifier = -1;
 			}
 		}
 		HashMap<BlockPos, VoltageSourceElement> vSourceMap = new HashMap<BlockPos, VoltageSourceElement>();
@@ -139,6 +210,17 @@ public class Circuit
 				rCounter++;
 			}
 		}
+		// matrix solver requires at least two nodes OR at least once source, it will crash if one of these requirements is not met
+		if (vCounter == 0) // no sources -- matrix solver may crash, but we don't need to solve because all power will be 0, so just do that
+		{
+			
+			for (ResistorElement resistor : resistorMap.values())
+			{
+				resistor.power = 0;
+			}
+			return;
+		}
+		
 		//int independantSourceCount = vSourceMap.size();
 		//int resistorCount = resistorMap.size();
 		VoltageSourceElement[] vSourceArray = new VoltageSourceElement[vCounter];
@@ -162,8 +244,8 @@ public class Circuit
 		// it can be broken up into four sub-matrices:
 		//	G	B
 		//	C	D
-		// G = n*n and is based on the resistors in the circuit
-		for (int i=0; i<nonGroundNodeCount; i++)
+		// G = n*n and is based on the resistors that touch the non-ground nodes of the circuit
+		for (int i=0; i<nonGroundNodeCount; i++)	// if there are no non-ground nodes, then G, B, and C will be skipped. Only D will be built
 		{
 			for (int j=0; j<nonGroundNodeCount; j++)
 			{
@@ -203,24 +285,21 @@ public class Circuit
 			// Matrix B is N-vertical, M-horizontal matrix (N*M in matrix notation, M*N in array) where
 			// n represents non-ground node
 			// m represents voltage source
-			// [m,n] is 1 if positive end of source touches node, -1 if negative touches node, 0 if source does not touch node
+			// [m,n] is 1 if positive end of source touches node, -1 if negative touches node, 0 if source does not touch node // EDIT: OR SOURCE IS SHORTED
 			// Matrix C is the same, but transposed horizontally/vertically
 			for (int j=0; j<vCounter; j++)
 			{
+				matrixDataA[i][nonGroundNodeCount+j] = 0D;
+				matrixDataA[nonGroundNodeCount+j][i] = 0D;
 				if (nonGroundNodes[i].equals(vSourceArray[j].getPositiveNode()))
 				{
-					matrixDataA[i][nonGroundNodeCount+j] = 1D;
-					matrixDataA[nonGroundNodeCount+j][i] = 1D;
+					matrixDataA[i][nonGroundNodeCount+j] += 1D;
+					matrixDataA[nonGroundNodeCount+j][i] += 1D;
 				}
-				else if (nonGroundNodes[i].equals(vSourceArray[j].getNegativeNode()))
+				if (nonGroundNodes[i].equals(vSourceArray[j].getNegativeNode()))
 				{
-					matrixDataA[i][nonGroundNodeCount+j] = -1D;
-					matrixDataA[nonGroundNodeCount+j][i] = -1D;
-				}
-				else
-				{
-					matrixDataA[i][nonGroundNodeCount+j] = 0D;
-					matrixDataA[nonGroundNodeCount+j][i] = 0D;
+					matrixDataA[i][nonGroundNodeCount+j] -= 1D;
+					matrixDataA[nonGroundNodeCount+j][i] -= 1D;
 				}
 			}
 		}
@@ -257,7 +336,6 @@ public class Circuit
 		System.out.println("Vector Z: " + vectorZ);
 		RealVector vectorX = solver.solve(vectorZ);
 		System.out.println("Solution X: " + vectorX);
-		
 		// To reiterate: The first N values in vectorX are the voltage at each node, where
 		// vectorX[n] is the voltage at the node with identifier n
 		// (ground node has voltage 0 and identifier -1)
@@ -269,6 +347,17 @@ public class Circuit
 		{
 			// determine the difference between voltage of the two adjacent nodes
 			// abs(voltage differential) * resistance = power consumption
+			
+			// TODO this is a hack; sometimes nodes that are equal() to ground nodes pop up and their identifier isn't getting properly set, fix later
+//			if (resistor.nodeA.equals(groundNode))
+//			{
+//				resistor.nodeA = groundNode;
+//			}
+//			if (resistor.nodeB.equals(groundNode))
+//			{
+//				resistor.nodeB = groundNode;
+//			}
+			
 			int nodeIDA = resistor.nodeA.identifier;
 			int nodeIDB = resistor.nodeB.identifier;
 			double vA = (nodeIDA == -1 ? 0D : vectorX.getEntry(nodeIDA));
@@ -280,6 +369,17 @@ public class Circuit
 		}
 		for (VoltageSourceElement source : vSourceArray)
 		{
+			
+			// TODO this is a hack; sometimes nodes that are equal() to ground nodes pop up and their identifier isn't getting properly set, fix later
+			if (source.nodeA.equals(groundNode))
+			{
+				source.nodeA = groundNode;
+			}
+			if (source.nodeB.equals(groundNode))
+			{
+				source.nodeB = groundNode;
+			}
+			
 			int nodeIDA = source.nodeA.identifier;
 			int nodeIDB = source.nodeB.identifier;
 			double power = source.getNominalVoltage() * vectorX.getEntry(nonGroundNodeCount + source.identifier);	// P = V * I
@@ -288,143 +388,253 @@ public class Circuit
 		}
 	}
 	
+	@Nonnull
 	private static Circuit expandCircuitFromNode(World world, Circuit circuit, Node baseNode)
 	{
-		// for each component the node touches,
-		// ASSUMPTION: "components" only have two connecting sides
 		if (circuit.nodes.contains(baseNode))
 		{
 			return circuit;
 		}
-		System.out.println("Adding node to circuit");
 		circuit.nodes.add(baseNode);
 		
-		// the node builder won't add a component if there's no nodes attached to at least two sides of the component
-		
+		// for each component the node touches
+		// reminder: components can only have two electrical connections
 		for (BlockPos componentPos : baseNode.connectedComponents)
 		{
-			Set<EnumFacing> checkFaces;
+			if (circuit.components.containsKey(componentPos))	// we already did this one
+			{
+				continue;
+			}
 			IBlockState componentState = world.getBlockState(componentPos);
 			Block componentBlock = componentState.getBlock();
 			if (componentBlock instanceof IElectricalBlock)
 			{
-				checkFaces = ((IElectricalBlock)componentBlock).getConnectingFaces(world, componentState, componentPos);
-			}
-			else
-			{	
-				System.out.println("Electrical component at " + componentPos.toString() + " not marked as electrical block! This is an error");
-				return null;
-			}
-			
-			BlockPos prevPos = null;	// wire block on old node
-			BlockPos nextPos = null;	// wire block on new node
-
-			// components should have exactly 2 connections
-			// less than 2 -- remove it from node
-			// more than 2 -- invalid component
-			
-			// HACK until lightbulb connections are done correctly
-			for (EnumFacing face : checkFaces)
-			{
-				BlockPos checkPos = componentPos.offset(face);
-				IBlockState checkState = world.getBlockState(checkPos);
-				Block checkBlock = checkState.getBlock();
-				if ((world.getBlockState(checkPos).getBlock() instanceof IElectricalBlock))
+				Set<EnumFacing> checkFaces = ((IElectricalBlock)componentBlock).getConnectingFaces(world, componentState, componentPos);
+				int faceCount = 0; // number of connected faces for short-finding purposes
+				for (EnumFacing face : checkFaces)
 				{
-					if (prevPos == null && baseNode.contains(checkPos))
+					// ASSUMPTION: components only have two connections
+					// one of these will connect to the current node
+					// the other connection is to one of the following things:
+					// 1) a wire that connects back
+					// 2) another component that connects back
+					// 3) a non-electrical block, or an electrical block that does not connect back
+					
+					BlockPos checkPos = componentPos.offset(face);
+					if (baseNode.contains(checkPos))
 					{
-						prevPos = checkPos;
+						faceCount++;
+						// we also need to check if the node is shorted
+						// if both blocks adjacent to the component are part of the same node
+						// then the component is shorted and we must handle it here
+						if (faceCount >= 2 && !circuit.components.containsKey(componentPos))
+						{
+							circuit.addCircuitComponent(world, componentPos, baseNode, baseNode);
+						}
+						continue;
 					}
-					else if (nextPos == null)
+					IBlockState checkState = world.getBlockState(checkPos);
+					Block checkBlock = checkState.getBlock();
+					if (checkBlock instanceof IElectricalBlock && CircuitHelper.doTwoBlocksConnect(world, componentPos, checkPos))
 					{
-						nextPos = checkPos;
+						if (CategoriesOfBlocks.wireBlocks.contains(checkBlock))	// case 1) normal node
+						{
+							Node newNode = Node.buildNodeFrom(world, checkPos);
+							circuit.addCircuitComponent(world, componentPos, baseNode, newNode);
+							circuit = Circuit.expandCircuitFromNode(world, circuit, newNode);
+							break;
+						}
+						else if (CategoriesOfBlocks.isAnyComponentBlock(checkBlock))	// case 2) virtual node
+						{
+							Node newNode = Node.createVirtualNode(componentPos, checkPos);
+							circuit.addCircuitComponent(world, componentPos, baseNode, newNode);
+							circuit = Circuit.expandCircuitFromNode(world, circuit, newNode);
+							break;
+						}
+						else	// shouldn't happen, but just fall back to case 3)
+						{
+							Node newNode = Node.createDeadNode(componentPos);
+							circuit.addCircuitComponent(world, componentPos, baseNode, newNode);
+							circuit = Circuit.expandCircuitFromNode(world, circuit, newNode);
+							break;
+						}
 					}
-					else
-					{
-						System.out.println("Component found at " + componentPos.toString() + " has more than two connections! This is not supported yet");
-						return null;
-					}
-				}
-			}
-			
-			if (prevPos == null || nextPos == null)
-			{	// not enough connections
-				if (prevPos != null)
-				{
-					System.out.println("Adding dead node");
-					Node newNode = Node.createDeadNode(componentPos);
-					circuit.nodes.add(newNode);
-					circuit.addCircuitComponent(world, componentPos, baseNode, newNode);
-					continue;
-				}
-				else if (nextPos != null)
-				{
-					System.out.println("Adding dead node");
-					Node newNode = Node.createDeadNode(nextPos);
-					circuit.nodes.add(newNode);
-					circuit.addCircuitComponent(world, componentPos, baseNode, newNode);
-					continue;
-				}
-				else
-				{
-					System.out.println("Component at position " + componentPos.toString() + " has no nodes attached! How did this even happen");
-				}
-			}
-			// end HACK
-			
-			Block prevBlock = world.getBlockState(prevPos).getBlock();
-			Block nextBlock = world.getBlockState(nextPos).getBlock();
-			
-			// if next node is a virtual node
-			if (CategoriesOfBlocks.isAnyComponentBlock(nextBlock))
-			{
-				// check if the virtual node already exists
-				if (circuit.components.containsKey(nextPos))
-				{
-					CircuitElement nextComponent = circuit.components.get(nextPos);
-					if (nextComponent.nodeA.contains(componentPos))
-					{
-						circuit.addCircuitComponent(world, componentPos, baseNode, nextComponent.nodeA);
-					}
-					else if (nextComponent.nodeB.contains(componentPos))
-					{
-						circuit.addCircuitComponent(world, componentPos, baseNode, nextComponent.nodeB);
-					}
-					else	// add dead node so we don't have to deal with this
+					else	// case 3) dead node
 					{
 						Node newNode = Node.createDeadNode(componentPos);
-						circuit.nodes.add(newNode);
 						circuit.addCircuitComponent(world, componentPos, baseNode, newNode);
+						circuit = Circuit.expandCircuitFromNode(world, circuit, newNode);
+						break;
 					}
-				}
-				else
-				{
-					Node newNode = Node.createVirtualNode(componentPos, nextPos);
-					circuit.addCircuitComponent(world, componentPos, baseNode, newNode);
-					circuit = circuit.expandCircuitFromNode(world, circuit, newNode);
-					continue;
-				}
-			}
-			else	// next node starts with a wire block
-			{
-				if (circuit.isPositionInAnyKnownNode(nextPos)) // if position is already in circuit, ignore
-				{
-					// fix for circuit element finder
-					Node nextNode = circuit.getNodeAtWireLocation(nextPos);
-					circuit.addCircuitComponent(world, componentPos, baseNode, nextNode);
-					continue;
-				}
-				else // new node
-				{
-					Node newNode = Node.buildNodeFrom(world, componentPos, nextPos);
-					circuit.addCircuitComponent(world, componentPos, baseNode, newNode);
-					circuit = circuit.expandCircuitFromNode(world, circuit, newNode);
 				}
 			}
 		}
-		
 		return circuit;
 	}
+	
+//	@Nonnull
+//	private static Circuit expandCircuitFromNode(World world, Circuit circuit, Node baseNode)
+//	{
+//		// for each component the node touches,
+//		// ASSUMPTION: "components" only have two connecting sides
+//		if (circuit.nodes.contains(baseNode))
+//		{
+//			return circuit;
+//		}
+//		System.out.println("Adding node to circuit");
+//		circuit.nodes.add(baseNode);
+//		
+//		// the node builder won't add a component if there's no nodes attached to at least two sides of the component
+//		
+//		for (BlockPos componentPos : baseNode.connectedComponents)
+//		{
+//			Set<EnumFacing> checkFaces;
+//			IBlockState componentState = world.getBlockState(componentPos);
+//			
+//			// check if component already has a valid circuit
+//			// if it does, return that node's circuit and use that circuit
+//			/*if (componentState.hasTileEntity())
+//			{
+//				TileEntity te = world.getTileEntity(componentPos);
+//				if (te instanceof ICircuitElementHolderTE)
+//				{
+//					Circuit teCircuit = ((ICircuitElementHolderTE)te).getCircuit();
+//					if (teCircuit.isValid())
+//					{
+//						return teCircuit;
+//					}
+//				}
+//			}*/
+//			
+//
+//			Block componentBlock = componentState.getBlock();
+//			
+//			if (componentBlock instanceof IElectricalBlock)
+//			{
+//				checkFaces = ((IElectricalBlock)componentBlock).getConnectingFaces(world, componentState, componentPos);
+//			}
+//			else
+//			{	
+//				//System.out.println("Electrical component at " + componentPos.toString() + " not marked as electrical block! This is an error");
+//				return INVALID_CIRCUIT;
+//			}
+//			
+//			BlockPos prevPos = null;	// wire block on old node
+//			BlockPos nextPos = null;	// wire block on new node
+//
+//			// components should have exactly 2 connections
+//			// less than 2 -- remove it from node
+//			// more than 2 -- invalid component
+//			
+//			// HACK until lightbulb connections are done correctly
+//			for (EnumFacing face : checkFaces)
+//			{
+//				BlockPos checkPos = componentPos.offset(face);
+//				IBlockState checkState = world.getBlockState(checkPos);
+//				Block checkBlock = checkState.getBlock();
+//				if ((world.getBlockState(checkPos).getBlock() instanceof IElectricalBlock))
+//				{
+//					if (prevPos == null && baseNode.contains(checkPos))
+//					{
+//						prevPos = checkPos;
+//					}
+//					else if (nextPos == null)
+//					{
+//						nextPos = checkPos;
+//					}
+//					else
+//					{
+//						System.out.println("Component found at " + componentPos.toString() + " has more than two connections! This is not supported yet");
+//						return INVALID_CIRCUIT;
+//					}
+//				}
+//			}
+//			
+//			if (prevPos == null || nextPos == null)
+//			{	// not enough connections
+//				if (prevPos != null)
+//				{
+//					System.out.println("Adding dead node");
+//					Node newNode = Node.createDeadNode(componentPos);
+//					circuit.nodes.add(newNode);
+//					circuit.addCircuitComponent(world, componentPos, baseNode, newNode);
+//					continue;
+//				}
+//				else if (nextPos != null)
+//				{
+//					System.out.println("Adding dead node");
+//					Node newNode = Node.createDeadNode(nextPos);
+//					circuit.nodes.add(newNode);
+//					circuit.addCircuitComponent(world, componentPos, baseNode, newNode);
+//					continue;
+//				}
+//				else
+//				{
+//					// component has no connections
+//					Node newNode1 = Node.createDeadNode(componentPos);
+//					Node newNode2 = Node.createDeadNode(componentPos);
+//					circuit.nodes.add(newNode1);
+//					circuit.nodes.add(newNode2);
+//					circuit.addCircuitComponent(world,  componentPos, newNode1, newNode2);
+//					continue;
+//					//System.out.println("Component at position " + componentPos.toString() + " has no nodes attached! How did this even happen");
+//				}
+//			}
+//			// end HACK
+//			
+//			Block prevBlock = world.getBlockState(prevPos).getBlock();
+//			Block nextBlock = world.getBlockState(nextPos).getBlock();
+//			
+//			// if next node is a virtual node
+//			if (CategoriesOfBlocks.isAnyComponentBlock(nextBlock))
+//			{
+//				// check if the virtual node already exists
+//				if (circuit.components.containsKey(nextPos))
+//				{
+//					CircuitElement nextComponent = circuit.components.get(nextPos);
+//					if (nextComponent.nodeA.contains(componentPos))
+//					{
+//						circuit.addCircuitComponent(world, componentPos, baseNode, nextComponent.nodeA);
+//					}
+//					else if (nextComponent.nodeB.contains(componentPos))
+//					{
+//						circuit.addCircuitComponent(world, componentPos, baseNode, nextComponent.nodeB);
+//					}
+//					else	// add dead node so we don't have to deal with this
+//					{
+//						Node newNode = Node.createDeadNode(componentPos);
+//						circuit.nodes.add(newNode);
+//						circuit.addCircuitComponent(world, componentPos, baseNode, newNode);
+//					}
+//				}
+//				else
+//				{
+//					Node newNode = Node.createVirtualNode(componentPos, nextPos);
+//					circuit.addCircuitComponent(world, componentPos, baseNode, newNode);
+//					circuit = Circuit.expandCircuitFromNode(world, circuit, newNode);
+//					continue;
+//				}
+//			}
+//			else	// next node starts with a wire block
+//			{
+//				if (circuit.isPositionInAnyKnownNode(nextPos)) // if position is already in circuit, ignore
+//				{
+//					// fix for circuit element finder
+//					Node nextNode = circuit.getNodeAtWireLocation(nextPos);
+//					circuit.addCircuitComponent(world, componentPos, baseNode, nextNode);
+//					continue;
+//				}
+//				else // new node
+//				{
+//					Node newNode = Node.buildNodeFrom(world, componentPos, nextPos);
+//					circuit.addCircuitComponent(world, componentPos, baseNode, newNode);
+//					circuit = Circuit.expandCircuitFromNode(world, circuit, newNode);
+//				}
+//			}
+//		}
+//		
+//		return circuit;
+//	}
 	
 	/**
 	 * Returns a Node in this circuit that contains the specified block position.
@@ -446,7 +656,7 @@ public class Circuit
 	
 	public void printToConsole(World world)
 	{
-		HashMap<BlockPos, String> vComponents = new HashMap<BlockPos, String>();
+		/*HashMap<BlockPos, String> vComponents = new HashMap<BlockPos, String>();
 		HashMap<BlockPos, String> rComponents = new HashMap<BlockPos, String>();
 		
 		int nodeID = 0;
@@ -484,7 +694,7 @@ public class Circuit
 			}
 			componentLine = componentLine + nodes.get(nodeB) + ' ';
 			System.out.println(componentLine);
-		}
+		}*/
 		/*for (Node node : this.nodes)
 		{
 			String nodeLine = "Node " + nodeID + ":";

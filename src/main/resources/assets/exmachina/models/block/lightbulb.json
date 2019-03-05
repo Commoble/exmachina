@@ -1,8 +1,13 @@
 {
-	"parent": "block/cube_all",
-	"textures":
-	{
-		"all": "exmachina:block/incandescent_bulb",
-		"particle": "exmachina:block/incandescent_bulb"
-	}
+    "parent": "block/cube",
+    "textures":
+    {
+            "up": "exmachina:block/lightbulb_top",
+            "north": "exmachina:block/lightbulb_side_connectionless",
+            "down": "exmachina:block/lightbulb_bottom",
+            "south": "exmachina:block/lightbulb_side_connectionless",
+            "west":  "exmachina:block/lightbulb_side_connected",
+            "east": "exmachina:block/lightbulb_side_connected",
+            "particle": "exmachina:block/lightbulb_top"
+    }
 }

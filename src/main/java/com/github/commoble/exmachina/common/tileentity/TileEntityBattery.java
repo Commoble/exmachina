@@ -1,6 +1,8 @@
 package com.github.commoble.exmachina.common.tileentity;
 
-import com.github.commoble.exmachina.common.block.IElectricalBlock;
+import javax.annotation.Nonnull;
+
+import com.github.commoble.exmachina.common.block.BlockWithFacing;
 import com.github.commoble.exmachina.common.electrical.Circuit;
 import com.github.commoble.exmachina.common.electrical.CircuitElement;
 import com.github.commoble.exmachina.common.electrical.CircuitHelper;
@@ -16,11 +18,12 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 
-public class TileEntityBattery extends TileEntity implements ITickable, ICircuitElementHolderTE
+public class TileEntityBattery extends TileEntity implements ICircuitElementHolderTE, ITickable
 {
-
-	protected EnumFacing positiveSide;
-	protected EnumFacing negativeSide;
+	
+	@Nonnull
+	public Circuit circuit = Circuit.INVALID_CIRCUIT;
+	public VoltageSourceElement element = null;
 	
 	public TileEntityBattery(TileEntityType<?> tileEntityTypeIn)
 	{
@@ -33,9 +36,20 @@ public class TileEntityBattery extends TileEntity implements ITickable, ICircuit
 		super(TileEntityRegistrar.teBatteryType);
 	}
 
-	public boolean circuit_update_check_pending = false;	// only set this on server
+	@Override
+	public void tick()
+	{
+		if (!world.isRemote)
+		{
+			this.onPossibleCircuitUpdate();
+		}
+	}
 	
-	public VoltageSourceElement element = null;
+	public EnumFacing getFrontFace()	// positive end
+	{
+		IBlockState state = this.world.getBlockState(this.pos);
+		return state.get(BlockWithFacing.FACING);
+	}
 
 	@Override
 	public CircuitElement createCircuitElement(Node nodeA, Node nodeB)
@@ -51,9 +65,27 @@ public class TileEntityBattery extends TileEntity implements ITickable, ICircuit
 		return this.element;
 	}
 	
+	@Override
+	public void invalidateCircuit()
+	{
+		this.circuit.invalidate(this.world);
+	}
+	
+	@Override
+	public Circuit getCircuit()
+	{
+		return this.circuit;
+	}
+	
+	@Override
+	public void setCircuit(Circuit circuit)
+	{
+		this.circuit = circuit;
+	}
+	
 	public ElectricalValues getElectricalValues()
 	{
-		if (this.element != null)
+		if (this.element != null && this.circuit.isValid())
 		{
 			double voltage = this.element.getNominalVoltage();
 			double power = this.element.power; 
@@ -63,41 +95,24 @@ public class TileEntityBattery extends TileEntity implements ITickable, ICircuit
 		}
 		return ElectricalValues.NULL_VALUES;
 	}
-
+	
 	@Override
-	public void tick()
+	public void onPossibleCircuitUpdate()
 	{
-		if (this.circuit_update_check_pending)
+		if (!this.circuit.isValid())
 		{
-			this.circuit_update_check_pending = false;
-			System.out.println("Update pending");
 			BlockPos selfPos = this.pos;
-			BlockPos nextPos = selfPos.offset(this.positiveSide);
-			BlockPos prevPos = selfPos.offset(this.negativeSide);
-			IBlockState nextState = this.world.getBlockState(nextPos);
-			Block nextBlock = nextState.getBlock();
-			Block prevBlock = this.world.getBlockState(prevPos).getBlock();
-			if (nextBlock instanceof IElectricalBlock && prevBlock instanceof IElectricalBlock)
+			EnumFacing front = this.getFrontFace();
+			BlockPos nextPos = selfPos.offset(front);
+			//if (nextBlock instanceof IElectricalBlock && prevBlock instanceof IElectricalBlock)
 			{
 				// check if this is part of a complete circuit
-				if (CircuitHelper.isCompleteCircuit(this.world, selfPos))
+				//if (CircuitHelper.isCompleteCircuit(this.world, selfPos))
 				{
-					System.out.println("Complete circuit, building circuit");
-					Circuit circuit = CircuitHelper.buildCircuit(this.world, selfPos, nextPos, prevPos);
-				}
-				else
-				{
-					System.out.println("Not complete circuit");
+					this.circuit = CircuitHelper.buildCircuit(this.world, selfPos, nextPos);
 				}
 			}
 		}
 	}
-	
-	public void setFacing(EnumFacing positiveSide)
-	{
-		this.positiveSide = positiveSide;
-		this.negativeSide = positiveSide.getOpposite();
-	}
-
 	
 }

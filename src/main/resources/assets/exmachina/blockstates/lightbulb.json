@@ -1,6 +1,10 @@
 {
-    "variants":
-    {
-    	"": { "model": "exmachina:block/lightbulb"}
+    "variants": {
+        "facing=down":  { "model": "exmachina:block/lightbulb", "x": 270 },
+        "facing=up":    { "model": "exmachina:block/lightbulb", "x": 90},
+        "facing=north": { "model": "exmachina:block/lightbulb", "y": 90},
+        "facing=south": { "model": "exmachina:block/lightbulb", "y": 270 },
+        "facing=west":  { "model": "exmachina:block/lightbulb" },
+        "facing=east":  { "model": "exmachina:block/lightbulb", "y": 180 }
     }
 }

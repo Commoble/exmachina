@@ -1,6 +1,5 @@
 package com.github.commoble.exmachina.common.electrical;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -12,7 +11,6 @@ import net.minecraft.world.World;
 public abstract class CircuitElement
 {
 	public BlockPos componentPos;
-	public IBlockState componentState;
 	public Node nodeA;
 	public Node nodeB;
 		// they may be the same node
@@ -27,7 +25,6 @@ public abstract class CircuitElement
 	public CircuitElement(World world, BlockPos componentPos, Node nodeA, Node nodeB)
 	{
 		this.componentPos = componentPos;
-		this.componentState = world.getBlockState(componentPos);
 		this.nodeA = nodeA;
 		this.nodeB = nodeB;
 	}

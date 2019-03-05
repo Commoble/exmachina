@@ -19,88 +19,125 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
 public class CircuitHelper
 {
-	public static boolean isCompleteCircuit(World world, BlockPos startPos)
-	{
-		// cycle detection in graphs:
-		// for every visited node V, if there is an adjacent U such that U is already visited and U is not parent of V,
-		// then there is a cycle in the graph
-		// additionally, we are only interested if the starting node is part of a cycle
-		// so we are only interested if this U is also the starting node
-		
-		// so check each node in a depth-first search, keeping track of
-		//	-all previously visited nodes
-		//	-the immediately-previously visited node
-		//	-the first node to have been visited
-		// check all adjacent nodes
-		//	-if node is invalid (not electrical) ignore
-		//	-if node has not been visited, visit it
-		//	-otherwise, if previously-visited node is not immediately previously visited node AND is original node,
-			//	then complete circuit has been found; otherwise ignore it
-		// also the first block must be electrical
-
-		HashSet<BlockPos> traversed = new HashSet<BlockPos>();
-		
-		return isCompleteCircuit(world, startPos, startPos, startPos, traversed);
-	}
+//	public static boolean isCompleteCircuit(World world, BlockPos startPos)
+//	{
+//		// cycle detection in graphs:
+//		// for every visited node V, if there is an adjacent U such that U is already visited and U is not parent of V,
+//		// then there is a cycle in the graph
+//		// additionally, we are only interested if the starting node is part of a cycle
+//		// so we are only interested if this U is also the starting node
+//		
+//		// so check each node in a depth-first search, keeping track of
+//		//	-all previously visited nodes
+//		//	-the immediately-previously visited node
+//		//	-the first node to have been visited
+//		// check all adjacent nodes
+//		//	-if node is invalid (not electrical) ignore
+//		//	-if node has not been visited, visit it
+//		//	-otherwise, if previously-visited node is not immediately previously visited node AND is original node,
+//			//	then complete circuit has been found; otherwise ignore it
+//		// also the first block must be electrical
+//
+//		HashSet<BlockPos> traversed = new HashSet<BlockPos>();
+//		
+//		return isCompleteCircuit(world, startPos, startPos, startPos, traversed);
+//	}
 	
-	private static boolean isCompleteCircuit(World world, BlockPos checkPos, BlockPos prevPos, BlockPos firstPos, HashSet<BlockPos> traversed)
-	{
-		// add to traversed even if not electrical so it still won't be checked twice
-		// doing it this way, however, means that firstpos must be electrical for it the implementation to work
-		traversed.add(checkPos);
-		IBlockState checkState = world.getBlockState(checkPos);
-		Block checkBlock = checkState.getBlock();
-		if (checkBlock instanceof IElectricalBlock)
-		{
-			for(EnumFacing face : ((IElectricalBlock)checkBlock).getConnectingFaces(world, checkState, checkPos))
-			{
-				BlockPos nextCheck = checkPos.offset(face);
-
-				if (!traversed.contains(nextCheck))
-				{
-					boolean found = isCompleteCircuit(world, nextCheck, checkPos, firstPos, traversed);
-					if (found) return true; 
-				}
-				else	// has been visited
-				{
-					if (!nextCheck.equals(prevPos) && nextCheck.equals(firstPos))
-					{
-						return true;
-					}
-				}
-			}
-			
-			return false;
-		}
-		else // not electrical block
-		{
-			return false;
-		}
-	}
+//	private static boolean isCompleteCircuit(World world, BlockPos checkPos, BlockPos prevPos, BlockPos firstPos, HashSet<BlockPos> traversed)
+//	{
+//		// add to traversed even if not electrical so it still won't be checked twice
+//		// doing it this way, however, means that firstpos must be electrical for it the implementation to work
+//		traversed.add(checkPos);
+//		IBlockState checkState = world.getBlockState(checkPos);
+//		Block checkBlock = checkState.getBlock();
+//		if (checkBlock instanceof IElectricalBlock)
+//		{
+//			for(EnumFacing face : ((IElectricalBlock)checkBlock).getConnectingFaces(world, checkState, checkPos))
+//			{
+//				BlockPos nextCheck = checkPos.offset(face);
+//
+//				if (!traversed.contains(nextCheck))
+//				{
+//					boolean found = isCompleteCircuit(world, nextCheck, checkPos, firstPos, traversed);
+//					if (found) return true; 
+//				}
+//				else	// has been visited
+//				{
+//					if (!nextCheck.equals(prevPos) && nextCheck.equals(firstPos))
+//					{
+//						return true;
+//					}
+//				}
+//			}
+//			
+//			return false;
+//		}
+//		else // not electrical block
+//		{
+//			return false;
+//		}
+//	}
 
 	/**
-	 * Gathers data to build a Circuit data structure, starting from a voltage source.
+	 * Gathers data to build a Circuit data structure, starting from a component
 	 * Precondition: The three positions given represent electrical blocks and are part of a complete circuit 
 	 * @param world The world
-	 * @param sourcePos The voltage source's position
-	 * @param startPos The positive-side position adjacent to the source
-	 * @param endPos The negative-side position adjacent to the source
+	 * @param sourcePos The component's position
+	 * @param startPos A connected position adjacent to the component
+	 * @param endPos Another connected position adjacent to the component
 	 * @return
 	 */
-	@Nullable
-	public static Circuit buildCircuit(World world, BlockPos sourcePos, BlockPos startPos, BlockPos endPos)
+	@Nonnull
+	public static Circuit buildCircuit(World world, BlockPos sourcePos, BlockPos startPos)
 	{
-		Node groundNode = Node.buildNodeFrom(world, sourcePos, endPos);
+		// we need to find at least one true node
+		// once we do that we can expand the circuit naturally from that node
+		// we only know that sourcePos is a component, we don't know whether startPos
+			// is component, wire, or non-electrical block
+		
+		// Possibility A) startPos is a wire that connects to sourcePos
+		// Possibility B) startPos is a component that connects to sourcePos
+		// possibility C) sourcePos is a dead node
+		
+		// NEED TO CHECK FOR BIDIRECTIONAL CONNECTION
+		
+		Block startBlock = world.getBlockState(startPos).getBlock();
+		Node groundNode;
+		if (CircuitHelper.doTwoBlocksConnect(world, sourcePos, startPos))
+		{
+			if (CategoriesOfBlocks.wireBlocks.contains(startBlock))	// normal node
+			{
+				groundNode = Node.buildNodeFrom(world, startPos);
+			}
+			else if (CategoriesOfBlocks.isAnyComponentBlock(startBlock))	// virtual node
+			{
+				groundNode = Node.createVirtualNode(sourcePos, startPos);
+			}
+			else
+			{
+				// shouldn't happen, create a dead node
+				System.out.println("Block that was marked as electrical but not a wire or component was found at either " + sourcePos.toString() + " or " + startPos.toString());
+
+				groundNode = Node.createDeadNode(sourcePos);
+			}
+		}
+		else	// dead node
+		{
+			groundNode = Node.createDeadNode(sourcePos);
+		}
+		return Circuit.buildCircuitFromGround(world, groundNode);
+		/*Node groundNode = Node.buildNodeFrom(world, sourcePos, endPos);
 		if (groundNode == null)
 		{
 			world.removeBlock(sourcePos);
 			world.createExplosion(null, sourcePos.getX(), sourcePos.getY(), sourcePos.getZ(), 1F, false);
 			System.out.println("Ground node returned null, exploding");
-			return null;
+			return Circuit.INVALID_CIRCUIT;
 		}
 		Circuit circuit = Circuit.buildCircuitFromGround(world, groundNode);
 		if (circuit == null)
@@ -108,11 +145,11 @@ public class CircuitHelper
 			System.out.println("Circuit returned null, exploding");
 			world.removeBlock(sourcePos);
 			world.createExplosion(null, sourcePos.getX(), sourcePos.getY(), sourcePos.getZ(), 1F, false);
-			return null;
+			return Circuit.INVALID_CIRCUIT;
 		}
 		
 		circuit.printToConsole(world);
-		return circuit;
+		return circuit;*/
 	}
 	
 	public static boolean isWireBlock(World world, BlockPos pos)
@@ -123,14 +160,41 @@ public class CircuitHelper
 	/**
 	 * Called when a circuit needs to be marked as needing to be updated after a change to a wire block.
 	 * The wire block does not have access to the circuit, so it must find the nearest ICircuitElementHolderTE,
-	 * and use that to nullify the circuit
+	 * and use that to invalidate the circuit
 	 * @param circuit
 	 * @param pos
 	 */
-	public static void updateCircuit(World world, BlockPos pos)
+	public static void updateCircuit(IWorld world, BlockPos pos)
 	{
-		HashSet<BlockPos> traversed = new HashSet<BlockPos>();
-		traversed.add(pos);
+		// quick note on an edge case (not really an edge case since this will be very common)
+		// suppose a wire is broken in a manner that divides a circuit into two separate circuits
+		// we only need to invalidate one element
+		// since each component in either division will have had the same circuit
+		// but we do need to notify each component that the circuit needs to be rebuilt
+			// (solved: make invalidate ask each component in the circuit to try to rebuild)
+		
+		// reusing this for now
+		// TODO replace with more efficient algorithm
+		// we don't NEED to find the "nearest" connected element
+		// we just need *a* connected element
+		// getNearestCircuitElement examines the entire connected circuit whether it needs to or not
+		// which is more work than necessary for what we need here
+		CircuitElement nearestElement = getNearestCircuitElement(world, pos);
+		if (nearestElement != null)
+		{
+			BlockPos targetPos = nearestElement.componentPos;
+			IBlockState targetState = world.getBlockState(targetPos);
+			if (targetState.hasTileEntity())
+			{
+				TileEntity te = world.getTileEntity(targetPos);
+				if (te instanceof ICircuitElementHolderTE)
+				{
+					((ICircuitElementHolderTE)te).invalidateCircuit();
+				}
+			}
+		}
+		
+		// if nearestElement is null we don't care about anything
 	}
 	
 	/** Gets the nearest CircuitElement to a given wire block position
@@ -138,7 +202,7 @@ public class CircuitHelper
 	 * returns Null if none is found
 	 */
 	@Nullable
-	public static CircuitElement getNearestCircuitElement(World world, BlockPos startPos)
+	public static CircuitElement getNearestCircuitElement(IWorld world, BlockPos startPos)
 	{
 		// current implementation is based on Djikstra's algorithm
 		// 
@@ -163,7 +227,7 @@ public class CircuitHelper
 				Block closestBlock = closestState.getBlock();
 				
 				TileEntity te = world.getTileEntity(closest.pos);
-				if (te instanceof ICircuitElementHolderTE)
+				if (te instanceof ICircuitElementHolderTE && ((ICircuitElementHolderTE)te).getCircuitElement() != null)
 				{
 					nearestRelevantTE = (ICircuitElementHolderTE)te;
 					nrtedist = closest.dist;
@@ -195,7 +259,7 @@ public class CircuitHelper
 	
 	/** get a set of the faces that this block connects to that also connect back to this block **/
 	@Nonnull
-	public static EnumSet<EnumFacing> getBiConnectedElectricalBlocks(World world, BlockPos pos)
+	public static EnumSet<EnumFacing> getBiConnectedElectricalBlocks(IWorld world, BlockPos pos)
 	{
 		IBlockState checkState = world.getBlockState(pos);
 		Block checkBlock = checkState.getBlock();
@@ -223,5 +287,25 @@ public class CircuitHelper
 			}
 		}
 		return returnFaces;
+	}
+	
+	public static boolean doTwoBlocksConnect(World world, BlockPos pos1, BlockPos pos2)
+	{
+		IBlockState state1 = world.getBlockState(pos1);
+		Block block1 = state1.getBlock();
+		if (!(block1 instanceof IElectricalBlock))
+		{
+			return false;
+		}
+		IBlockState state2 = world.getBlockState(pos2);
+		Block block2 = state2.getBlock();
+		if (!(block2 instanceof IElectricalBlock))
+		{
+			return false;
+		}
+
+		IElectricalBlock ieb1 = (IElectricalBlock)block1;
+		IElectricalBlock ieb2 = (IElectricalBlock)block2;
+		return (ieb1.doesThisBlockConnectTo(world, state1, pos1, pos2) && ieb2.doesThisBlockConnectTo(world, state2, pos2, pos1));
 	}
 }

@@ -8,11 +8,16 @@ import javax.annotation.Nonnull;
 import com.github.commoble.exmachina.common.electrical.CircuitElement;
 import com.github.commoble.exmachina.common.electrical.CircuitHelper;
 import com.github.commoble.exmachina.common.electrical.ElectricalValues;
+import com.github.commoble.exmachina.common.tileentity.TileEntityLightbulb;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
 // copper wire has resistance of about 1 uOhm
@@ -29,7 +34,7 @@ public class BlockWire extends Block implements IElectricalBlock
 
 	@Override
 	@Nonnull
-	public Set<EnumFacing> getConnectingFaces(World world, IBlockState blockState, BlockPos pos)
+	public Set<EnumFacing> getConnectingFaces(IWorld world, IBlockState blockState, BlockPos pos)
 	{
 		// TODO Auto-generated method stub
 		return BlockWire.CONNECTABLE_FACES;
@@ -56,4 +61,26 @@ public class BlockWire extends Block implements IElectricalBlock
 			return new ElectricalValues(voltage, current, resistance, power);
 		}
 	}
+
+	/**
+	 * This is called after another block is placed next to a position containing this block
+	 * 
+	* Update the provided state given the provided neighbor facing and neighbor state, returning a new state.
+	* For example, fences make their connections to the passed in state if possible, and wet concrete powder immediately
+	* returns its solidified counterpart.
+	* Note that this method should ideally consider only the specific face passed in.
+	*  
+	* @param facingState The state that is currently at the position offset of the provided face to the stateIn at
+	* currentPos is the position of this block
+	* facingPos is the position of the adjacent block that triggered this method
+	*/
+	public IBlockState updatePostPlacement(IBlockState stateIn, EnumFacing facing, IBlockState facingState, IWorld worldIn, BlockPos currentPos, BlockPos facingPos)
+	{
+		if (!worldIn.isRemote())
+		{
+			CircuitHelper.updateCircuit(worldIn, currentPos);
+		}
+		return super.updatePostPlacement(stateIn, facing, facingState, worldIn, currentPos, facingPos);
+	}
+
 }

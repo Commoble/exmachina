@@ -44,7 +44,7 @@ public class BlockRegistrar
 		registerBlock(registry, new BlockAsh(Block.Properties.create(Material.SAND, MaterialColor.GRAY).needsRandomTick()), BlockNames.ASH_NAME);
 		registerBlock(registry, new BlockBattery(Block.Properties.create(Material.IRON, MaterialColor.BROWN).hardnessAndResistance(2F, 5F)), BlockNames.BATTERY_NAME);
 		registerBlock(registry, new BlockWire(Block.Properties.create(Material.CIRCUITS, MaterialColor.ORANGE_TERRACOTTA).hardnessAndResistance(0.2F, 0F).sound(SoundType.STONE)), BlockNames.WIRE_NAME);
-		registerBlock(registry, new BlockLightbulb(Block.Properties.create(Material.GLASS, MaterialColor.GOLD).hardnessAndResistance(0.3F, 0F)), BlockNames.LIGHTBULB_NAME);
+		registerBlock(registry, new BlockLightbulb(Block.Properties.create(Material.GLASS, MaterialColor.GOLD).hardnessAndResistance(0.3F, 0F).sound(SoundType.GLASS)), BlockNames.LIGHTBULB_NAME);
 		
 		// register recipes
 		
