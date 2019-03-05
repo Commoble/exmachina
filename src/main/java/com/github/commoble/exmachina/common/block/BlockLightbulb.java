@@ -37,7 +37,6 @@ public class BlockLightbulb extends BlockWithFacing implements IElectricalBlock,
 	@Override
 	public TileEntity createNewTileEntity(IBlockReader worldIn)
 	{
-		System.out.println(BlockRegistrar.wire.toString());
 		return createTileEntity(worldIn, getDefaultState());
 	}
 

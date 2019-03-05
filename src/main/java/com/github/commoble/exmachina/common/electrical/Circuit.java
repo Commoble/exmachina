@@ -383,12 +383,9 @@ public class Circuit
 		// code thanks to "duffymo"'s reply to this stackoverflow question:
 		//		https://stackoverflow.com/questions/1992638/java-inverse-matrix-calculation
 		RealMatrix realMatrixA = new Array2DRowRealMatrix(matrixDataA);
-		System.out.println("Matrix A: " + realMatrixA);
 		DecompositionSolver solver = new LUDecomposition(realMatrixA).getSolver();
 		RealVector vectorZ = new ArrayRealVector(matrixDataZ);
-		System.out.println("Vector Z: " + vectorZ);
 		RealVector vectorX = solver.solve(vectorZ);
-		System.out.println("Solution X: " + vectorX);
 		// To reiterate: The first N values in vectorX are the voltage at each node, where
 		// vectorX[n] is the voltage at the node with identifier n
 		// (ground node has voltage 0 and identifier -1)
@@ -408,7 +405,6 @@ public class Circuit
 			double voltageDiff = Math.abs(vA - vB);
 			double power = voltageDiff * voltageDiff / resistor.getNominalResistance();	// P = V^2 / R
 			resistor.power = power;
-			System.out.println("Resistor R" + resistor.identifier + " between nodes N" + (nodeIDA + 1) + " and N" + (nodeIDB + 1) + " has power of " + EngineeringNotation.toSIUnit(power, "W"));
 		}
 		for (VoltageSourceElement source : vSourceArray)
 		{
@@ -427,7 +423,6 @@ public class Circuit
 			int nodeIDB = source.nodeB.identifier;
 			double power = source.getNominalVoltage() * vectorX.getEntry(nonGroundNodeCount + source.identifier);	// P = V * I
 			source.power = power;
-			System.out.println("Source V" + source.identifier + " between nodes N" + (nodeIDA + 1) + " and N" + (nodeIDB + 1) + " has power of " + EngineeringNotation.toSIUnit(power, "W"));
 		}
 	}
 	
