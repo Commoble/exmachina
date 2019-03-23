@@ -2,7 +2,7 @@ package com.github.commoble.exmachina.common.tileentity;
 
 import javax.annotation.Nonnull;
 
-import com.github.commoble.exmachina.common.block.BlockWithFacing;
+import com.github.commoble.exmachina.common.block.BlockWithAllFacing;
 import com.github.commoble.exmachina.common.electrical.Circuit;
 import com.github.commoble.exmachina.common.electrical.CircuitElement;
 import com.github.commoble.exmachina.common.electrical.CircuitHelper;
@@ -46,7 +46,7 @@ public class TileEntityLightbulb extends TileEntity implements ICircuitElementHo
 	public EnumFacing getFrontFace()
 	{
 		IBlockState state = this.world.getBlockState(this.pos);
-		return state.get(BlockWithFacing.FACING);
+		return state.get(BlockWithAllFacing.FACING);
 	}
 
 	@Override

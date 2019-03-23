@@ -24,20 +24,22 @@ public class ItemRegistrar
 		@Override
 		public ItemStack createIcon()
 		{
-			return new ItemStack(Blocks.SANDSTONE);
+			return new ItemStack(BlockRegistrar.battery);
 		}
 	};
 	
 	//itemblocks
-	@ObjectHolder("exmachina:ash")
+	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.ASH_NAME)
 	public static final Item ash = null;
 
-	@ObjectHolder("exmachina:battery")
+	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.BATTERY_NAME)
 	public static final Item battery = null;
-	@ObjectHolder("exmachina:lightbulb")
+	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.LIGHTBULB_NAME)
 	public static final Item lightbulb = null;
-	@ObjectHolder("exmachina:wire")
+	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.WIRE_NAME)
 	public static final Item wire = null;
+	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.ELECTRIC_FURNACE_NAME)
+	public static final Item electric_furnace = null;
 	
 	// real items
 	@ObjectHolder("exmachina:mondometer")
@@ -56,6 +58,7 @@ public class ItemRegistrar
 		registerItem(registry, new ItemBlock(BlockRegistrar.battery, new Item.Properties().group(ItemRegistrar.tab)), BlockNames.BATTERY_NAME);
 		registerItem(registry, new ItemBlock(BlockRegistrar.wire, new Item.Properties().group(ItemRegistrar.tab)), BlockNames.WIRE_NAME);
 		registerItem(registry, new ItemBlock(BlockRegistrar.lightbulb, new Item.Properties().group(ItemRegistrar.tab)), BlockNames.LIGHTBULB_NAME);
+		registerItem(registry, new ItemBlock(BlockRegistrar.electric_furnace, new Item.Properties().group(ItemRegistrar.tab)), BlockNames.ELECTRIC_FURNACE_NAME);
 		
 		// real items
 		registerItem(registry, new ItemMondometer(new Item.Properties().group(ItemRegistrar.tab).maxStackSize(1)), ItemNames.MONDOMETER_NAME);

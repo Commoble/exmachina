@@ -1,16 +1,19 @@
 package com.github.commoble.exmachina.common;
 
 import com.github.commoble.exmachina.client.CombinedClientProxy;
+import com.github.commoble.exmachina.client.gui.GuiHandler;
 //import com.github.commoble.exmachina.common.world.WorldGenManager;
 import com.github.commoble.exmachina.server.DedicatedServerProxy;
 
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ExtensionPoint;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod(ExMachinaMod.MODID)
 public class ExMachinaMod
 {
-	public static ExMachinaMod instance;// = new ExMachinaMod();
+	public static ExMachinaMod instance;
 	
     public static final String MODID = "exmachina";
     public static final String VERSION = "1.0.0.0";
@@ -28,5 +31,6 @@ public class ExMachinaMod
 	public ExMachinaMod()
 	{
 		instance = this;	// no @Instance anymore
+		ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.GUIFACTORY, () -> GuiHandler::getClientGuiElement);
 	}
 }

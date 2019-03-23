@@ -18,7 +18,7 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
-public class BlockBattery extends BlockWithFacing implements ITileEntityProvider, IElectricalBlock, ITwoTerminalComponent
+public class BlockBattery extends BlockWithAllFacing implements ITileEntityProvider, IElectricalBlock, ITwoTerminalComponent
 {
 	// facing of block = facing of positive side
 	

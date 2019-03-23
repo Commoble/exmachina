@@ -5,9 +5,6 @@ import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFire;
 import net.minecraft.block.BlockTNT;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.material.MaterialColor;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -31,7 +28,7 @@ public class BlockExtendedFire extends BlockFire
 	
 	// TODO fix ATs
 	
-	/*@Override
+	@Override
 	// too lazy to access transform, copied from BlockFire
 	public void tick(IBlockState state, World worldIn, BlockPos pos, Random random)
 	{
@@ -129,7 +126,7 @@ public class BlockExtendedFire extends BlockFire
 	// mostly copied from private void tryCatchFire in BlockFire, with edit to burn to ash instead of removing block
 	private void tryBurn(World worldIn, BlockPos pos, int chance, Random random, int age, EnumFacing face)
     {
-        int i = worldIn.getBlockState(pos).getBlock().getFlammability(worldIn, pos, face);
+        int i = worldIn.getBlockState(pos).getFlammability(worldIn, pos, face);
         IBlockState iblockstate = worldIn.getBlockState(pos);
         if (iblockstate == Blocks.GRASS.getDefaultState())
 		{
@@ -148,15 +145,15 @@ public class BlockExtendedFire extends BlockFire
                     j = 15;
                 }
 
-                worldIn.setBlockState(pos, this.getDefaultState().withProperty(AGE, Integer.valueOf(j)), 3);
+                worldIn.setBlockState(pos, this.getDefaultState().with(AGE, Integer.valueOf(j)), 3);
             }
             else
             {
             	// check whether to make ash before setting the block to air because
             	// only collidable blocks create ash
-            	boolean make_ash = !iblockstate.getBlock().isPassable(worldIn, pos) && worldIn.rand.nextFloat() < ASH_CHANCE;
+            	boolean make_ash = !iblockstate.isFullCube() && worldIn.rand.nextFloat() < ASH_CHANCE;
             	
-            	worldIn.setBlockToAir(pos);
+            	worldIn.removeBlock(pos);
             	
             	if (make_ash)
                 {
@@ -164,10 +161,11 @@ public class BlockExtendedFire extends BlockFire
                 }
             }
 
-            if (iblockstate.getBlock() == Blocks.TNT)
+            Block block = iblockstate.getBlock();
+            if (block == Blocks.TNT)
             {
-                Blocks.TNT.onPlayerDestroy(worldIn, pos, iblockstate.withProperty(BlockTNT.EXPLODE, Boolean.valueOf(true)));
+            	((BlockTNT)block).explode(worldIn, pos);
             }
         }
-    }*/
+    }
 }

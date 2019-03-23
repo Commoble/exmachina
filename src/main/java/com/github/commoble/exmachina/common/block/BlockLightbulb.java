@@ -18,7 +18,7 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 
-public class BlockLightbulb extends BlockWithFacing implements IElectricalBlock, ITileEntityProvider, ITwoTerminalComponent
+public class BlockLightbulb extends BlockWithAllFacing implements IElectricalBlock, ITileEntityProvider, ITwoTerminalComponent
 {
 	public BlockLightbulb(Block.Properties props)
 	{

@@ -9,19 +9,13 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 
-public class BlockWithFacing extends BlockDirectional
+public class BlockWithAllFacing extends BlockDirectional
 {
 
-	protected BlockWithFacing(Block.Properties props)
+	protected BlockWithAllFacing(Block.Properties props)
 	{
 		super(props);
 	}
-
-	/*@Override
-    protected StateContainer createBlockState()
-    {
-        return new BlockStateContainer(this, new IProperty[] {FACING});
-    }*/
     
     public EnumFacing getFacingOfBlockState(IBlockState state)
     {
