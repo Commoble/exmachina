@@ -4,11 +4,8 @@ import com.github.commoble.exmachina.common.ExMachinaMod;
 import com.github.commoble.exmachina.common.block.BlockNames;
 import com.github.commoble.exmachina.common.block.BlockRegistrar;
 
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.ObjectHolder;
@@ -17,29 +14,27 @@ import net.minecraftforge.registries.ObjectHolder;
  * Class for registering items and itemblocks, and keeping their references
  * also handle creative tabs since those are closely related to items
  */
+@ObjectHolder(ExMachinaMod.MODID)
 public class ItemRegistrar
 {
-	// creative tab for the stuff
-	public static final ItemGroup tab = new ItemGroup(ExMachinaMod.MODID) {
-		@Override
-		public ItemStack createIcon()
-		{
-			return new ItemStack(BlockRegistrar.battery);
-		}
-	};
-	
 	//itemblocks
-	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.ASH_NAME)
+	@ObjectHolder(BlockNames.ASH_NAME)
 	public static final Item ash = null;
 
-	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.BATTERY_NAME)
+	@ObjectHolder(BlockNames.BATTERY_NAME)
 	public static final Item battery = null;
-	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.LIGHTBULB_NAME)
+	
+	@ObjectHolder(BlockNames.LIGHTBULB_NAME)
 	public static final Item lightbulb = null;
-	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.WIRE_NAME)
+	
+	@ObjectHolder(BlockNames.WIRE_NAME)
 	public static final Item wire = null;
-	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.ELECTRIC_FURNACE_NAME)
+	
+	@ObjectHolder(BlockNames.ELECTRIC_FURNACE_NAME)
 	public static final Item electric_furnace = null;
+	
+	@ObjectHolder(BlockNames.BRASS_TUBE_NAME)
+	public static final Item brass_tube = null;
 	
 	// real items
 	@ObjectHolder("exmachina:mondometer")
@@ -52,16 +47,17 @@ public class ItemRegistrar
 		//ItemLedger.itemBlockTransporter = registerItemBlock(event.getRegistry(), new ItemBlock(BlockLedger.blockTransporter), BlockLedger.TRANSPORTER_REGISTRY_NAME);
 		//grinderItemBlock = registerItemBlock(event.getRegistry(), new ItemBlock(BlockLedger.grinderBlock), "grinder");
 		//grinderItemBlock.setCreativeTab(trtab);
-		registerItem(registry, new ItemBlock(BlockRegistrar.ash, new Item.Properties().group(ItemRegistrar.tab)), BlockNames.ASH_NAME);
+		registerItem(registry, new ItemBlock(BlockRegistrar.ash, new Item.Properties().group(CreativeTabs.tab)), BlockNames.ASH_NAME);
 		
 		// itemblocks
-		registerItem(registry, new ItemBlock(BlockRegistrar.battery, new Item.Properties().group(ItemRegistrar.tab)), BlockNames.BATTERY_NAME);
-		registerItem(registry, new ItemBlock(BlockRegistrar.wire, new Item.Properties().group(ItemRegistrar.tab)), BlockNames.WIRE_NAME);
-		registerItem(registry, new ItemBlock(BlockRegistrar.lightbulb, new Item.Properties().group(ItemRegistrar.tab)), BlockNames.LIGHTBULB_NAME);
-		registerItem(registry, new ItemBlock(BlockRegistrar.electric_furnace, new Item.Properties().group(ItemRegistrar.tab)), BlockNames.ELECTRIC_FURNACE_NAME);
+		registerItem(registry, new ItemBlock(BlockRegistrar.battery, new Item.Properties().group(CreativeTabs.tab)), BlockNames.BATTERY_NAME);
+		registerItem(registry, new ItemBlock(BlockRegistrar.wire, new Item.Properties().group(CreativeTabs.tab)), BlockNames.WIRE_NAME);
+		registerItem(registry, new ItemBlock(BlockRegistrar.lightbulb, new Item.Properties().group(CreativeTabs.tab)), BlockNames.LIGHTBULB_NAME);
+		registerItem(registry, new ItemBlock(BlockRegistrar.electric_furnace, new Item.Properties().group(CreativeTabs.tab)), BlockNames.ELECTRIC_FURNACE_NAME);
+		registerItem(registry, new ItemBlock(BlockRegistrar.brass_tube, new Item.Properties().group(CreativeTabs.tab)), BlockNames.BRASS_TUBE_NAME);
 		
 		// real items
-		registerItem(registry, new ItemMondometer(new Item.Properties().group(ItemRegistrar.tab).maxStackSize(1)), ItemNames.MONDOMETER_NAME);
+		registerItem(registry, new ItemMondometer(new Item.Properties().group(CreativeTabs.tab).maxStackSize(1)), ItemNames.MONDOMETER_NAME);
 	}
 	
 	private static <T extends Item> T registerItem(IForgeRegistry<Item> registry, T newItem, String name)

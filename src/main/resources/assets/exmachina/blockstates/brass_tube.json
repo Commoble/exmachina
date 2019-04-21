@@ -1,0 +1,23 @@
+{
+    "multipart": [
+        {   "apply": { "model": "exmachina:block/brass_tube_core" }},
+        {   "when": { "north": "true" },
+            "apply": { "model": "exmachina:block/brass_tube_extension_north", "uvlock": true }
+        },
+        {   "when": { "east": "true" },
+            "apply": { "model": "exmachina:block/brass_tube_extension_north", "y": 90, "uvlock": true }
+        },
+        {   "when": { "south": "true" },
+            "apply": { "model": "exmachina:block/brass_tube_extension_north", "y": 180, "uvlock": true }
+        },
+        {   "when": { "west": "true" },
+            "apply": { "model": "exmachina:block/brass_tube_extension_north", "y": 270, "uvlock": true }
+        },
+        {   "when": { "up": "true" },
+            "apply": { "model": "exmachina:block/brass_tube_extension_north", "x": 270, "uvlock": true }
+        },
+        {   "when": { "down": "true" },
+            "apply": { "model": "exmachina:block/brass_tube_extension_north", "x": 90, "uvlock": true }
+        }
+    ]
+}

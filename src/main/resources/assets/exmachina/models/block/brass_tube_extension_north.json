@@ -1,0 +1,24 @@
+{
+	"credit": "Made with Blockbench",
+	"textures": {
+		"all": "exmachina:block/brass_tube",
+		"particle": "exmachina:block/brass_tube"
+	},
+	"elements": [
+		{
+			"from": [6, 6, 0],
+			"to": [10, 10, 4],
+			"faces": {
+				"east": {"uv": [12, 6, 16, 10], "texture": "#all"},
+				"west": {"uv": [0, 6, 4, 10], "texture": "#all"},
+				"up": {"uv": [6, 0, 10, 4], "texture": "#all"},
+				"down": {"uv": [6, 12, 10, 16], "texture": "#all"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"translation": [0, -2, 0]
+		}
+	}
+}

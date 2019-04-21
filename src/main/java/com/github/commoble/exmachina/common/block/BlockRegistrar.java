@@ -13,24 +13,28 @@ import net.minecraftforge.registries.ObjectHolder;
 /**
  * Class for registering blocks and storing their references
  */
+@ObjectHolder(ExMachinaMod.MODID)
 public class BlockRegistrar
 {	
 	//public static final String TRANSPORTER_REGISTRY_NAME = "transporter";
 	
-	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.ASH_NAME)
+	@ObjectHolder(BlockNames.ASH_NAME)
 	public static final BlockAsh ash = null;
 	
-	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.BATTERY_NAME)
+	@ObjectHolder(BlockNames.BATTERY_NAME)
 	public static final BlockBattery battery = null;
 	
-	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.WIRE_NAME)
+	@ObjectHolder(BlockNames.WIRE_NAME)
 	public static final BlockWire wire = null;
 	
-	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.LIGHTBULB_NAME)
+	@ObjectHolder(BlockNames.LIGHTBULB_NAME)
 	public static final BlockLightbulb lightbulb = null;
 	
-	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.ELECTRIC_FURNACE_NAME)
+	@ObjectHolder(BlockNames.ELECTRIC_FURNACE_NAME)
 	public static final BlockElectricFurnace electric_furnace = null;
+	
+	@ObjectHolder(BlockNames.BRASS_TUBE_NAME)
+	public static final BlockBrassTube brass_tube = null;
 	
 	
 
@@ -49,6 +53,7 @@ public class BlockRegistrar
 		registerBlock(registry, new BlockWire(Block.Properties.create(Material.CIRCUITS, MaterialColor.ORANGE_TERRACOTTA).hardnessAndResistance(0.2F, 0F).sound(SoundType.STONE)), BlockNames.WIRE_NAME);
 		registerBlock(registry, new BlockLightbulb(Block.Properties.create(Material.GLASS, MaterialColor.GOLD).hardnessAndResistance(0.3F, 0F).sound(SoundType.GLASS)), BlockNames.LIGHTBULB_NAME);
 		registerBlock(registry, new BlockElectricFurnace(Block.Properties.create(Material.ROCK).hardnessAndResistance(3.5F).lightValue(13)), BlockNames.ELECTRIC_FURNACE_NAME);
+		registerBlock(registry, new BlockBrassTube(Block.Properties.create(Material.IRON, MaterialColor.YELLOW_TERRACOTTA).hardnessAndResistance(0.2F, 4F).sound(SoundType.METAL)), BlockNames.BRASS_TUBE_NAME);
 		
 		// register recipes
 		

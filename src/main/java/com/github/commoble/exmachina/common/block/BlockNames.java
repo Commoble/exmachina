@@ -7,5 +7,6 @@ public class BlockNames
 	public static final String WIRE_NAME = "wire";
 	public static final String LIGHTBULB_NAME = "lightbulb";
 	public static final String ELECTRIC_FURNACE_NAME = "electric_furnace";
+	public static final String BRASS_TUBE_NAME = "brass_tube";
 	
 }
