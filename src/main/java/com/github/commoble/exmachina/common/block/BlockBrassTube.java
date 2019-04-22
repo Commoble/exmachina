@@ -85,6 +85,18 @@ public class BlockBrassTube extends Block implements IBucketPickupHandler, ILiqu
 		return BlockRenderLayer.CUTOUT;
 	}
 
+//	/**
+//	 * @deprecated call via
+//	 *             {@link IBlockState#shouldSideBeRendered(IBlockAccess,BlockPos,EnumFacing)}
+//	 *             whenever possible. Implementing/overriding is fine.
+//	 */
+//	@OnlyIn(Dist.CLIENT)
+//	public static boolean shouldSideBeRendered(IBlockState adjacentState, IBlockReader blockState, BlockPos blockAccess,
+//			EnumFacing pos)
+//	{
+//		return true;
+//	}
+
 	/// connections and states
 
 	public IBlockState getStateForPlacement(BlockItemUseContext context)
@@ -150,7 +162,7 @@ public class BlockBrassTube extends Block implements IBucketPickupHandler, ILiqu
 		}
 
 		return stateIn.with(BlockSixWay.FACING_TO_PROPERTY_MAP.get(facing),
-						Boolean.valueOf(this.canConnectTo(worldIn, currentPos, facing)));
+				Boolean.valueOf(this.canConnectTo(worldIn, currentPos, facing)));
 	}
 
 	/// model shapes
@@ -162,6 +174,7 @@ public class BlockBrassTube extends Block implements IBucketPickupHandler, ILiqu
 		VoxelShape[] shapes = new VoxelShape[64];
 
 		// define the shapes for the piping core and the dunswe pipe segments
+		// reminder: north = negative
 		VoxelShape core = Block.makeCuboidShape(ONE_QUARTER, ONE_QUARTER, ONE_QUARTER, THREE_QUARTERS, THREE_QUARTERS,
 				THREE_QUARTERS);
 
@@ -169,10 +182,10 @@ public class BlockBrassTube extends Block implements IBucketPickupHandler, ILiqu
 				THREE_QUARTERS, TEN_SIXTEENTHS);
 		VoxelShape up = Block.makeCuboidShape(SIX_SIXTEENTHS, THREE_QUARTERS, SIX_SIXTEENTHS, TEN_SIXTEENTHS, MAX_VOXEL,
 				TEN_SIXTEENTHS);
-		VoxelShape north = Block.makeCuboidShape(SIX_SIXTEENTHS, SIX_SIXTEENTHS, THREE_QUARTERS, TEN_SIXTEENTHS,
-				TEN_SIXTEENTHS, MAX_VOXEL);
-		VoxelShape south = Block.makeCuboidShape(SIX_SIXTEENTHS, SIX_SIXTEENTHS, MIN_VOXEL, TEN_SIXTEENTHS,
+		VoxelShape north = Block.makeCuboidShape(SIX_SIXTEENTHS, SIX_SIXTEENTHS, MIN_VOXEL, TEN_SIXTEENTHS,
 				TEN_SIXTEENTHS, ONE_QUARTER);
+		VoxelShape south = Block.makeCuboidShape(SIX_SIXTEENTHS, SIX_SIXTEENTHS, THREE_QUARTERS, TEN_SIXTEENTHS,
+				TEN_SIXTEENTHS, MAX_VOXEL);
 		VoxelShape west = Block.makeCuboidShape(MIN_VOXEL, SIX_SIXTEENTHS, SIX_SIXTEENTHS, THREE_QUARTERS,
 				TEN_SIXTEENTHS, TEN_SIXTEENTHS);
 		VoxelShape east = Block.makeCuboidShape(THREE_QUARTERS, SIX_SIXTEENTHS, SIX_SIXTEENTHS, MAX_VOXEL,
