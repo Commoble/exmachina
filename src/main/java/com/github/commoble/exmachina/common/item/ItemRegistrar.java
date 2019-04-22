@@ -33,9 +33,6 @@ public class ItemRegistrar
 	@ObjectHolder(BlockNames.ELECTRIC_FURNACE_NAME)
 	public static final Item electric_furnace = null;
 	
-	@ObjectHolder(BlockNames.BRASS_TUBE_NAME)
-	public static final Item brass_tube = null;
-	
 	// real items
 	@ObjectHolder("exmachina:mondometer")
 	public static final Item mondometer = null;
@@ -54,7 +51,6 @@ public class ItemRegistrar
 		registerItem(registry, new ItemBlock(BlockRegistrar.wire, new Item.Properties().group(CreativeTabs.tab)), BlockNames.WIRE_NAME);
 		registerItem(registry, new ItemBlock(BlockRegistrar.lightbulb, new Item.Properties().group(CreativeTabs.tab)), BlockNames.LIGHTBULB_NAME);
 		registerItem(registry, new ItemBlock(BlockRegistrar.electric_furnace, new Item.Properties().group(CreativeTabs.tab)), BlockNames.ELECTRIC_FURNACE_NAME);
-		registerItem(registry, new ItemBlock(BlockRegistrar.brass_tube, new Item.Properties().group(CreativeTabs.tab)), BlockNames.BRASS_TUBE_NAME);
 		
 		// real items
 		registerItem(registry, new ItemMondometer(new Item.Properties().group(CreativeTabs.tab).maxStackSize(1)), ItemNames.MONDOMETER_NAME);
