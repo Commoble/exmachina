@@ -1,28 +1,29 @@
-package com.github.commoble.exmachina.common.tileentity;
+package com.github.commoble.exmachina.content.tileentity;
 
-import com.github.commoble.exmachina.common.ExMachinaMod;
-import com.github.commoble.exmachina.common.block.BlockNames;
-import com.github.commoble.exmachina.common.block.BlockRegistrar;
+import com.github.commoble.exmachina.ExMachinaMod;
+import com.github.commoble.exmachina.RegistryNames;
+import com.github.commoble.exmachina.ResourceLocations;
+import com.github.commoble.exmachina.content.block.BlockRegistrar;
+import com.github.commoble.exmachina.util.RegistryHelper;
 
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.ObjectHolder;
 
+@ObjectHolder(ExMachinaMod.MODID)
 public class TileEntityRegistrar
 {
-	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.BATTERY_NAME)
+	@ObjectHolder(RegistryNames.BATTERY)
 	public static TileEntityType<TileEntityBattery> teBatteryType;
 	
-	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.LIGHTBULB_NAME)
+	@ObjectHolder(RegistryNames.LIGHTBULB)
 	public static TileEntityType<TileEntityLightbulb> teLightbulbType;
-	
-	@ObjectHolder(ExMachinaMod.MODID + ":" + BlockNames.ELECTRIC_FURNACE_NAME)
-	public static TileEntityType<TileEntityElectricFurnace> teElectricFurnaceType;
 	
 	public static void registerTileEntities(RegistryEvent.Register<TileEntityType<?>> event)
 	{
-		TileEntityType.register(BlockRegistrar.battery.getRegistryName().toString(), TileEntityType.Builder.create(TileEntityBattery::new));
-		TileEntityType.register(BlockRegistrar.lightbulb.getRegistryName().toString(), TileEntityType.Builder.create(TileEntityLightbulb::new));
-		TileEntityType.register(BlockRegistrar.electric_furnace.getRegistryName().toString(), TileEntityType.Builder.create(TileEntityElectricFurnace::new));
+		IForgeRegistry<TileEntityType<?>> reg = event.getRegistry();
+		RegistryHelper.register(reg, ResourceLocations.BATTERY, TileEntityType.Builder.create(TileEntityBattery::new, BlockRegistrar.battery).build(null));
+		RegistryHelper.register(reg, ResourceLocations.LIGHTBULB, TileEntityType.Builder.create(TileEntityLightbulb::new, BlockRegistrar.lightbulb).build(null));
 	}
 }

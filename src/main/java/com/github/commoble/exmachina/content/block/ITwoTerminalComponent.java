@@ -1,11 +1,11 @@
-package com.github.commoble.exmachina.common.block;
+package com.github.commoble.exmachina.content.block;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public interface ITwoTerminalComponent
 {
-	public EnumFacing getPositiveFace(World world, BlockPos pos);
-	public EnumFacing getNegativeFace(World world, BlockPos pos);
+	public Direction getPositiveFace(World world, BlockPos pos);
+	public Direction getNegativeFace(World world, BlockPos pos);
 }

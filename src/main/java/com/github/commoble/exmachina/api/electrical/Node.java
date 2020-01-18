@@ -1,16 +1,16 @@
-package com.github.commoble.exmachina.common.electrical;
+package com.github.commoble.exmachina.api.electrical;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-import com.github.commoble.exmachina.common.block.CategoriesOfBlocks;
-import com.github.commoble.exmachina.common.block.IElectricalBlock;
+import com.github.commoble.exmachina.content.block.CategoriesOfBlocks;
+import com.github.commoble.exmachina.content.block.IElectricalBlock;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.block.BlockState;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -151,7 +151,7 @@ public class Node
 	private static Node recursivelyBuildNodeFrom(World world, @Nonnull Node node, BlockPos startPos)// BlockPos checkPos, BlockPos prevPos)
 	{
 		// if node already contains this position, ignore and return
-		IBlockState startState = world.getBlockState(startPos);
+		BlockState startState = world.getBlockState(startPos);
 		Block startBlock = startState.getBlock();
 		
 		if ((!(startBlock instanceof IElectricalBlock)) || node.contains(startPos))
@@ -163,9 +163,9 @@ public class Node
 		if (CategoriesOfBlocks.wireBlocks.contains(startBlock))
 		{
 			node.wireBlocks.add(startPos);
-			Set<EnumFacing> facesToCheck = ((IElectricalBlock)startBlock).getConnectingFaces(world, startState, startPos);
+			Set<Direction> facesToCheck = ((IElectricalBlock)startBlock).getConnectingFaces(world, startState, startPos);
 			
-			for(EnumFacing face : facesToCheck)
+			for(Direction face : facesToCheck)
 			{
 				BlockPos nextCheck = startPos.offset(face);
 				if (!node.contains(nextCheck) && CircuitHelper.doTwoBlocksConnect(world, startPos, nextCheck))

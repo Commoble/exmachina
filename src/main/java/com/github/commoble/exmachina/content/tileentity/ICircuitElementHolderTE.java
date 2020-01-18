@@ -1,8 +1,8 @@
-package com.github.commoble.exmachina.common.tileentity;
+package com.github.commoble.exmachina.content.tileentity;
 
-import com.github.commoble.exmachina.common.electrical.Circuit;
-import com.github.commoble.exmachina.common.electrical.CircuitElement;
-import com.github.commoble.exmachina.common.electrical.Node;
+import com.github.commoble.exmachina.api.electrical.Circuit;
+import com.github.commoble.exmachina.api.electrical.CircuitElement;
+import com.github.commoble.exmachina.api.electrical.Node;
 
 /**
  * This interface implies that the implementing class holds a CircuitElement field 

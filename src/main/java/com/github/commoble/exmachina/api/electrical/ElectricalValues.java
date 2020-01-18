@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.common.electrical;
+package com.github.commoble.exmachina.api.electrical;
 
 import javax.annotation.Nonnull;
 

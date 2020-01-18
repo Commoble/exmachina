@@ -1,15 +1,15 @@
-package com.github.commoble.exmachina.common.block;
+package com.github.commoble.exmachina.content.block;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockDirectional;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.DirectionalBlock;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.StateContainer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 
-public class BlockWithAllFacing extends BlockDirectional
+public class BlockWithAllFacing extends DirectionalBlock
 {
 
 	protected BlockWithAllFacing(Block.Properties props)
@@ -17,7 +17,7 @@ public class BlockWithAllFacing extends BlockDirectional
 		super(props);
 	}
     
-    public EnumFacing getFacingOfBlockState(IBlockState state)
+    public Direction getFacingOfBlockState(BlockState state)
     {
     	return state.get(FACING);
     }
@@ -25,11 +25,12 @@ public class BlockWithAllFacing extends BlockDirectional
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
-     * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
+     * @deprecated call via {@link BlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    @Override
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    @Deprecated
+	@Override
+    public BlockState rotate(BlockState state, Rotation rot)
     {
     	return state.with(FACING, rot.rotate(state.get(FACING)));
     }
@@ -37,25 +38,27 @@ public class BlockWithAllFacing extends BlockDirectional
     /**
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate.
-     * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
+     * @deprecated call via {@link BlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
+    @Deprecated
+	@Override
+	public BlockState mirror(BlockState state, Mirror mirrorIn)
     {
     	return state.rotate(mirrorIn.toRotation(state.get(FACING)));
     }
 
     /**
-     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
-     * IBlockstate
+     * Called by BlockItems just before a block is actually set in the world, to allow for adjustments to the
+     * BlockState
      */
     @Override
-    public IBlockState getStateForPlacement(BlockItemUseContext context)
+    public BlockState getStateForPlacement(BlockItemUseContext context)
     {
     	return this.getDefaultState().with(FACING, context.getNearestLookingDirection().getOpposite());
     }
     
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, IBlockState> builder)
+    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
     {
         builder.add(FACING);
     }

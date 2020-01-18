@@ -1,36 +1,36 @@
-package com.github.commoble.exmachina.common.block;
+package com.github.commoble.exmachina.content.block;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockHorizontal;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.HorizontalBlock;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.StateContainer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
-public class BlockWithHorizontalFacing extends BlockHorizontal
+public class BlockWithHorizontalFacing extends HorizontalBlock
 {
 	protected BlockWithHorizontalFacing(Block.Properties props)
 	{
 		super(props);
 	}
     
-    public EnumFacing getFacingOfBlockState(IBlockState state)
+    public Direction getFacingOfBlockState(BlockState state)
     {
     	return state.get(HORIZONTAL_FACING);
     }
 
     /**
-     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
-     * IBlockstate
+     * Called by BlockItems just before a block is actually set in the world, to allow for adjustments to the
+     * BlockState
      */
     @Override
-    public IBlockState getStateForPlacement(BlockItemUseContext context)
+    public BlockState getStateForPlacement(BlockItemUseContext context)
     {
         return this.getDefaultState().with(HORIZONTAL_FACING, context.getPlacementHorizontalFacing().getOpposite());
     }
     
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, IBlockState> builder)
+    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
     {
         builder.add(HORIZONTAL_FACING);
     }

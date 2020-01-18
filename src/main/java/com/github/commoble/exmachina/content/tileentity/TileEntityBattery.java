@@ -1,23 +1,23 @@
-package com.github.commoble.exmachina.common.tileentity;
+package com.github.commoble.exmachina.content.tileentity;
 
 import javax.annotation.Nonnull;
 
-import com.github.commoble.exmachina.common.block.BlockWithAllFacing;
-import com.github.commoble.exmachina.common.electrical.Circuit;
-import com.github.commoble.exmachina.common.electrical.CircuitElement;
-import com.github.commoble.exmachina.common.electrical.CircuitHelper;
-import com.github.commoble.exmachina.common.electrical.ElectricalValues;
-import com.github.commoble.exmachina.common.electrical.Node;
-import com.github.commoble.exmachina.common.electrical.VoltageSourceElement;
+import com.github.commoble.exmachina.api.electrical.Circuit;
+import com.github.commoble.exmachina.api.electrical.CircuitElement;
+import com.github.commoble.exmachina.api.electrical.CircuitHelper;
+import com.github.commoble.exmachina.api.electrical.ElectricalValues;
+import com.github.commoble.exmachina.api.electrical.Node;
+import com.github.commoble.exmachina.api.electrical.VoltageSourceElement;
+import com.github.commoble.exmachina.content.block.BlockWithAllFacing;
 
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 
-public class TileEntityBattery extends TileEntity implements ICircuitElementHolderTE, ITickable
+public class TileEntityBattery extends TileEntity implements ICircuitElementHolderTE, ITickableTileEntity
 {
 	
 	@Nonnull
@@ -38,15 +38,15 @@ public class TileEntityBattery extends TileEntity implements ICircuitElementHold
 	@Override
 	public void tick()
 	{
-		if (!world.isRemote)
+		if (!this.world.isRemote)
 		{
 			this.onPossibleCircuitUpdate();
 		}
 	}
 	
-	public EnumFacing getFrontFace()	// positive end
+	public Direction getFrontFace()	// positive end
 	{
-		IBlockState state = this.world.getBlockState(this.pos);
+		BlockState state = this.world.getBlockState(this.pos);
 		return state.get(BlockWithAllFacing.FACING);
 	}
 
@@ -101,7 +101,7 @@ public class TileEntityBattery extends TileEntity implements ICircuitElementHold
 		if (!this.circuit.isValid())
 		{
 			BlockPos selfPos = this.pos;
-			EnumFacing front = this.getFrontFace();
+			Direction front = this.getFrontFace();
 			BlockPos nextPos = selfPos.offset(front);
 			//if (nextBlock instanceof IElectricalBlock && prevBlock instanceof IElectricalBlock)
 			{

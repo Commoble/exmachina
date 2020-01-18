@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.common.electrical;
+package com.github.commoble.exmachina.api.electrical;
 
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -8,15 +8,15 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.github.commoble.exmachina.common.block.CategoriesOfBlocks;
-import com.github.commoble.exmachina.common.block.IElectricalBlock;
-import com.github.commoble.exmachina.common.tileentity.ICircuitElementHolderTE;
-import com.github.commoble.exmachina.common.util.BlockPosWithDist;
+import com.github.commoble.exmachina.content.block.CategoriesOfBlocks;
+import com.github.commoble.exmachina.content.block.IElectricalBlock;
+import com.github.commoble.exmachina.content.tileentity.ICircuitElementHolderTE;
+import com.github.commoble.exmachina.util.BlockPosWithDist;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
@@ -104,7 +104,7 @@ public class CircuitHelper
 		if (nearestElement != null)
 		{
 			BlockPos targetPos = nearestElement.componentPos;
-			IBlockState targetState = world.getBlockState(targetPos);
+			BlockState targetState = world.getBlockState(targetPos);
 			if (targetState.hasTileEntity())
 			{
 				TileEntity te = world.getTileEntity(targetPos);
@@ -150,8 +150,8 @@ public class CircuitHelper
 				}
 			}
 			// get all adjacent connected blocks
-			EnumSet<EnumFacing> checkFaces = CircuitHelper.getBiConnectedElectricalBlocks(world, closest.pos);
-			for (EnumFacing face : checkFaces)
+			EnumSet<Direction> checkFaces = CircuitHelper.getBiConnectedElectricalBlocks(world, closest.pos);
+			for (Direction face : checkFaces)
 			{
 				BlockPos nextPos = closest.pos.offset(face);
 				if (!dists.containsKey(nextPos) || dists.get(nextPos) > closest.dist + 1)	// TODO replace with wire resist
@@ -175,24 +175,24 @@ public class CircuitHelper
 	
 	/** get a set of the faces that this block connects to that also connect back to this block **/
 	@Nonnull
-	public static EnumSet<EnumFacing> getBiConnectedElectricalBlocks(IWorld world, BlockPos pos)
+	public static EnumSet<Direction> getBiConnectedElectricalBlocks(IWorld world, BlockPos pos)
 	{
-		IBlockState checkState = world.getBlockState(pos);
+		BlockState checkState = world.getBlockState(pos);
 		Block checkBlock = checkState.getBlock();
-		EnumSet<EnumFacing> returnFaces = EnumSet.noneOf(EnumFacing.class);
+		EnumSet<Direction> returnFaces = EnumSet.noneOf(Direction.class);
 		
 		if (checkBlock instanceof IElectricalBlock)
 		{
-			Set<EnumFacing> checkFaces = ((IElectricalBlock)checkBlock).getConnectingFaces(world, checkState, pos);
-			for (EnumFacing face : checkFaces)
+			Set<Direction> checkFaces = ((IElectricalBlock)checkBlock).getConnectingFaces(world, checkState, pos);
+			for (Direction face : checkFaces)
 			{
 				BlockPos nextPos = pos.offset(face);
-				IBlockState nextState = world.getBlockState(nextPos);
+				BlockState nextState = world.getBlockState(nextPos);
 				Block nextBlock = nextState.getBlock();
 				if (nextBlock instanceof IElectricalBlock)
 				{
-					Set<EnumFacing> nextBlocksFaces = ((IElectricalBlock)nextBlock).getConnectingFaces(world, nextState, nextPos);
-					for (EnumFacing nextFace : nextBlocksFaces)
+					Set<Direction> nextBlocksFaces = ((IElectricalBlock)nextBlock).getConnectingFaces(world, nextState, nextPos);
+					for (Direction nextFace : nextBlocksFaces)
 					{
 						if (nextFace.getOpposite() == face)
 						{
@@ -207,13 +207,13 @@ public class CircuitHelper
 	
 	public static boolean doTwoBlocksConnect(World world, BlockPos pos1, BlockPos pos2)
 	{
-		IBlockState state1 = world.getBlockState(pos1);
+		BlockState state1 = world.getBlockState(pos1);
 		Block block1 = state1.getBlock();
 		if (!(block1 instanceof IElectricalBlock))
 		{
 			return false;
 		}
-		IBlockState state2 = world.getBlockState(pos2);
+		BlockState state2 = world.getBlockState(pos2);
 		Block block2 = state2.getBlock();
 		if (!(block2 instanceof IElectricalBlock))
 		{

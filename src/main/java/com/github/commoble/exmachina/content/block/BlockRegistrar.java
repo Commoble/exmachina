@@ -1,6 +1,7 @@
-package com.github.commoble.exmachina.common.block;
+package com.github.commoble.exmachina.content.block;
 
-import com.github.commoble.exmachina.common.ExMachinaMod;
+import com.github.commoble.exmachina.ExMachinaMod;
+import com.github.commoble.exmachina.RegistryNames;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
@@ -18,20 +19,14 @@ public class BlockRegistrar
 {	
 	//public static final String TRANSPORTER_REGISTRY_NAME = "transporter";
 	
-	@ObjectHolder(BlockNames.ASH_NAME)
-	public static final BlockAsh ash = null;
-	
-	@ObjectHolder(BlockNames.BATTERY_NAME)
+	@ObjectHolder(RegistryNames.BATTERY)
 	public static final BlockBattery battery = null;
 	
-	@ObjectHolder(BlockNames.WIRE_NAME)
+	@ObjectHolder(RegistryNames.WIRE)
 	public static final BlockWire wire = null;
 	
-	@ObjectHolder(BlockNames.LIGHTBULB_NAME)
+	@ObjectHolder(RegistryNames.LIGHTBULB)
 	public static final BlockLightbulb lightbulb = null;
-	
-	@ObjectHolder(BlockNames.ELECTRIC_FURNACE_NAME)
-	public static final BlockElectricFurnace electric_furnace = null;
 	
 	
 
@@ -45,11 +40,9 @@ public class BlockRegistrar
 //		blockExtendedFire.setRegistryName("minecraft:fire");
 //		registry.register(blockExtendedFire);
 		
-		registerBlock(registry, new BlockAsh(Block.Properties.create(Material.SAND, MaterialColor.GRAY).needsRandomTick()), BlockNames.ASH_NAME);
-		registerBlock(registry, new BlockBattery(Block.Properties.create(Material.IRON, MaterialColor.BROWN).hardnessAndResistance(2F, 5F)), BlockNames.BATTERY_NAME);
-		registerBlock(registry, new BlockWire(Block.Properties.create(Material.CIRCUITS, MaterialColor.ORANGE_TERRACOTTA).hardnessAndResistance(0.2F, 0F).sound(SoundType.STONE)), BlockNames.WIRE_NAME);
-		registerBlock(registry, new BlockLightbulb(Block.Properties.create(Material.GLASS, MaterialColor.GOLD).hardnessAndResistance(0.3F, 0F).sound(SoundType.GLASS)), BlockNames.LIGHTBULB_NAME);
-		registerBlock(registry, new BlockElectricFurnace(Block.Properties.create(Material.ROCK).hardnessAndResistance(3.5F).lightValue(13)), BlockNames.ELECTRIC_FURNACE_NAME);
+		registerBlock(registry, new BlockBattery(Block.Properties.create(Material.IRON, MaterialColor.BROWN).hardnessAndResistance(2F, 5F)), RegistryNames.BATTERY);
+		registerBlock(registry, new BlockWire(Block.Properties.create(Material.MISCELLANEOUS, MaterialColor.ORANGE_TERRACOTTA).hardnessAndResistance(0.2F, 0F).sound(SoundType.STONE)), RegistryNames.WIRE);
+		registerBlock(registry, new BlockLightbulb(Block.Properties.create(Material.GLASS, MaterialColor.GOLD).hardnessAndResistance(0.3F, 0F).sound(SoundType.GLASS)), RegistryNames.LIGHTBULB);
 		
 		// register recipes
 		

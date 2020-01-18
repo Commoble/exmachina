@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.common.block;
+package com.github.commoble.exmachina.content.block;
 
 import java.util.HashSet;
 

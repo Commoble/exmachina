@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.common.item;
+package com.github.commoble.exmachina.content.item;
 
 public class ItemNames
 {

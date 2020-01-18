@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.common.electrical;
+package com.github.commoble.exmachina.api.electrical;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,15 +7,15 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.github.commoble.exmachina.common.block.CategoriesOfBlocks;
-import com.github.commoble.exmachina.common.block.IElectricalBlock;
-import com.github.commoble.exmachina.common.block.ITwoTerminalComponent;
-import com.github.commoble.exmachina.common.tileentity.ICircuitElementHolderTE;
+import com.github.commoble.exmachina.content.block.CategoriesOfBlocks;
+import com.github.commoble.exmachina.content.block.IElectricalBlock;
+import com.github.commoble.exmachina.content.block.ITwoTerminalComponent;
+import com.github.commoble.exmachina.content.tileentity.ICircuitElementHolderTE;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import repackage.org.apache.commons.math3.linear.Array2DRowRealMatrix;
@@ -78,7 +78,7 @@ public class Circuit
 				nodeB = node;
 			}
 		}
-		IBlockState state = world.getBlockState(pos);
+		BlockState state = world.getBlockState(pos);
 		Block block = state.getBlock();
 		TileEntity te = world.getTileEntity(pos);
 		if (te != null && te instanceof ICircuitElementHolderTE)
@@ -144,13 +144,13 @@ public class Circuit
 			{
 				continue;
 			}
-			IBlockState componentState = world.getBlockState(componentPos);
+			BlockState componentState = world.getBlockState(componentPos);
 			Block componentBlock = componentState.getBlock();
 			if (componentBlock instanceof IElectricalBlock)
 			{
-				Set<EnumFacing> checkFaces = ((IElectricalBlock)componentBlock).getConnectingFaces(world, componentState, componentPos);
+				Set<Direction> checkFaces = ((IElectricalBlock)componentBlock).getConnectingFaces(world, componentState, componentPos);
 				int faceCount = 0; // number of connected faces for short-finding purposes
-				for (EnumFacing face : checkFaces)
+				for (Direction face : checkFaces)
 				{
 					// ASSUMPTION: components only have two connections
 					// one of these will connect to the current node
@@ -172,7 +172,7 @@ public class Circuit
 						}
 						continue;
 					}
-					IBlockState checkState = world.getBlockState(checkPos);
+					BlockState checkState = world.getBlockState(checkPos);
 					Block checkBlock = checkState.getBlock();
 					if (checkBlock instanceof IElectricalBlock && CircuitHelper.doTwoBlocksConnect(world, componentPos, checkPos))
 					{
