@@ -1,8 +1,8 @@
-package com.github.commoble.exmachina.common.util;
+package com.github.commoble.exmachina.util;
 
 import net.minecraft.util.math.BlockPos;
 
-public class BlockPosWithDist implements Comparable
+public class BlockPosWithDist implements Comparable<BlockPosWithDist>
 {
 	public final int dist;
 	public final BlockPos pos;
@@ -30,24 +30,17 @@ public class BlockPosWithDist implements Comparable
 	}
 
 	@Override
-	public int compareTo(Object obj)
+	public int compareTo(BlockPosWithDist obj)
 	{
 		// TODO Auto-generated method stub
 		if (this == obj)
 		{
 			return 0;
 		}
-		else if (obj instanceof BlockPosWithDist)
-		{	// return a negative int, zeor, or a positive int if this<obj, this==obj, or this>obj, respectively
-			return this.dist - ((BlockPosWithDist)obj).dist;
-		}
-		else if (obj == null)
-		{
-			throw new NullPointerException();
-		}
 		else
-		{
-			throw new ClassCastException();
+		{	// return a negative int, zeor, or a positive int if this<obj, this==obj, or this>obj, respectively
+			// throws NPE if obj is null
+			return this.dist - obj.dist;
 		}
 	}
 }
