@@ -1,18 +1,13 @@
-package com.github.commoble.exmachina.api.electrical;
+package com.github.commoble.exmachina.api.circuit;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-import com.github.commoble.exmachina.content.block.CategoriesOfBlocks;
-import com.github.commoble.exmachina.content.block.IElectricalBlock;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 /**
  * Representation of a "node" in an electrical circuit,
@@ -129,17 +124,17 @@ public class Node
 	 * -if startPos is a component pos, return a dead node containing that component
 	 * -if startPos is not electrical, return NULL
 	 */
-	public static Node buildNodeFrom(World world, BlockPos startPos)//BlockPos firstComponentPos, BlockPos firstWirePos)
+	public static Node buildNodeFrom(BlockContext startContext)//BlockPos firstComponentPos, BlockPos firstWirePos)
 	{
 		Node node = new Node();
-		Block startBlock = world.getBlockState(startPos).getBlock();
-		if (CategoriesOfBlocks.wireBlocks.contains(startBlock))
+		Block startBlock = startContext.state.getBlock();
+		if (ComponentRegistry.WIRES.containsKey(startBlock))
 		{
-			return Node.recursivelyBuildNodeFrom(world, node, startPos);
+			return Node.recursivelyBuildNodeFrom(node, startContext);
 		}
-		else if (CategoriesOfBlocks.isAnyComponentBlock(startBlock))
+		else if (ComponentRegistry.ELEMENTS.containsKey(startBlock))
 		{
-			return Node.createDeadNode(startPos);
+			return Node.createDeadNode(startContext.pos);
 		}
 		else
 		{
@@ -148,36 +143,41 @@ public class Node
 	}
 	
 	@Nonnull
-	private static Node recursivelyBuildNodeFrom(World world, @Nonnull Node node, BlockPos startPos)// BlockPos checkPos, BlockPos prevPos)
+	private static Node recursivelyBuildNodeFrom(@Nonnull Node node, BlockContext startContext)// BlockPos checkPos, BlockPos prevPos)
 	{
 		// if node already contains this position, ignore and return
-		BlockState startState = world.getBlockState(startPos);
+		BlockState startState = startContext.state;
+		BlockPos startPos = startContext.pos;
 		Block startBlock = startState.getBlock();
 		
-		if ((!(startBlock instanceof IElectricalBlock)) || node.contains(startPos))
+		if ((!(ComponentRegistry.contains(startBlock))) || node.contains(startPos))
 		{
 			return node;
 		}
 		
 		// if this is a wire block, continue recursively building the node from this position
-		if (CategoriesOfBlocks.wireBlocks.contains(startBlock))
+		if (ComponentRegistry.WIRES.containsKey(startBlock))
 		{
 			node.wireBlocks.add(startPos);
-			Set<Direction> facesToCheck = ((IElectricalBlock)startBlock).getConnectingFaces(world, startState, startPos);
+//			Set<Direction> facesToCheck = null; // TODO ((IElectricalBlock)startBlock).getConnectingFaces(world, startState, startPos);
+			WireContext wire = ComponentRegistry.WIRES.get(startBlock).getWireContext(startContext);
+			Set<BlockPos> positionsToCheck = wire.getPotentialConnections();
+			//ComponentRegistry.wires.get(startBlock)
 			
-			for(Direction face : facesToCheck)
+			for(BlockPos nextCheck : positionsToCheck)
 			{
-				BlockPos nextCheck = startPos.offset(face);
-				if (!node.contains(nextCheck) && CircuitHelper.doTwoBlocksConnect(world, startPos, nextCheck))
+//				BlockPos nextCheck = startPos.offset(face);
+				BlockContext nextContext = startContext.getNewPosContext(nextCheck);
+				if (!node.contains(nextCheck) && CircuitHelper.doTwoBlocksConnect(startContext, nextContext))
 				{
-					node = recursivelyBuildNodeFrom(world, node, nextCheck);
+					node = recursivelyBuildNodeFrom(node, nextContext);
 				}
 			}
 			
 			return node;
 		}
 		// if this is a component block, add it to the node but do not continue recursively building
-		else if (CategoriesOfBlocks.isAnyComponentBlock(startBlock))
+		else if (ComponentRegistry.ELEMENTS.containsKey(startBlock))
 		{
 			node.connectedComponents.add(startPos);
 			return node;

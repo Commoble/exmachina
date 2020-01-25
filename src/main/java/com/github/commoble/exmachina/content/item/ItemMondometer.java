@@ -1,8 +1,9 @@
 package com.github.commoble.exmachina.content.item;
 
-import com.github.commoble.exmachina.api.electrical.ElectricalValues;
-import com.github.commoble.exmachina.api.electrical.EngineeringNotation;
-import com.github.commoble.exmachina.content.block.IElectricalBlock;
+import com.github.commoble.exmachina.api.circuit.BlockContext;
+import com.github.commoble.exmachina.api.circuit.ComponentRegistry;
+import com.github.commoble.exmachina.api.circuit.ElectricalValues;
+import com.github.commoble.exmachina.api.circuit.EngineeringNotation;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -25,28 +26,24 @@ public class ItemMondometer extends Item
      * Called when a Block is right-clicked with this Item
      */
     @Override
-	public ActionResultType onItemUse(ItemUseContext context)
+	public ActionResultType onItemUse(ItemUseContext useContext)
     {
-    	World world = context.getWorld();
+    	World world = useContext.getWorld();
     	if (!world.isRemote)
     	{
-        	BlockPos pos = context.getPos();
+        	BlockPos pos = useContext.getPos();
         	BlockState state = world.getBlockState(pos);
         	Block block = state.getBlock();
-        	if (world.getBlockState(pos).getBlock() instanceof IElectricalBlock)
-        	{
-        		ElectricalValues ev = ((IElectricalBlock)block).getElectricalValues(world, state, pos);
+        	BlockContext blockContext = new BlockContext(state, pos, useContext.getWorld());
+        	ElectricalValues ev = ComponentRegistry.getElectricalValues(blockContext);
 
-        		PlayerEntity player = context.getPlayer();
-                player.sendStatusMessage(new StringTextComponent(
-                		EngineeringNotation.toSIUnit(ev.voltage, "V") + "    " +
-                		EngineeringNotation.toSIUnit(ev.current, "A") + "    " +
-                		EngineeringNotation.toSIUnit(ev.resistance, "Ω") + "    " +
-                		EngineeringNotation.toSIUnit(ev.power, "W")), false);
-        		
-        		return ActionResultType.SUCCESS;
-        	}
+    		PlayerEntity player = useContext.getPlayer();
+            player.sendStatusMessage(new StringTextComponent(
+            		EngineeringNotation.toSIUnit(ev.voltage, "V") + "    " +
+            		EngineeringNotation.toSIUnit(ev.current, "A") + "    " +
+            		EngineeringNotation.toSIUnit(ev.resistance, "Ω") + "    " +
+            		EngineeringNotation.toSIUnit(ev.power, "W")), false);
     	}
-        return super.onItemUse(context);
+        return super.onItemUse(useContext);
     }
 }

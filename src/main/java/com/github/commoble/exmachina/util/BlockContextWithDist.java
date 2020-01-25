@@ -1,15 +1,15 @@
 package com.github.commoble.exmachina.util;
 
-import net.minecraft.util.math.BlockPos;
+import com.github.commoble.exmachina.api.circuit.BlockContext;
 
-public class BlockPosWithDist implements Comparable<BlockPosWithDist>
+public class BlockContextWithDist implements Comparable<BlockContextWithDist>
 {
 	public final int dist;
-	public final BlockPos pos;
+	public final BlockContext context;
 	
-	public BlockPosWithDist(int dist, BlockPos pos)
+	public BlockContextWithDist(int dist, BlockContext pos)
 	{
-		this.dist=dist; this.pos=pos;
+		this.dist=dist; this.context=pos;
 	}
 	
 	@Override
@@ -19,9 +19,9 @@ public class BlockPosWithDist implements Comparable<BlockPosWithDist>
 		{
 			return true;
 		}
-		else if (obj instanceof BlockPosWithDist)
+		else if (obj instanceof BlockContextWithDist)
 		{
-			return ((BlockPosWithDist)obj).dist == this.dist;
+			return ((BlockContextWithDist)obj).dist == this.dist;
 		}
 		else
 		{
@@ -30,7 +30,7 @@ public class BlockPosWithDist implements Comparable<BlockPosWithDist>
 	}
 
 	@Override
-	public int compareTo(BlockPosWithDist obj)
+	public int compareTo(BlockContextWithDist obj)
 	{
 		// TODO Auto-generated method stub
 		if (this == obj)

@@ -39,7 +39,6 @@ public class ItemRegistrar
 		
 		// BlockItems
 		registerItem(registry, new BlockItem(BlockRegistrar.battery, new Item.Properties().group(CreativeTabs.tab)), RegistryNames.BATTERY);
-		registerItem(registry, new BlockItem(BlockRegistrar.wire, new Item.Properties().group(CreativeTabs.tab)), RegistryNames.WIRE);
 		registerItem(registry, new BlockItem(BlockRegistrar.lightbulb, new Item.Properties().group(CreativeTabs.tab)), RegistryNames.LIGHTBULB);
 		
 		// real items

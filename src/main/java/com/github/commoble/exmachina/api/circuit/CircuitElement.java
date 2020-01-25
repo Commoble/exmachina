@@ -1,16 +1,13 @@
-package com.github.commoble.exmachina.api.electrical;
-
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+package com.github.commoble.exmachina.api.circuit;
 
 /**
  * A representation of a component in the circuit
  * indicating the component's position, as well as its adjacent
  * nodes and its electrical characteristics
  */
-public abstract class CircuitElement
+public class CircuitElement
 {
-	public BlockPos componentPos;
+	public ElementContext context;
 	public Node nodeA;
 	public Node nodeB;
 		// they may be the same node
@@ -22,9 +19,9 @@ public abstract class CircuitElement
 		// resistors will be 0,1,2, etc
 		// sources will be 0,1,2, etc, independant from resistors
 
-	public CircuitElement(World world, BlockPos componentPos, Node nodeA, Node nodeB)
+	public CircuitElement(ElementContext context, Node nodeA, Node nodeB)
 	{
-		this.componentPos = componentPos;
+		this.context = context;
 		this.nodeA = nodeA;
 		this.nodeB = nodeB;
 	}
@@ -32,14 +29,17 @@ public abstract class CircuitElement
 	@Override
 	public int hashCode()
 	{
-		return this.componentPos.hashCode();
+		return this.context.hashCode();
 	}
 	
 	@Override
 	public boolean equals(Object o)
 	{
-		return (o instanceof CircuitElement && ((CircuitElement)o).componentPos.equals(this.componentPos));
+		return (o instanceof CircuitElement && ((CircuitElement)o).context.equals(this.context));
 	}
 	
-	public abstract double getCurrent();
+	public ElectricalValues getElectricalValues()
+	{
+		return this.context.getElectricalValues(this);
+	}
 }

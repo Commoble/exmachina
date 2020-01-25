@@ -3,22 +3,16 @@ package com.github.commoble.exmachina.content.block;
 import java.util.EnumSet;
 import java.util.Set;
 
-import javax.annotation.Nullable;
-
-import com.github.commoble.exmachina.api.electrical.ElectricalValues;
-import com.github.commoble.exmachina.content.tileentity.TileEntityBattery;
+import com.github.commoble.exmachina.api.circuit.ElectricalValues;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.BlockState;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
-public class BlockBattery extends BlockWithAllFacing implements ITileEntityProvider, IElectricalBlock, ITwoTerminalComponent
+public class BlockBattery extends BlockWithAllFacing
 {
 	// facing of block = facing of positive side
 	
@@ -29,26 +23,7 @@ public class BlockBattery extends BlockWithAllFacing implements ITileEntityProvi
 		this.setDefaultState(this.stateContainer.getBaseState().with(FACING, Direction.WEST));
         
 	}
-	
-	@Override
-	public boolean hasTileEntity(BlockState state)
-	{
-		return true;
-	}
 
-	@Nullable
-	@Override
-	public TileEntity createNewTileEntity(IBlockReader worldIn)
-	{
-		return createTileEntity(worldIn, getDefaultState());
-	}
-
-	public TileEntity createTileEntity(IBlockReader world, BlockState state)
-	{
-		return new TileEntityBattery();
-	}
-
-	@Override
 	public Set<Direction> getConnectingFaces(IWorld world, BlockState blockState, BlockPos pos)
 	{
 		Direction face1 = this.getFacingOfBlockState(blockState);
@@ -56,27 +31,25 @@ public class BlockBattery extends BlockWithAllFacing implements ITileEntityProvi
 		return EnumSet.of(face1, face2);
 	}
 
-	@Override
 	public Direction getPositiveFace(World world, BlockPos pos)
 	{
 		return this.getFacingOfBlockState(world.getBlockState(pos));
 	}
 
-	@Override
 	public Direction getNegativeFace(World world, BlockPos pos)
 	{
 		return this.getFacingOfBlockState(world.getBlockState(pos)).getOpposite();
 	}
 
-	@Override
 	public ElectricalValues getElectricalValues(World world, BlockState blockState, BlockPos pos)
 	{
-		TileEntity te = world.getTileEntity(pos);
-		if (te instanceof TileEntityBattery)
-		{
-			return ((TileEntityBattery)te).getElectricalValues();
-		}
-		return null;
+//		TileEntity te = world.getTileEntity(pos);
+//		if (te instanceof TileEntityBattery)
+//		{
+//			return ((TileEntityBattery)te).getElectricalValues();
+//		}
+//		return null; TODO
+		return ElectricalValues.NULL_VALUES;
 	}
 
 	/**
@@ -91,15 +64,16 @@ public class BlockBattery extends BlockWithAllFacing implements ITileEntityProvi
 	* currentPos is the position of this block
 	* facingPos is the position of the adjacent block that triggered this method
 	*/
+	@Override
 	public BlockState updatePostPlacement(BlockState stateIn, Direction facing, BlockState facingState, IWorld worldIn, BlockPos currentPos, BlockPos facingPos)
 	{
 		if (!worldIn.isRemote())
 		{
-			TileEntity te = worldIn.getTileEntity(currentPos);
-			if (te instanceof TileEntityBattery)
-			{
-				((TileEntityBattery)te).invalidateCircuit();
-			}
+//			TileEntity te = worldIn.getTileEntity(currentPos); TODO
+//			if (te instanceof TileEntityBattery)
+//			{
+//				((TileEntityBattery)te).invalidateCircuit();
+//			}
 		}
 		return super.updatePostPlacement(stateIn, facing, facingState, worldIn, currentPos, facingPos);
 	}
