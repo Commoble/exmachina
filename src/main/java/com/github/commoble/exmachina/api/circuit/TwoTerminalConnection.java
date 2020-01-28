@@ -14,17 +14,12 @@ public class TwoTerminalConnection
 {
 	public final BlockPos positiveEnd;
 	public final BlockPos negativeEnd;
-	private final Set<BlockPos> set;
+	public final Set<BlockPos> set;
 	
 	public TwoTerminalConnection(final BlockPos positiveEnd, final BlockPos negativeEnd)
 	{
 		this.positiveEnd = positiveEnd;
 		this.negativeEnd = negativeEnd;
 		this.set = Collections.unmodifiableSet(Sets.newHashSet(this.positiveEnd, this.negativeEnd));
-	}
-	
-	public Set<BlockPos> toSet()
-	{
-		return this.set;
 	}
 }

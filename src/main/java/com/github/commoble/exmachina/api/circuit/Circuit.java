@@ -60,7 +60,7 @@ public class Circuit
 		return !this.invalidated;
 	}
 	
-	public void addCircuitComponent(final BlockContext context, final Node nodeA, final Node nodeB)
+	public void addCircuitComponent(final IWorld world, final BlockContext context, final Node nodeA, final Node nodeB)
 	{
 		// consolidate node instances
 		Node firstNode = nodeA;
@@ -76,7 +76,6 @@ public class Circuit
 				secondNode = node;
 			}
 		}
-		IWorld world = context.world;
 		BlockState state = context.state;
 		Block block = state.getBlock();
 		ElementProperties elementProperties = ComponentRegistry.ELEMENTS.get(block);
@@ -84,9 +83,9 @@ public class Circuit
 		{
 			ElementContext elementContext = elementProperties.getElementContext(context);
 			// thing.setCircuit
-			TwoTerminalConnection terminal = elementContext.getTerminals();
-			BlockContext positiveEnd = context.getNewPosContext(terminal.positiveEnd);
-			BlockContext negativeEnd = context.getNewPosContext(terminal.negativeEnd);
+			TwoTerminalConnection terminal = elementContext.connection;
+			BlockContext positiveEnd = context.getNewPosContext(terminal.positiveEnd, world);
+			BlockContext negativeEnd = context.getNewPosContext(terminal.negativeEnd, world);
 			CircuitElement circuitElement;
 			if (firstNode.contains(positiveEnd.pos))
 			{
@@ -182,7 +181,7 @@ public class Circuit
 //				// 1) a wire that connects back
 //				// 2) another component that connects back
 //				// 3) a non-electrical block, or an electrical block that does not connect back
-				BlockContext checkContext = componentContext.getNewPosContext(checkPos);
+				BlockContext checkContext = componentContext.getNewPosContext(checkPos, world);
 				if (baseNode.contains(checkPos))
 				{
 					faceCount++;
@@ -191,7 +190,7 @@ public class Circuit
 //					// then the component is shorted and we must handle it here
 					if (faceCount >= 2 && !circuit.components.containsKey(componentPos))
 					{
-						circuit.addCircuitComponent(checkContext, baseNode, baseNode);
+						circuit.addCircuitComponent(world, checkContext, baseNode, baseNode);
 					}
 					continue;
 				}
@@ -202,22 +201,22 @@ public class Circuit
 					// case 1) normal node
 					if (ComponentRegistry.WIRES.containsKey(checkBlock))
 					{
-						Node newNode = Node.buildNodeFrom(checkContext);
-						circuit.addCircuitComponent(componentContext, baseNode, newNode);
+						Node newNode = Node.buildNodeFrom(checkContext, world);
+						circuit.addCircuitComponent(world, componentContext, baseNode, newNode);
 						circuit = Circuit.expandCircuitFromNode(world, circuit, newNode);
 						break;
 					}
 					else if (ComponentRegistry.ELEMENTS.containsKey(checkBlock)) // case 2) virtual node
 					{
 						Node newNode = Node.createVirtualNode(componentPos, checkPos);
-						circuit.addCircuitComponent(componentContext, baseNode, newNode);
+						circuit.addCircuitComponent(world, componentContext, baseNode, newNode);
 						circuit = Circuit.expandCircuitFromNode(world, circuit, newNode);
 						break;
 					}
 					else // shouldn't happen, just fall back to case 3)
 					{
 						Node newNode = Node.createDeadNode(componentPos);
-						circuit.addCircuitComponent(componentContext, baseNode, newNode);
+						circuit.addCircuitComponent(world, componentContext, baseNode, newNode);
 						circuit = Circuit.expandCircuitFromNode(world, circuit, newNode);
 						break;
 					}
@@ -225,7 +224,7 @@ public class Circuit
 				else // case 3) dead node
 				{
 					Node newNode = Node.createDeadNode(componentPos);
-					circuit.addCircuitComponent(componentContext, baseNode, newNode);
+					circuit.addCircuitComponent(world, componentContext, baseNode, newNode);
 					circuit = Circuit.expandCircuitFromNode(world, circuit, newNode);
 					break;
 				}

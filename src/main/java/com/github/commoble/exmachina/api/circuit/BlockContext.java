@@ -1,30 +1,31 @@
 package com.github.commoble.exmachina.api.circuit;
 
+import javax.annotation.concurrent.Immutable;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 
+@Immutable
 public class BlockContext
 {
 	public final BlockState state;
 	public final BlockPos pos;
-	public final IWorld world;
 	
-	public BlockContext(final BlockState state, final BlockPos pos, IWorld world)
+	public BlockContext(final BlockState state, final BlockPos pos)
 	{
 		this.state = state;
 		this.pos = pos.toImmutable();
-		this.world = world;
 	}
 	
 	public static BlockContext getContext(final BlockPos pos, IWorld world)
 	{
-		return new BlockContext(world.getBlockState(pos), pos.toImmutable(), world);
+		return new BlockContext(world.getBlockState(pos), pos);
 	}
 	
-	public BlockContext getNewPosContext(BlockPos pos)
+	public BlockContext getNewPosContext(BlockPos pos, IWorld world)
 	{
-		return getContext(pos.toImmutable(), this.world);
+		return getContext(pos, world);
 	}
 	
 	@Override

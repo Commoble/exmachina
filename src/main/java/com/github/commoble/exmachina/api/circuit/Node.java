@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
 
 /**
  * Representation of a "node" in an electrical circuit,
@@ -124,13 +125,13 @@ public class Node
 	 * -if startPos is a component pos, return a dead node containing that component
 	 * -if startPos is not electrical, return NULL
 	 */
-	public static Node buildNodeFrom(BlockContext startContext)//BlockPos firstComponentPos, BlockPos firstWirePos)
+	public static Node buildNodeFrom(BlockContext startContext, IWorld world)//BlockPos firstComponentPos, BlockPos firstWirePos)
 	{
 		Node node = new Node();
 		Block startBlock = startContext.state.getBlock();
 		if (ComponentRegistry.WIRES.containsKey(startBlock))
 		{
-			return Node.recursivelyBuildNodeFrom(node, startContext);
+			return Node.recursivelyBuildNodeFrom(node, startContext, world);
 		}
 		else if (ComponentRegistry.ELEMENTS.containsKey(startBlock))
 		{
@@ -143,7 +144,7 @@ public class Node
 	}
 	
 	@Nonnull
-	private static Node recursivelyBuildNodeFrom(@Nonnull Node node, BlockContext startContext)// BlockPos checkPos, BlockPos prevPos)
+	private static Node recursivelyBuildNodeFrom(@Nonnull Node node, BlockContext startContext, IWorld world)// BlockPos checkPos, BlockPos prevPos)
 	{
 		// if node already contains this position, ignore and return
 		BlockState startState = startContext.state;
@@ -167,10 +168,10 @@ public class Node
 			for(BlockPos nextCheck : positionsToCheck)
 			{
 //				BlockPos nextCheck = startPos.offset(face);
-				BlockContext nextContext = startContext.getNewPosContext(nextCheck);
+				BlockContext nextContext = startContext.getNewPosContext(nextCheck, world);
 				if (!node.contains(nextCheck) && CircuitHelper.doTwoBlocksConnect(startContext, nextContext))
 				{
-					node = recursivelyBuildNodeFrom(node, nextContext);
+					node = recursivelyBuildNodeFrom(node, nextContext, world);
 				}
 			}
 			

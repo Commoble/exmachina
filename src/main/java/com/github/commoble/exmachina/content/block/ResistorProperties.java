@@ -1,5 +1,7 @@
 package com.github.commoble.exmachina.content.block;
 
+import javax.annotation.concurrent.Immutable;
+
 import com.github.commoble.exmachina.api.circuit.BlockContext;
 import com.github.commoble.exmachina.api.circuit.ElementProperties;
 import com.github.commoble.exmachina.api.circuit.ElementType;
@@ -8,6 +10,7 @@ import com.github.commoble.exmachina.api.circuit.TwoTerminalConnection;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;
 
+@Immutable
 public class ResistorProperties extends ElementProperties
 {
 	public final double resistance;

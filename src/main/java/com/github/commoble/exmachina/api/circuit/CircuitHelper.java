@@ -49,7 +49,7 @@ public class CircuitHelper
 		{
 			if (isWireBlock(startContext))	// normal node
 			{
-				groundNode = Node.buildNodeFrom(startContext);
+				groundNode = Node.buildNodeFrom(startContext, world);
 			}
 			else if (isElementBlock(startContext))	// virtual node
 			{
@@ -148,7 +148,7 @@ public class CircuitHelper
 	 * following along IElectricalBlocks
 	 * returns empty if none is found
 	 */
-	public static Optional<CircuitElement> getNearestCircuitElement(BlockContext startContext)
+	public static Optional<CircuitElement> getNearestCircuitElement(BlockContext startContext, IWorld world)
 	{
 		// current implementation is based on Djikstra's algorithm
 		// 
@@ -181,7 +181,7 @@ public class CircuitHelper
 			}
 			// get all adjacent connected blocks
 //			EnumSet<Direction> checkFaces = CircuitHelper.getBiConnectedElectricalBlocks(world, closest.pos);
-			Set<BlockContext> checkPositions = CircuitHelper.getBiConnectedElectricalBlocks(closest.context);
+			Set<BlockContext> checkPositions = CircuitHelper.getBiConnectedElectricalBlocks(closest.context, world);
 			for (BlockContext nextContext : checkPositions)
 			{
 				if (!dists.containsKey(nextContext.pos) || dists.get(nextContext.pos) > closest.dist + 1)	// TODO replace with wire resist
@@ -198,10 +198,10 @@ public class CircuitHelper
 	/** get a set of the blocks that this block connects to that also connect back to this block **/
 	
 	@Nonnull
-	public static Set<BlockContext> getBiConnectedElectricalBlocks(final BlockContext context)
+	public static Set<BlockContext> getBiConnectedElectricalBlocks(final BlockContext context, final IWorld world)
 	{
 		return ComponentRegistry.getConnectionProvider(context).getPotentialConnections().stream()
-			.map(context::getNewPosContext)
+			.map(pos -> context.getNewPosContext(pos, world))
 			.filter(otherContext -> CircuitHelper.doTwoBlocksConnect(context, otherContext))
 			.collect(Collectors.toCollection(HashSet::new));
 	}

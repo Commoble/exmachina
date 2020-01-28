@@ -2,22 +2,22 @@ package com.github.commoble.exmachina.api.circuit;
 
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
 
 import net.minecraft.util.math.BlockPos;
 
+@Immutable
 public class ElementContext implements IConnectionProvider
 {
 	public final BlockContext context;
 	public final ElementProperties properties;
-	
-	private TwoTerminalConnection connection = null;
-	private Set<BlockPos> connectionSet = null;
+	public final TwoTerminalConnection connection;
 	
 	public ElementContext(final BlockContext context, final ElementProperties properties)
 	{
 		this.context = context;
 		this.properties = properties;
+		this.connection = this.properties.getAllowedConnections(context);
 	}
 	
 	public CircuitElement createCircuitElement(Node positiveNode, Node negativeNode)
@@ -39,16 +39,6 @@ public class ElementContext implements IConnectionProvider
 		
 		return new ElectricalValues(voltage, current, resistance, power);
 	}
-	
-	@Nonnull
-	public TwoTerminalConnection getTerminals()
-	{
-		if (this.connection == null)
-		{
-			this.connection = this.properties.getAllowedConnections(this.context);
-		}
-		return this.connection;
-	}
 
 	@Override
 	public boolean canThisConnectTo(BlockContext context)
@@ -59,10 +49,6 @@ public class ElementContext implements IConnectionProvider
 	@Override
 	public Set<BlockPos> getPotentialConnections()
 	{
-		if (this.connectionSet == null)
-		{
-			this.connectionSet = this.getTerminals().toSet();
-		}
-		return this.getTerminals().toSet();
+		return this.connection.set;
 	}
 }

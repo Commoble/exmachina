@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.block.Block;
+import net.minecraft.world.IWorld;
 
 public class ComponentRegistry
 {
@@ -32,16 +33,16 @@ public class ComponentRegistry
 		}
 	}
 	
-	public static ElectricalValues getElectricalValues(BlockContext context)
+	public static ElectricalValues getElectricalValues(BlockContext context, IWorld world)
 	{
 		Block block = context.state.getBlock();
 		if (WIRES.containsKey(block))
 		{
-			return WIRES.get(block).getElectricalValues(context);
+			return WIRES.get(block).getElectricalValues(context, world);
 		}
 		else if (ELEMENTS.containsKey(block))
 		{
-			return CircuitHelper.getNearestCircuitElement(context)
+			return CircuitHelper.getNearestCircuitElement(context, world)
 				.map(CircuitElement::getElectricalValues)
 				.orElse(ElectricalValues.NULL_VALUES);
 		}

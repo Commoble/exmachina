@@ -1,7 +1,9 @@
 package com.github.commoble.exmachina.api.circuit;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
 
+@Immutable
 public abstract class ElementProperties
 {
 	public final ElementType type;
