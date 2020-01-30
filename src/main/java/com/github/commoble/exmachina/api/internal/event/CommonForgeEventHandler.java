@@ -3,11 +3,12 @@ package com.github.commoble.exmachina.api.internal.event;
 import com.github.commoble.exmachina.ExMachinaMod;
 import com.github.commoble.exmachina.api.circuit.CircuitHelper;
 import com.github.commoble.exmachina.api.circuit.ComponentRegistry;
-import com.github.commoble.exmachina.api.circuit.ExtantCircuits;
+import com.github.commoble.exmachina.api.circuit.WorldCircuitManager;
 import com.github.commoble.exmachina.api.util.BlockContext;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
 import net.minecraftforge.event.world.BlockEvent.EntityPlaceEvent;
 import net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -24,10 +25,11 @@ public class CommonForgeEventHandler
 	{		
 		// If this position used to have a circuit block but no longer does, invalidate circuit
 		BlockPos pos = event.getPos();
-		if (ExtantCircuits.doesValidCircuitExistAt(pos)
+		IWorld world = event.getWorld();
+		if (WorldCircuitManager.doesValidCircuitExistAt(world, pos)
 			&& !ComponentRegistry.contains(event.getState().getBlock()))
 		{
-			CircuitHelper.onCircuitBlockRemoved(event.getWorld(), pos);
+			CircuitHelper.onCircuitBlockRemoved(world, pos);
 		}
 	}
 	

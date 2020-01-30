@@ -94,11 +94,11 @@ public class CircuitHelper
 		Set<BlockPos> connectionSet = connector.getPotentialConnections();
 		for (BlockPos pos : connectionSet)
 		{
-			ExtantCircuits.invalidateCircuitAt(pos);
+			WorldCircuitManager.invalidateCircuitAt(world, pos);
 		}
 		if (!connectionSet.contains(startPos))	// also invalidate the position of the block that was added if it wasn't already
 		{
-			ExtantCircuits.invalidateCircuitAt(startPos);
+			WorldCircuitManager.invalidateCircuitAt(world, startPos);
 		}
 	}
 	
@@ -112,7 +112,7 @@ public class CircuitHelper
 	// an electrical block used to be here but isn't now (NNE fires after blockstate change)
 	public static void onCircuitBlockRemoved(IWorld world, BlockPos pos)
 	{
-		ExtantCircuits.invalidateCircuitAt(pos);
+		WorldCircuitManager.invalidateCircuitAt(world, pos);
 	}
 	
 	// any other physical update to circuits
@@ -129,7 +129,7 @@ public class CircuitHelper
 		BlockState newState = context.state;
 		Block newBlock = newState.getBlock();
 		
-		Circuit oldCircuit = ExtantCircuits.CIRCUITS.get(context.pos);
+		Circuit oldCircuit = WorldCircuitManager.getCircuit(world, context.pos);
 		ElementProperties properties = ComponentRegistry.ELEMENTS.get(newBlock);
 		if (properties != null) // we have an element block
 		{
@@ -137,7 +137,7 @@ public class CircuitHelper
 			{
 				// we have an element block that needs a new circuit built
 				BlockPos nextPos = properties.getAllowedConnections(context).positiveEnd;
-				ExtantCircuits.addCircuit(CircuitHelper.buildCircuit(world, context.pos, nextPos));
+				WorldCircuitManager.addCircuit(world, CircuitHelper.buildCircuit(world, context.pos, nextPos));
 			}
 		}
 		
@@ -154,7 +154,7 @@ public class CircuitHelper
 		// if we start on an element, just return that
 		if (CircuitHelper.isElementBlock(startContext))
 		{
-			return ExtantCircuits.getElement(world, startContext);
+			return WorldCircuitManager.getElement(world, startContext);
 		}
 		
 		HashMap<BlockPos, Integer> dists = new HashMap<BlockPos, Integer>();	// known distance from position to start
@@ -191,7 +191,7 @@ public class CircuitHelper
 				}
 			}
 		}
-		return ExtantCircuits.getElement(world, nearestKnownElement);
+		return WorldCircuitManager.getElement(world, nearestKnownElement);
 	}
 	
 	/** get a set of the blocks that this block connects to that also connect back to this block **/

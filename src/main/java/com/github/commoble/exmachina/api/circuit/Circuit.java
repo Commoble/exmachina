@@ -87,7 +87,7 @@ public class Circuit
 			// thing.setCircuit
 			TwoTerminalConnection terminal = elementContext.connection;
 			BlockContext positiveEnd = context.getNewPosContext(terminal.positiveEnd, world);
-			BlockContext negativeEnd = context.getNewPosContext(terminal.negativeEnd, world);
+			//BlockContext negativeEnd = context.getNewPosContext(terminal.negativeEnd, world);
 			CircuitElement circuitElement;
 			if (firstNode.contains(positiveEnd.pos))
 			{
@@ -303,7 +303,7 @@ public class Circuit
 		// and X contains the voltage at each node and the current through each source (i.e. the unknowns)
 		// and A and Z comtain values based on the values of resistors and independant sources (i.e. known quantities)
 		// the unknowns can therefore be found as: X = A^-1 * Z
-		// more math at https://www.swarthmore.edu/NatSci/echeeve1/Ref/mna/MNA1.html
+		// more math by Erik Cheever at https://www.swarthmore.edu/NatSci/echeeve1/Ref/mna/MNA1.html
 		
 		// this is also where the "identifier" of each node is set
 		groundNode.identifier = -1;
