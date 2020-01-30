@@ -3,6 +3,8 @@ package com.github.commoble.exmachina.api.circuit;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.github.commoble.exmachina.api.util.BlockContext;
+
 import net.minecraft.util.math.BlockPos;
 
 public interface IConnectionProvider

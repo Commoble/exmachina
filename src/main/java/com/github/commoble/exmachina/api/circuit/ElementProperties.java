@@ -3,6 +3,8 @@ package com.github.commoble.exmachina.api.circuit;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
+import com.github.commoble.exmachina.api.util.BlockContext;
+
 @Immutable
 public abstract class ElementProperties
 {

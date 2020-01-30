@@ -1,13 +1,14 @@
 package com.github.commoble.exmachina.api.internal.event;
 
-import java.util.EnumSet;
-
 import com.github.commoble.exmachina.ExMachinaMod;
 import com.github.commoble.exmachina.api.circuit.CircuitHelper;
+import com.github.commoble.exmachina.api.circuit.ComponentRegistry;
+import com.github.commoble.exmachina.api.circuit.ExtantCircuits;
+import com.github.commoble.exmachina.api.util.BlockContext;
 
-import net.minecraft.util.Direction;
+import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
+import net.minecraftforge.event.world.BlockEvent.EntityPlaceEvent;
 import net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -18,20 +19,25 @@ public class CommonForgeEventHandler
 {
 	@SubscribeEvent
 	// runs on the server when a block is updated in a manner that notifies its neighbors
+	// this fires AFTER a block is set in the world
 	public static void onNeighborNotify(NeighborNotifyEvent event)
-	{
+	{		
+		// If this position used to have a circuit block but no longer does, invalidate circuit
 		BlockPos pos = event.getPos();
-		IWorld world = event.getWorld();
-		
-		EnumSet<Direction> sides = event.getNotifiedSides();
-		for (Direction side : sides)
+		if (ExtantCircuits.doesValidCircuitExistAt(pos)
+			&& !ComponentRegistry.contains(event.getState().getBlock()))
 		{
-			CircuitHelper.onCircuitNeighborChanged(world, pos.offset(side));
+			CircuitHelper.onCircuitBlockRemoved(event.getWorld(), pos);
 		}
-		
-		for (Direction side : sides)
+	}
+	
+	@SubscribeEvent
+	public static void onEntityPlaceBlock(EntityPlaceEvent event)
+	{
+		BlockState state = event.getState();
+		if (ComponentRegistry.contains(state.getBlock()))
 		{
-			CircuitHelper.revalidateCircuitAt(world, pos.offset(side));
+			CircuitHelper.onCircuitBlockAdded(event.getWorld(), new BlockContext(state, event.getPos()));
 		}
 	}
 }

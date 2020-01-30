@@ -1,9 +1,9 @@
 package com.github.commoble.exmachina.content.item;
 
-import com.github.commoble.exmachina.api.circuit.BlockContext;
 import com.github.commoble.exmachina.api.circuit.ComponentRegistry;
 import com.github.commoble.exmachina.api.circuit.ElectricalValues;
-import com.github.commoble.exmachina.api.circuit.EngineeringNotation;
+import com.github.commoble.exmachina.api.util.BlockContext;
+import com.github.commoble.exmachina.api.util.EngineeringNotation;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -33,7 +33,7 @@ public class ItemMondometer extends Item
         	BlockPos pos = useContext.getPos();
         	BlockState state = world.getBlockState(pos);
         	BlockContext blockContext = new BlockContext(state, pos);
-        	ElectricalValues ev = ComponentRegistry.getElectricalValues(blockContext, useContext.getWorld());
+        	ElectricalValues ev = ComponentRegistry.getElectricalValues(useContext.getWorld(), blockContext);
 
     		PlayerEntity player = useContext.getPlayer();
             player.sendStatusMessage(new StringTextComponent(

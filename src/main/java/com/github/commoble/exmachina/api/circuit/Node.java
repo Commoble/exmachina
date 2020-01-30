@@ -5,6 +5,8 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
+import com.github.commoble.exmachina.api.util.BlockContext;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;

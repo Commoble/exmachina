@@ -3,6 +3,8 @@ package com.github.commoble.exmachina.api.circuit;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.github.commoble.exmachina.api.util.BlockContext;
+
 import net.minecraft.block.Block;
 import net.minecraft.world.IWorld;
 
@@ -33,7 +35,7 @@ public class ComponentRegistry
 		}
 	}
 	
-	public static ElectricalValues getElectricalValues(BlockContext context, IWorld world)
+	public static ElectricalValues getElectricalValues(IWorld world, BlockContext context)
 	{
 		Block block = context.state.getBlock();
 		if (WIRES.containsKey(block))
@@ -42,7 +44,7 @@ public class ComponentRegistry
 		}
 		else if (ELEMENTS.containsKey(block))
 		{
-			return CircuitHelper.getNearestCircuitElement(context, world)
+			return CircuitHelper.getNearestCircuitElement(world, context)
 				.map(CircuitElement::getElectricalValues)
 				.orElse(ElectricalValues.NULL_VALUES);
 		}

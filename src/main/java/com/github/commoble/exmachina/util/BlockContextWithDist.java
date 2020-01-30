@@ -1,6 +1,6 @@
 package com.github.commoble.exmachina.util;
 
-import com.github.commoble.exmachina.api.circuit.BlockContext;
+import com.github.commoble.exmachina.api.util.BlockContext;
 
 public class BlockContextWithDist implements Comparable<BlockContextWithDist>
 {

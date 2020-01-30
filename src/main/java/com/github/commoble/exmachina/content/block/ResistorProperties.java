@@ -2,10 +2,10 @@ package com.github.commoble.exmachina.content.block;
 
 import javax.annotation.concurrent.Immutable;
 
-import com.github.commoble.exmachina.api.circuit.BlockContext;
 import com.github.commoble.exmachina.api.circuit.ElementProperties;
 import com.github.commoble.exmachina.api.circuit.ElementType;
 import com.github.commoble.exmachina.api.circuit.TwoTerminalConnection;
+import com.github.commoble.exmachina.api.util.BlockContext;
 
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;

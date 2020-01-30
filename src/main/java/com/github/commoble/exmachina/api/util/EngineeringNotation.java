@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.api.circuit;
+package com.github.commoble.exmachina.api.util;
 
 /**
  * Utility class for making values more readable

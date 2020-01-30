@@ -4,6 +4,8 @@ import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 
+import com.github.commoble.exmachina.api.util.BlockContext;
+
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 
@@ -29,7 +31,7 @@ public abstract class WireProperties
 		// and get that element's current
 		// it's not perfect but it'll work in most circumstances
 		double resistance = this.wireResistance;
-		double current = CircuitHelper.getNearestCircuitElement(context, world)
+		double current = CircuitHelper.getNearestCircuitElement(world, context)
 			.map(element -> element.getElectricalValues().current)
 			.orElse(0D);
 		double voltage = resistance * current;

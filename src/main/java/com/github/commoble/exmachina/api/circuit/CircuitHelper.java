@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
+import com.github.commoble.exmachina.api.util.BlockContext;
 import com.github.commoble.exmachina.util.BlockContextWithDist;
 
 import net.minecraft.block.Block;
@@ -82,63 +83,61 @@ public class CircuitHelper
 		return ComponentRegistry.ELEMENTS.containsKey(context.state.getBlock());
 	}
 	
-	/**
-	 * Called when a circuit needs to be marked as needing to be updated after a change to a wire block.
-	 * The wire block does not have access to the circuit, so it must find the nearest ICircuitElementHolderTE,
-	 * and use that to invalidate the circuit
-	 * @param circuit
-	 * @param pos
-	 */
-	public static void onCircuitNeighborChanged(IWorld world, BlockPos pos)
+	// if an electrical block is added, we want to invalidate any circuit at that location AND any circuit
+	// that the new block could potentially connect to
+		// we don't need to know the old connections, just the location and the new connections
+		// use the player-add-block event for this
+	public static void onCircuitBlockAdded(IWorld world, BlockContext context)
 	{
-//		// quick note on an edge case (not really an edge case since this will be very common)
-//		// suppose a wire is broken in a manner that divides a circuit into two separate circuits
-//		// we only need to invalidate one element
-//		// since each component in either division will have had the same circuit
-//		// but we do need to notify each component that the circuit needs to be rebuilt
-//			// (solved: make invalidate ask each component in the circuit to try to rebuild)
-//		
-//		// reusing this for now
-//		// TODO replace with more efficient algorithm
-//		// we don't NEED to find the "nearest" connected element
-//		// we just need *a* connected element
-//		// getNearestCircuitElement examines the entire connected circuit whether it needs to or not
-//		// which is more work than necessary for what we need here
-//		CircuitElement nearestElement = getNearestCircuitElement(world, pos);
-//		if (nearestElement != null)
-//		{
-//			BlockPos targetPos = nearestElement.componentPos;
-//			BlockState targetState = world.getBlockState(targetPos);
-////			if (targetState.hasTileEntity()) TODO
-////			{
-////				TileEntity te = world.getTileEntity(targetPos);
-////				if (te instanceof ICircuitElementHolderTE)
-////				{
-////					((ICircuitElementHolderTE)te).invalidateCircuit();
-////				}
-////			}
-//		}
-		// TODO make circuit only invalidate if it physically changes
-		ExtantCircuits.invalidateCircuitAt(pos);
-		
-		// if nearestElement is null we don't care about anything
+		BlockPos startPos = context.pos;
+		IConnectionProvider connector = ComponentRegistry.getConnectionProvider(context);
+		Set<BlockPos> connectionSet = connector.getPotentialConnections();
+		for (BlockPos pos : connectionSet)
+		{
+			ExtantCircuits.invalidateCircuitAt(pos);
+		}
+		if (!connectionSet.contains(startPos))	// also invalidate the position of the block that was added if it wasn't already
+		{
+			ExtantCircuits.invalidateCircuitAt(startPos);
+		}
 	}
 	
-	public static void revalidateCircuitAt(IWorld world, BlockPos pos)
+	// if an electrical block has been removed, we want to invalidate any circuit that existed at that location
+	// we don't need to know the old connections, just the location
+	// things that can remove blocks:
+		// player breaking
+		// pistons
+		// explosions
+	// These and anything else is covered by using the NotifyNeighborEvent and checking if
+	// an electrical block used to be here but isn't now (NNE fires after blockstate change)
+	public static void onCircuitBlockRemoved(IWorld world, BlockPos pos)
 	{
-		BlockContext context = BlockContext.getContext(pos, world);
-		BlockState state = context.state;
-		Block block = state.getBlock();
+		ExtantCircuits.invalidateCircuitAt(pos);
+	}
+	
+	// any other physical update to circuits
+	// (such as a blockstate changing itself to a differently-connecting blockstate)
+	// must manually invalidate the circuit
+	
+	
+	
+	
+	
+	
+	public static void validateCircuitAt(IWorld world, BlockContext context)
+	{
+		BlockState newState = context.state;
+		Block newBlock = newState.getBlock();
 		
 		Circuit oldCircuit = ExtantCircuits.CIRCUITS.get(context.pos);
-		ElementProperties properties = ComponentRegistry.ELEMENTS.get(block);
+		ElementProperties properties = ComponentRegistry.ELEMENTS.get(newBlock);
 		if (properties != null) // we have an element block
 		{
 			if (oldCircuit == null || !oldCircuit.isValid())
 			{
 				// we have an element block that needs a new circuit built
 				BlockPos nextPos = properties.getAllowedConnections(context).positiveEnd;
-				ExtantCircuits.addCircuit(CircuitHelper.buildCircuit(world, pos, nextPos));
+				ExtantCircuits.addCircuit(CircuitHelper.buildCircuit(world, context.pos, nextPos));
 			}
 		}
 		
@@ -148,14 +147,14 @@ public class CircuitHelper
 	 * following along IElectricalBlocks
 	 * returns empty if none is found
 	 */
-	public static Optional<CircuitElement> getNearestCircuitElement(BlockContext startContext, IWorld world)
+	public static Optional<CircuitElement> getNearestCircuitElement(IWorld world, BlockContext startContext)
 	{
 		// current implementation is based on Djikstra's algorithm
 		// 
 		// if we start on an element, just return that
 		if (CircuitHelper.isElementBlock(startContext))
 		{
-			return ExtantCircuits.getElement(startContext);
+			return ExtantCircuits.getElement(world, startContext);
 		}
 		
 		HashMap<BlockPos, Integer> dists = new HashMap<BlockPos, Integer>();	// known distance from position to start
@@ -192,7 +191,7 @@ public class CircuitHelper
 				}
 			}
 		}
-		return ExtantCircuits.getElement(nearestKnownElement);
+		return ExtantCircuits.getElement(world, nearestKnownElement);
 	}
 	
 	/** get a set of the blocks that this block connects to that also connect back to this block **/

@@ -7,7 +7,7 @@ package com.github.commoble.exmachina.api.circuit;
  */
 public class CircuitElement
 {
-	public ElementContext context;
+	public final ElementContext context;
 	public Node nodeA;
 	public Node nodeB;
 		// they may be the same node

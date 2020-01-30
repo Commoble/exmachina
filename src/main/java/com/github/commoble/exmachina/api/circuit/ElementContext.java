@@ -4,6 +4,8 @@ import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 
+import com.github.commoble.exmachina.api.util.BlockContext;
+
 import net.minecraft.util.math.BlockPos;
 
 @Immutable

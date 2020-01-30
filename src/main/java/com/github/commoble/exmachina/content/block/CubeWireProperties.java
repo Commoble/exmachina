@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.github.commoble.exmachina.api.circuit.BlockContext;
 import com.github.commoble.exmachina.api.circuit.WireProperties;
+import com.github.commoble.exmachina.api.util.BlockContext;
 
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;

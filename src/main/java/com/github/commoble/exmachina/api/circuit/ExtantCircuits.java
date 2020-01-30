@@ -7,10 +7,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.github.commoble.exmachina.api.util.BlockContext;
+
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
 
 public class ExtantCircuits
 {
+	// TODO needs to be separate per-world
 	public static final Map<BlockPos, Circuit> CIRCUITS = new HashMap<>();
 	
 	/**
@@ -55,14 +59,15 @@ public class ExtantCircuits
 		return (circuit != null && circuit.isValid());
 	}
 	
-	public static Optional<CircuitElement> getElement(BlockContext context)
+	public static Optional<CircuitElement> getElement(IWorld world, BlockContext context)
 	{
 		if (context == null
-			|| !ComponentRegistry.ELEMENTS.containsKey(context.state.getBlock())
-			|| !CIRCUITS.containsKey(context.pos))
+			|| !ComponentRegistry.ELEMENTS.containsKey(context.state.getBlock()))
 		{
 			return Optional.empty();
 		}
+		
+		CircuitHelper.validateCircuitAt(world, context);
 		
 		return Optional.ofNullable(CIRCUITS.get(context.pos))
 			.map(circuit -> circuit.components.get(context.pos));
