@@ -14,9 +14,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
-public class ItemMondometer extends Item
+public class MondometerItem extends Item
 {
-	public ItemMondometer(Item.Properties props)
+	public MondometerItem(Item.Properties props)
 	{
 		super(props);
 	}
