@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.util;
+package com.github.commoble.exmachina.content.util;
 
 import com.github.commoble.exmachina.ExMachinaMod;
 

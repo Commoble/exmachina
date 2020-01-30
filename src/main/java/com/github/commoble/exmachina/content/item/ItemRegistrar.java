@@ -1,8 +1,10 @@
 package com.github.commoble.exmachina.content.item;
 
 import com.github.commoble.exmachina.ExMachinaMod;
-import com.github.commoble.exmachina.RegistryNames;
+import com.github.commoble.exmachina.content.RegistryNames;
+import com.github.commoble.exmachina.content.ResourceLocations;
 import com.github.commoble.exmachina.content.block.BlockRegistrar;
+import com.github.commoble.exmachina.content.util.RegistryHelper;
 
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -25,12 +27,12 @@ public class ItemRegistrar
 	@ObjectHolder(RegistryNames.LIGHTBULB)
 	public static final Item lightbulb = null;
 	
-	@ObjectHolder(RegistryNames.WIRE)
-	public static final Item wire = null;
-	
 	// real items
-	@ObjectHolder("exmachina:mondometer")
+	@ObjectHolder(RegistryNames.MONDOMETER)
 	public static final Item mondometer = null;
+	
+	@ObjectHolder(RegistryNames.WIRE_SPOOL)
+	public static final Item WireSpoolItem = null;
 	
 	
 	public static void registerItems(RegistryEvent.Register<Item> event)
@@ -38,18 +40,12 @@ public class ItemRegistrar
 		IForgeRegistry<Item> registry = event.getRegistry();
 		
 		// BlockItems
-		registerItem(registry, new BlockItem(BlockRegistrar.battery, new Item.Properties().group(CreativeTabs.tab)), RegistryNames.BATTERY);
-		registerItem(registry, new BlockItem(BlockRegistrar.lightbulb, new Item.Properties().group(CreativeTabs.tab)), RegistryNames.LIGHTBULB);
+		RegistryHelper.register(registry, ResourceLocations.BATTERY, new BlockItem(BlockRegistrar.battery, new Item.Properties().group(CreativeTabs.tab)));
+		RegistryHelper.register(registry, ResourceLocations.LIGHTBULB, new BlockItem(BlockRegistrar.lightbulb, new Item.Properties().group(CreativeTabs.tab)));
+		RegistryHelper.register(registry, ResourceLocations.WIRE_PLINTH, new BlockItem(BlockRegistrar.wire_plinth, new Item.Properties().group(CreativeTabs.tab)));
 		
 		// real items
-		registerItem(registry, new ItemMondometer(new Item.Properties().group(CreativeTabs.tab).maxStackSize(1)), ItemNames.MONDOMETER_NAME);
-	}
-	
-	private static <T extends Item> T registerItem(IForgeRegistry<Item> registry, T newItem, String name)
-	{
-		String prefixedName = ExMachinaMod.MODID + ":" + name;
-		newItem.setRegistryName(prefixedName);
-		registry.register(newItem);
-		return newItem;
+		RegistryHelper.register(registry, ResourceLocations.MONDOMETER, new MondometerItem(new Item.Properties().group(CreativeTabs.tab).maxStackSize(1)));
+		RegistryHelper.register(registry, ResourceLocations.WIRE_SPOOL, new WireSpoolItem(new Item.Properties().group(CreativeTabs.tab).maxStackSize(1)));
 	}
 }

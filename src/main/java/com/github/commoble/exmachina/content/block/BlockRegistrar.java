@@ -1,7 +1,9 @@
 package com.github.commoble.exmachina.content.block;
 
 import com.github.commoble.exmachina.ExMachinaMod;
-import com.github.commoble.exmachina.RegistryNames;
+import com.github.commoble.exmachina.content.RegistryNames;
+import com.github.commoble.exmachina.content.ResourceLocations;
+import com.github.commoble.exmachina.content.util.RegistryHelper;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
@@ -23,22 +25,18 @@ public class BlockRegistrar
 	@ObjectHolder(RegistryNames.LIGHTBULB)
 	public static final BlockLightbulb lightbulb = null;
 	
+	@ObjectHolder(RegistryNames.WIRE_PLINTH)
+	public static final WirePlinthBlock wire_plinth = null;
+	
 	
 
 	public static void registerBlocks(RegistryEvent.Register<Block> event)
 	{
 		IForgeRegistry<Block> registry = event.getRegistry();
 		
-		registerBlock(registry, new BlockBattery(Block.Properties.create(Material.IRON, MaterialColor.BROWN).hardnessAndResistance(2F, 5F)), RegistryNames.BATTERY);
-		registerBlock(registry, new BlockLightbulb(Block.Properties.create(Material.GLASS, MaterialColor.GOLD).hardnessAndResistance(0.3F, 0F).sound(SoundType.GLASS)), RegistryNames.LIGHTBULB);
+		RegistryHelper.register(registry, ResourceLocations.BATTERY, new BlockBattery(Block.Properties.create(Material.IRON, MaterialColor.BROWN).hardnessAndResistance(2F, 5F)));
+		RegistryHelper.register(registry, ResourceLocations.LIGHTBULB, new BlockLightbulb(Block.Properties.create(Material.GLASS, MaterialColor.GOLD).hardnessAndResistance(0.3F, 0F).sound(SoundType.GLASS)));
+		RegistryHelper.register(registry, ResourceLocations.WIRE_PLINTH, new WirePlinthBlock(Block.Properties.create(Material.IRON, MaterialColor.GOLD).hardnessAndResistance(2F, 5F)));
 		
-	}
-	
-	private static <T extends Block> T registerBlock(IForgeRegistry<Block> registry, T newBlock, String name)
-	{
-		String prefixedName = ExMachinaMod.MODID + ":" + name;
-		newBlock.setRegistryName(prefixedName);
-		registry.register(newBlock);
-		return newBlock;
 	}
 }
