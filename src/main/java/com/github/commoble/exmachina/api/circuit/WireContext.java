@@ -5,6 +5,7 @@ import java.util.Set;
 import com.github.commoble.exmachina.api.util.BlockContext;
 
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
 
 public class WireContext implements IConnectionProvider
 {
@@ -20,17 +21,17 @@ public class WireContext implements IConnectionProvider
 	}
 
 	@Override
-	public boolean canThisConnectTo(BlockContext context)
+	public boolean canThisConnectTo(IWorld world, BlockContext context)
 	{
-		return this.getPotentialConnections().contains(context.pos);
+		return this.getPotentialConnections(world).contains(context.pos);
 	}
 
 	@Override
-	public Set<BlockPos> getPotentialConnections()
+	public Set<BlockPos> getPotentialConnections(IWorld world)
 	{
 		if (this.allowedConnections == null)
 		{
-			this.allowedConnections = this.properties.getAllowedConnections(this.context);
+			this.allowedConnections = this.properties.getAllowedConnections(world, this.context);
 		}
 		return this.allowedConnections;
 	}

@@ -7,6 +7,7 @@ import javax.annotation.concurrent.Immutable;
 import com.github.commoble.exmachina.api.util.BlockContext;
 
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
 
 @Immutable
 public class ElementContext implements IConnectionProvider
@@ -43,13 +44,13 @@ public class ElementContext implements IConnectionProvider
 	}
 
 	@Override
-	public boolean canThisConnectTo(BlockContext context)
+	public boolean canThisConnectTo(IWorld world, BlockContext context)
 	{
-		return this.getPotentialConnections().contains(context.pos);
+		return this.getPotentialConnections(world).contains(context.pos);
 	}
 
 	@Override
-	public Set<BlockPos> getPotentialConnections()
+	public Set<BlockPos> getPotentialConnections(IWorld world)
 	{
 		return this.connection.set;
 	}

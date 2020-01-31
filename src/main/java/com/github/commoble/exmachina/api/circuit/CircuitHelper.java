@@ -46,7 +46,7 @@ public class CircuitHelper
 		BlockContext sourceContext = BlockContext.getContext(sourcePos, world);
 		BlockContext startContext = BlockContext.getContext(startPos, world);
 		//Block startBlock = startContext.state.getBlock();
-		if (CircuitHelper.doTwoBlocksConnect(sourceContext, startContext))
+		if (CircuitHelper.doTwoBlocksConnect(world, sourceContext, startContext))
 		{
 			if (isWireBlock(startContext))	// normal node
 			{
@@ -91,7 +91,7 @@ public class CircuitHelper
 	{
 		BlockPos startPos = context.pos;
 		IConnectionProvider connector = ComponentRegistry.getConnectionProvider(context);
-		Set<BlockPos> connectionSet = connector.getPotentialConnections();
+		Set<BlockPos> connectionSet = connector.getPotentialConnections(world);
 		for (BlockPos pos : connectionSet)
 		{
 			WorldCircuitManager.invalidateCircuitAt(world, pos);
@@ -199,9 +199,9 @@ public class CircuitHelper
 	@Nonnull
 	public static Set<BlockContext> getBiConnectedElectricalBlocks(final BlockContext context, final IWorld world)
 	{
-		return ComponentRegistry.getConnectionProvider(context).getPotentialConnections().stream()
+		return ComponentRegistry.getConnectionProvider(context).getPotentialConnections(world).stream()
 			.map(pos -> context.getNewPosContext(pos, world))
-			.filter(otherContext -> CircuitHelper.doTwoBlocksConnect(context, otherContext))
+			.filter(otherContext -> CircuitHelper.doTwoBlocksConnect(world, context, otherContext))
 			.collect(Collectors.toCollection(HashSet::new));
 	}
 	
@@ -236,7 +236,7 @@ public class CircuitHelper
 //		return returnFaces;
 //	}
 	
-	public static boolean doTwoBlocksConnect(BlockContext context1, BlockContext context2)
+	public static boolean doTwoBlocksConnect(IWorld world, BlockContext context1, BlockContext context2)
 	{
 //		BlockState state1 = world.getBlockState(pos1);
 //		Block block1 = state1.getBlock();
@@ -252,7 +252,7 @@ public class CircuitHelper
 //		}
 		IConnectionProvider block1 = ComponentRegistry.getConnectionProvider(context1);
 		IConnectionProvider block2 = ComponentRegistry.getConnectionProvider(context2);
-		return block1.canThisConnectTo(context2) && block2.canThisConnectTo(context1);
+		return block1.canThisConnectTo(world, context2) && block2.canThisConnectTo(world, context1);
 		//return false;
 //		BlockState state1 = world.getBlockState(pos1);
 //		Block block1 = state1.getBlock();

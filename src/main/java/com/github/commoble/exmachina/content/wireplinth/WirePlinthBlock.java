@@ -1,6 +1,8 @@
-package com.github.commoble.exmachina.content.block;
+package com.github.commoble.exmachina.content.wireplinth;
 
 import javax.annotation.Nullable;
+
+import com.github.commoble.exmachina.content.registry.TileEntityRegistrar;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -8,6 +10,7 @@ import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
@@ -34,6 +37,18 @@ public class WirePlinthBlock extends Block
 	{
 		super(properties);
 		this.setDefaultState(this.stateContainer.getBaseState().with(DIRECTION_OF_ATTACHMENT, Direction.DOWN));
+	}
+	
+	@Override
+	public boolean hasTileEntity(BlockState state)
+	{
+		return true;
+	}
+	
+	@Override
+	public TileEntity createTileEntity(BlockState state, IBlockReader reader)
+	{
+		return TileEntityRegistrar.wire_plinth.create();
 	}
 
 	@Override
@@ -64,16 +79,6 @@ public class WirePlinthBlock extends Block
 		IWorldReader world = context.getWorld();
 		BlockPos pos = context.getPos();
 
-		// Direction clickedFace = context.getFace(); // face of the block that was
-		// clicked
-		// Direction againstClickedFace = clickedFace.getOpposite();
-		// BlockState stateAgainstClickedFace = defaultState.with(FACING,
-		// againstClickedFace);
-		// if (stateAgainstClickedFace.isValidPosition(world, pos))
-		// {
-		// return stateAgainstClickedFace;
-		// }
-
 		BlockState bestState = null;
 		for (Direction direction : context.getNearestLookingDirections())
 		{
@@ -86,24 +91,6 @@ public class WirePlinthBlock extends Block
 		}
 
 		return bestState != null && world.func_226663_a_(bestState, pos, ISelectionContext.dummy()) ? bestState : null;
-
-		// for (Direction direction : context.getNearestLookingDirections())
-		// {
-		// if (direction != Direction.UP)
-		// {
-		// BlockState blockstate2 = direction == Direction.DOWN ?
-		// this.getBlock().getStateForPlacement(context) : blockstate;
-		// if (blockstate2 != null && blockstate2.isValidPosition(iworldreader,
-		// blockpos))
-		// {
-		// blockstate1 = blockstate2;
-		// break;
-		// }
-		// }
-		// }
-		//
-		// return blockstate1 != null && iworldreader.func_226663_a_(blockstate1,
-		// blockpos, ISelectionContext.dummy()) ? blockstate1 : null;
 	}
 
 	/**

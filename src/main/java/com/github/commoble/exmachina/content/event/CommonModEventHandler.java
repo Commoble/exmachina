@@ -2,15 +2,18 @@ package com.github.commoble.exmachina.content.event;
 
 import com.github.commoble.exmachina.ExMachinaMod;
 import com.github.commoble.exmachina.api.circuit.ComponentRegistry;
-import com.github.commoble.exmachina.content.block.BlockRegistrar;
 import com.github.commoble.exmachina.content.block.CubeWireProperties;
 import com.github.commoble.exmachina.content.block.ResistorProperties;
 import com.github.commoble.exmachina.content.block.VoltageSourceProperties;
-import com.github.commoble.exmachina.content.item.ItemRegistrar;
+import com.github.commoble.exmachina.content.registry.BlockRegistrar;
+import com.github.commoble.exmachina.content.registry.ItemRegistrar;
+import com.github.commoble.exmachina.content.registry.TileEntityRegistrar;
+import com.github.commoble.exmachina.content.wireplinth.WirePlinthWireProperties;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -28,13 +31,19 @@ public class CommonModEventHandler
 	@SubscribeEvent
 	public static void registerBlocks(RegistryEvent.Register<Block> event)
 	{
-		BlockRegistrar.registerBlocks(event);
+		BlockRegistrar.registerBlocks(event.getRegistry());
 	}
 	
 	@SubscribeEvent
 	public static void registerItems(RegistryEvent.Register<Item> event)
 	{
-		ItemRegistrar.registerItems(event);
+		ItemRegistrar.registerItems(event.getRegistry());
+	}
+	
+	@SubscribeEvent
+	public static void registerTileEntities(RegistryEvent.Register<TileEntityType<?>> event)
+	{
+		TileEntityRegistrar.registerTileEntities(event.getRegistry());
 	}
 	
 	@SubscribeEvent
@@ -42,6 +51,7 @@ public class CommonModEventHandler
 	{
 		//CubeWireProperties.registerCubeWire(Blocks.GOLD_BLOCK, 1D);
 		ComponentRegistry.WIRES.put(Blocks.GOLD_BLOCK, new CubeWireProperties(0.001D));
+		ComponentRegistry.WIRES.put(BlockRegistrar.wire_plinth, new WirePlinthWireProperties(0.001D));
 		ComponentRegistry.ELEMENTS.put(BlockRegistrar.battery, new VoltageSourceProperties(10D));
 		ComponentRegistry.ELEMENTS.put(BlockRegistrar.lightbulb, new ResistorProperties(1000D));
 	}

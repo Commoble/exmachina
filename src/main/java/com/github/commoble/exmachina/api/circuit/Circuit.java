@@ -173,7 +173,7 @@ public class Circuit
 					" was found existing as a circuit element with no element properties registered");
 			}
 			IConnectionProvider connectionProvider = ComponentRegistry.getConnectionProvider(componentContext);
-			Set<BlockPos> checkPositions = connectionProvider.getPotentialConnections();
+			Set<BlockPos> checkPositions = connectionProvider.getPotentialConnections(world);
 			int faceCount = 0; // number of connected faces for short-finding purposes
 			for (BlockPos checkPos : checkPositions)
 			{
@@ -198,7 +198,7 @@ public class Circuit
 				}
 				BlockState checkState = checkContext.state;
 				Block checkBlock = checkState.getBlock();
-				if (ComponentRegistry.getConnectionProvider(checkContext).canThisConnectTo(componentContext))
+				if (ComponentRegistry.getConnectionProvider(checkContext).canThisConnectTo(world, componentContext))
 				{
 					// case 1) normal node
 					if (ComponentRegistry.WIRES.containsKey(checkBlock))

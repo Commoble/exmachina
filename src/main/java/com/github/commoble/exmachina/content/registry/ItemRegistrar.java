@@ -1,14 +1,14 @@
-package com.github.commoble.exmachina.content.item;
+package com.github.commoble.exmachina.content.registry;
 
 import com.github.commoble.exmachina.ExMachinaMod;
 import com.github.commoble.exmachina.content.RegistryNames;
 import com.github.commoble.exmachina.content.ResourceLocations;
-import com.github.commoble.exmachina.content.block.BlockRegistrar;
+import com.github.commoble.exmachina.content.item.MondometerItem;
+import com.github.commoble.exmachina.content.item.WireSpoolItem;
 import com.github.commoble.exmachina.content.util.RegistryHelper;
 
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.ObjectHolder;
 
@@ -35,10 +35,8 @@ public class ItemRegistrar
 	public static final Item WireSpoolItem = null;
 	
 	
-	public static void registerItems(RegistryEvent.Register<Item> event)
+	public static void registerItems(IForgeRegistry<Item> registry)
 	{
-		IForgeRegistry<Item> registry = event.getRegistry();
-		
 		// BlockItems
 		RegistryHelper.register(registry, ResourceLocations.BATTERY, new BlockItem(BlockRegistrar.battery, new Item.Properties().group(CreativeTabs.tab)));
 		RegistryHelper.register(registry, ResourceLocations.LIGHTBULB, new BlockItem(BlockRegistrar.lightbulb, new Item.Properties().group(CreativeTabs.tab)));

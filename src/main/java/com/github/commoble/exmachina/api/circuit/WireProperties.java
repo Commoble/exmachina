@@ -39,5 +39,9 @@ public abstract class WireProperties
 		return new ElectricalValues(voltage, current, resistance, power);
 	}
 	
-	public abstract Set<BlockPos> getAllowedConnections(BlockContext context);
+	/**
+	 * Returns a set of the positions that a given wire is allowed to connect to
+	 * The returned set may be immutable and no attempt should be made to add or remove positions from it
+	 */
+	public abstract Set<BlockPos> getAllowedConnections(IWorld world, BlockContext context);
 }

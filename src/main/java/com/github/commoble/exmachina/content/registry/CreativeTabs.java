@@ -1,7 +1,6 @@
-package com.github.commoble.exmachina.content.item;
+package com.github.commoble.exmachina.content.registry;
 
 import com.github.commoble.exmachina.ExMachinaMod;
-import com.github.commoble.exmachina.content.block.BlockRegistrar;
 
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;

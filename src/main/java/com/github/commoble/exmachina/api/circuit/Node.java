@@ -164,14 +164,14 @@ public class Node
 			node.wireBlocks.add(startPos);
 //			Set<Direction> facesToCheck = null; // TODO ((IElectricalBlock)startBlock).getConnectingFaces(world, startState, startPos);
 			WireContext wire = ComponentRegistry.WIRES.get(startBlock).getWireContext(startContext);
-			Set<BlockPos> positionsToCheck = wire.getPotentialConnections();
+			Set<BlockPos> positionsToCheck = wire.getPotentialConnections(world);
 			//ComponentRegistry.wires.get(startBlock)
 			
 			for(BlockPos nextCheck : positionsToCheck)
 			{
 //				BlockPos nextCheck = startPos.offset(face);
 				BlockContext nextContext = startContext.getNewPosContext(nextCheck, world);
-				if (!node.contains(nextCheck) && CircuitHelper.doTwoBlocksConnect(startContext, nextContext))
+				if (!node.contains(nextCheck) && CircuitHelper.doTwoBlocksConnect(world, startContext, nextContext))
 				{
 					node = recursivelyBuildNodeFrom(node, nextContext, world);
 				}
