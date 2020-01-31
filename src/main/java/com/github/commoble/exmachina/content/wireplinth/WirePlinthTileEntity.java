@@ -27,7 +27,7 @@ public class WirePlinthTileEntity extends TileEntity
 {
 	public static final String CONNECTIONS = "connections";
 	
-	private Set<BlockPos> connectionSet = new HashSet<>();
+	private Set<BlockPos> remoteConnections = new HashSet<>();
 	
 	public static NBTListHelper<BlockPos> BLOCKPOS_LISTER = new NBTListHelper<>(
 		CONNECTIONS,
@@ -68,7 +68,7 @@ public class WirePlinthTileEntity extends TileEntity
 	public Set<BlockPos> getConnections()
 	{
 		Set<BlockPos> totalSet = new HashSet<>();
-		totalSet.addAll(this.connectionSet);
+		totalSet.addAll(this.remoteConnections);
 		BlockState state = this.getBlockState();
 		if (state.has(WirePlinthBlock.DIRECTION_OF_ATTACHMENT))
 		{
@@ -77,15 +77,15 @@ public class WirePlinthTileEntity extends TileEntity
 		return ImmutableSet.copyOf(totalSet);
 	}
 	
-	public boolean hasConnection(BlockPos otherPos)
+	public boolean hasRemoteConnection(BlockPos otherPos)
 	{
-		return this.connectionSet.contains(otherPos);
+		return this.remoteConnections.contains(otherPos);
 	}
 	
 	@Override
 	public void remove()
 	{
-		this.clearConnections();
+		this.clearRemoteConnections();
 		super.remove();
 	}
 
@@ -94,16 +94,16 @@ public class WirePlinthTileEntity extends TileEntity
 	{
 		return getPlinth(world, posA)
 			.flatMap(plinthA -> getPlinth(world, posB)
-				.map(plinthB -> plinthA.hasConnection(posB) && plinthB.hasConnection(posA)))
+				.map(plinthB -> plinthA.hasRemoteConnection(posB) && plinthB.hasRemoteConnection(posA)))
 			.orElse(false);
 	}
 	
-	public void clearConnections()
+	public void clearRemoteConnections()
 	{
-		this.connectionSet.forEach(
+		this.remoteConnections.forEach(
 			otherPos -> getPlinth(this.world, otherPos)
 				.ifPresent(otherPlinth -> otherPlinth.removeConnection(this.pos)));
-		this.connectionSet = new HashSet<>();
+		this.remoteConnections = new HashSet<>();
 		this.onDataUpdated();
 	}
 	
@@ -118,13 +118,13 @@ public class WirePlinthTileEntity extends TileEntity
 	
 	private void addConnection(BlockPos otherPos)
 	{
-		this.connectionSet.add(otherPos);
+		this.remoteConnections.add(otherPos);
 		this.onDataUpdated();
 	}
 	
 	private void removeConnection(BlockPos otherPos)
 	{
-		this.connectionSet.remove(otherPos);
+		this.remoteConnections.remove(otherPos);
 		this.onDataUpdated();
 	}
 	
@@ -141,7 +141,7 @@ public class WirePlinthTileEntity extends TileEntity
 		super.read(compound);
 		if (compound.contains(CONNECTIONS))
 		{
-			this.connectionSet = Sets.newHashSet(BLOCKPOS_LISTER.read(compound));
+			this.remoteConnections = Sets.newHashSet(BLOCKPOS_LISTER.read(compound));
 		}
 	}
 
@@ -149,7 +149,7 @@ public class WirePlinthTileEntity extends TileEntity
 	public CompoundNBT write(CompoundNBT compound)
 	{
 		super.write(compound);
-		BLOCKPOS_LISTER.write(Lists.newArrayList(this.connectionSet), compound);
+		BLOCKPOS_LISTER.write(Lists.newArrayList(this.remoteConnections), compound);
 		return compound;
 	}
 

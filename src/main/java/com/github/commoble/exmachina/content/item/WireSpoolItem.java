@@ -62,7 +62,7 @@ public class WireSpoolItem extends Item
 					stack.removeChildTag(LAST_PLINTH_POS);
 				}
 				// if plinth was already connected to the other position, remove connections
-				else if (plinth.hasConnection(lastPos))
+				else if (plinth.hasRemoteConnection(lastPos))
 				{
 					WirePlinthTileEntity.removeConnection(world, pos, lastPos);
 					stack.removeChildTag(LAST_PLINTH_POS);
