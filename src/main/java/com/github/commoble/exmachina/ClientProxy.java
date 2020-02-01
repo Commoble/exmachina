@@ -9,6 +9,6 @@ public class ClientProxy
 {
 	public static void renderPlinthWire(World world, Vec3d start, Vec3d end)
 	{
-		WirePlinthRenderer.renderFromTo(world, start, end);
+		WirePlinthRenderer.spawnParticleFromTo(world, start, end);
 	}
 }
