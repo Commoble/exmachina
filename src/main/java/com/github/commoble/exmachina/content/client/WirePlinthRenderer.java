@@ -64,7 +64,7 @@ public class WirePlinthRenderer extends TileEntityRenderer<WirePlinthTileEntity>
 				for (int k = 0; k < 16; ++k)
 				{
 					float startLerp = getFractionalLerp(k, 16);
-					float endLerp = getFractionalLerp(k+1, 16);
+					float endLerp = getFractionalLerp(k + 1, 16);
 					float startYLerp = getYLerp(startLerp, startY, endY);
 					float endYLerp = getYLerp(endLerp, startY, endY);
 					drawNextLineSegment(dx, dy, dz, vertexBuilder, fourMatrix, startLerp, startYLerp);
@@ -76,17 +76,17 @@ public class WirePlinthRenderer extends TileEntityRenderer<WirePlinthTileEntity>
 		}
 	}
 
-	private static float getFractionalLerp(int current, int max)
+	public static float getFractionalLerp(int current, int max)
 	{
 		return (float) current / (float) max;
 	}
-	
+
 	public static float getYLerp(float lerp, double startY, double endY)
 	{
-		return (float)Math.pow(lerp, Math.log(Math.abs(endY - startY) + 3));
+		return (float) Math.pow(lerp, Math.log(Math.abs(endY - startY) + 3));
 	}
 
-	private static void drawNextLineSegment(float x, float y, float z, IVertexBuilder vertexBuilder, Matrix4f fourMatrix, float lerp, float yLerp)
+	public static void drawNextLineSegment(float x, float y, float z, IVertexBuilder vertexBuilder, Matrix4f fourMatrix, float lerp, float yLerp)
 	{
 		vertexBuilder.pos(fourMatrix, x * lerp, y * (yLerp), z * lerp).color(0, 0, 0, 255).endVertex();
 	}

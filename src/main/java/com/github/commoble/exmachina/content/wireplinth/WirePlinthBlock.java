@@ -6,6 +6,7 @@ import com.github.commoble.exmachina.content.registry.TileEntityRegistrar;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
@@ -18,6 +19,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.IWorldReader;
 
 public class WirePlinthBlock extends Block
@@ -91,6 +93,22 @@ public class WirePlinthBlock extends Block
 		}
 
 		return bestState != null && world.func_226663_a_(bestState, pos, ISelectionContext.dummy()) ? bestState : null;
+	}
+
+	/**
+	 * Called after a block is placed next to this block
+	 * 
+	 * Update the provided state given the provided neighbor facing and neighbor
+	 * state, returning a new state. For example, fences make their connections to
+	 * the passed in state if possible, and wet concrete powder immediately returns
+	 * its solidified counterpart. Note that this method should ideally consider
+	 * only the specific face passed in.
+	 */
+	@Override
+	public BlockState updatePostPlacement(BlockState stateIn, Direction facing, BlockState facingState, IWorld worldIn, BlockPos currentPos, BlockPos facingPos)
+	{
+		return !this.isValidPosition(stateIn, worldIn, currentPos) ? Blocks.AIR.getDefaultState()
+			: super.updatePostPlacement(stateIn, facing, facingState, worldIn, currentPos, facingPos);
 	}
 
 	/**

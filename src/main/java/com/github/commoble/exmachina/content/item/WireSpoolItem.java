@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
-import com.github.commoble.exmachina.ClientProxy;
 import com.github.commoble.exmachina.ExMachinaMod;
 import com.github.commoble.exmachina.content.wireplinth.WirePlinthTileEntity;
 
@@ -18,8 +17,6 @@ import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
 
 public class WireSpoolItem extends Item
 {
@@ -97,14 +94,6 @@ public class WireSpoolItem extends Item
 				.map(nbt -> NBTUtil.readBlockPos(nbt))
 				.filter(pos -> entityIn.getPositionVec().squareDistanceTo((new Vec3d(pos).add(0.5,0.5,0.5))) > maxDistance*maxDistance)
 				.ifPresent(pos -> stack.removeChildTag(LAST_PLINTH_POS));;
-		}
-		else
-		{
-			Optional.ofNullable(stack.getChildTag(LAST_PLINTH_POS))
-				.map(nbt -> NBTUtil.readBlockPos(nbt))
-				.ifPresent(pos ->
-					DistExecutor.runWhenOn(Dist.CLIENT,
-						() -> () -> ClientProxy.renderPlinthWire(worldIn, entityIn.getPositionVec(), new Vec3d(pos).add(0.5d,0.5d,0.5d))));
 		}
 	}
 }
