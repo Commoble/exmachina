@@ -63,6 +63,11 @@ public class WirePlinthTileEntity extends TileEntity
 		plinthB.addConnection(plinthA.pos);
 		return true;
 	}
+	
+	public Set<BlockPos> getRemoteConnections()
+	{
+		return ImmutableSet.copyOf(this.remoteConnections);
+	}
 
 	public Set<BlockPos> getConnections()
 	{
