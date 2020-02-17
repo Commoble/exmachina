@@ -5,6 +5,8 @@ import com.github.commoble.exmachina.api.circuit.ComponentRegistry;
 import com.github.commoble.exmachina.content.block.CubeWireProperties;
 import com.github.commoble.exmachina.content.block.ResistorProperties;
 import com.github.commoble.exmachina.content.block.VoltageSourceProperties;
+import com.github.commoble.exmachina.content.capability.IPositionSet;
+import com.github.commoble.exmachina.content.capability.PlinthsInChunkCapability;
 import com.github.commoble.exmachina.content.registry.BlockRegistrar;
 import com.github.commoble.exmachina.content.registry.ItemRegistrar;
 import com.github.commoble.exmachina.content.registry.TileEntityRegistrar;
@@ -14,6 +16,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -49,6 +52,10 @@ public class CommonModEventHandler
 	@SubscribeEvent
 	public static void onCommonSetup(FMLCommonSetupEvent event)
 	{
+		// register capabilities
+		CapabilityManager.INSTANCE.register(IPositionSet.class, new IPositionSet.Storage(), PlinthsInChunkCapability::new);
+		
+		// register circuit stuff
 		//CubeWireProperties.registerCubeWire(Blocks.GOLD_BLOCK, 1D);
 		ComponentRegistry.WIRES.put(Blocks.GOLD_BLOCK, new CubeWireProperties(0.001D));
 		ComponentRegistry.WIRES.put(BlockRegistrar.wire_plinth, new WirePlinthWireProperties(0.001D));

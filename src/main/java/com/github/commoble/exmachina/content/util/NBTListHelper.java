@@ -71,7 +71,7 @@ public class NBTListHelper<T>
 	
 	/**
 	 * @param name A unique identifier for the list's representation in the CompoundNBT
-	 * @param elementWriter A function that, given a CompoundNBT and a list element, creates a new NBT tag containing that element
+	 * @param elementWriter A function that, given a list element, creates a new NBT tag containing that element
 	 * @param elementReader A function that, given a CompoundNBT, returns the list element that was written into that NBT
 	 */
 	public NBTListHelper(
