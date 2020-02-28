@@ -11,18 +11,18 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
-public class PlinthsInChunkCapability implements IPositionSet, ICapabilityProvider, INBTSerializable<CompoundNBT>
+public class PlinthsInChunkCapability implements IPlinthsInChunk, ICapabilityProvider, INBTSerializable<CompoundNBT>
 {	
-	private final LazyOptional<IPositionSet> holder = LazyOptional.of(() -> this);
+	private final LazyOptional<IPlinthsInChunk> holder = LazyOptional.of(() -> this);
 	
 	private Set<BlockPos> positions = new HashSet<>();
 	
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side)
 	{
-		if (cap == IPositionSet.POSITION_SET_CAPABILITY)
+		if (cap == IPlinthsInChunk.POSITION_SET_CAPABILITY)
 		{
-			return IPositionSet.POSITION_SET_CAPABILITY.orEmpty(cap, this.holder);
+			return IPlinthsInChunk.POSITION_SET_CAPABILITY.orEmpty(cap, this.holder);
 		}
 		else
 		{
@@ -45,13 +45,13 @@ public class PlinthsInChunkCapability implements IPositionSet, ICapabilityProvid
 	@Override
 	public CompoundNBT serializeNBT()
 	{
-		return (CompoundNBT)IPositionSet.POSITION_SET_CAPABILITY.getStorage().writeNBT(IPositionSet.POSITION_SET_CAPABILITY, this, null);
+		return (CompoundNBT)IPlinthsInChunk.POSITION_SET_CAPABILITY.getStorage().writeNBT(IPlinthsInChunk.POSITION_SET_CAPABILITY, this, null);
 	}
 
 	@Override
 	public void deserializeNBT(CompoundNBT nbt)
 	{
-		IPositionSet.POSITION_SET_CAPABILITY.getStorage().readNBT(IPositionSet.POSITION_SET_CAPABILITY, this, null, nbt);
+		IPlinthsInChunk.POSITION_SET_CAPABILITY.getStorage().readNBT(IPlinthsInChunk.POSITION_SET_CAPABILITY, this, null, nbt);
 	}
 
 }

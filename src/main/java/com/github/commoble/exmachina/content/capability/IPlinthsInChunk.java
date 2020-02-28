@@ -14,10 +14,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 
-public interface IPositionSet
+public interface IPlinthsInChunk
 {
-	@CapabilityInject(IPositionSet.class)
-	static Capability<IPositionSet> POSITION_SET_CAPABILITY = null;
+	@CapabilityInject(IPlinthsInChunk.class)
+	static Capability<IPlinthsInChunk> POSITION_SET_CAPABILITY = null;
 	
 	/** get the set of blockpositions in the chunk (local to the chunk) **/
 	public Set<BlockPos> getPositions();
@@ -25,7 +25,7 @@ public interface IPositionSet
 	/** set a new set of positions to the chunk **/ 
 	public void setPositions(Set<BlockPos> set);
 	
-	public static class Storage implements Capability.IStorage<IPositionSet>
+	public static class Storage implements Capability.IStorage<IPlinthsInChunk>
 	{
 		public static final String POSITIONS = "positions";
 		
@@ -36,13 +36,13 @@ public interface IPositionSet
 			);
 		
 		@Override
-		public INBT writeNBT(Capability<IPositionSet> capability, IPositionSet instance, Direction side)
+		public INBT writeNBT(Capability<IPlinthsInChunk> capability, IPlinthsInChunk instance, Direction side)
 		{
 			return POS_LISTER.write(new ArrayList<>(instance.getPositions()), new CompoundNBT());
 		}
 
 		@Override
-		public void readNBT(Capability<IPositionSet> capability, IPositionSet instance, Direction side, INBT nbt)
+		public void readNBT(Capability<IPlinthsInChunk> capability, IPlinthsInChunk instance, Direction side, INBT nbt)
 		{
 			if (nbt instanceof CompoundNBT)
 			{

@@ -5,7 +5,7 @@ import com.github.commoble.exmachina.api.circuit.ComponentRegistry;
 import com.github.commoble.exmachina.content.block.CubeWireProperties;
 import com.github.commoble.exmachina.content.block.ResistorProperties;
 import com.github.commoble.exmachina.content.block.VoltageSourceProperties;
-import com.github.commoble.exmachina.content.capability.IPositionSet;
+import com.github.commoble.exmachina.content.capability.IPlinthsInChunk;
 import com.github.commoble.exmachina.content.capability.PlinthsInChunkCapability;
 import com.github.commoble.exmachina.content.registry.BlockRegistrar;
 import com.github.commoble.exmachina.content.registry.ItemRegistrar;
@@ -53,7 +53,7 @@ public class CommonModEventHandler
 	public static void onCommonSetup(FMLCommonSetupEvent event)
 	{
 		// register capabilities
-		CapabilityManager.INSTANCE.register(IPositionSet.class, new IPositionSet.Storage(), PlinthsInChunkCapability::new);
+		CapabilityManager.INSTANCE.register(IPlinthsInChunk.class, new IPlinthsInChunk.Storage(), PlinthsInChunkCapability::new);
 		
 		// register circuit stuff
 		//CubeWireProperties.registerCubeWire(Blocks.GOLD_BLOCK, 1D);
