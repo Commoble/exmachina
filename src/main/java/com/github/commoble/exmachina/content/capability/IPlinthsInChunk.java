@@ -31,8 +31,8 @@ public interface IPlinthsInChunk
 		
 		private static final NBTListHelper<BlockPos> POS_LISTER = new NBTListHelper<>(
 			POSITIONS,
-			pos -> NBTUtil.writeBlockPos(pos),
-			nbt -> NBTUtil.readBlockPos(nbt)
+			NBTUtil::writeBlockPos,
+			NBTUtil::readBlockPos
 			);
 		
 		@Override
