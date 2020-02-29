@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.content.capability;
+package com.github.commoble.exmachina.content.wireplinth;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,7 +11,7 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
-public class PlinthsInChunkCapability implements IPlinthsInChunk, ICapabilityProvider, INBTSerializable<CompoundNBT>
+public class PlinthsInChunk implements IPlinthsInChunk, ICapabilityProvider, INBTSerializable<CompoundNBT>
 {	
 	private final LazyOptional<IPlinthsInChunk> holder = LazyOptional.of(() -> this);
 	
@@ -20,9 +20,9 @@ public class PlinthsInChunkCapability implements IPlinthsInChunk, ICapabilityPro
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side)
 	{
-		if (cap == IPlinthsInChunk.POSITION_SET_CAPABILITY)
+		if (cap == PlinthsInChunkCapability.INSTANCE)
 		{
-			return IPlinthsInChunk.POSITION_SET_CAPABILITY.orEmpty(cap, this.holder);
+			return PlinthsInChunkCapability.INSTANCE.orEmpty(cap, this.holder);
 		}
 		else
 		{
@@ -45,13 +45,13 @@ public class PlinthsInChunkCapability implements IPlinthsInChunk, ICapabilityPro
 	@Override
 	public CompoundNBT serializeNBT()
 	{
-		return (CompoundNBT)IPlinthsInChunk.POSITION_SET_CAPABILITY.getStorage().writeNBT(IPlinthsInChunk.POSITION_SET_CAPABILITY, this, null);
+		return (CompoundNBT)PlinthsInChunkCapability.INSTANCE.getStorage().writeNBT(PlinthsInChunkCapability.INSTANCE, this, null);
 	}
 
 	@Override
 	public void deserializeNBT(CompoundNBT nbt)
 	{
-		IPlinthsInChunk.POSITION_SET_CAPABILITY.getStorage().readNBT(IPlinthsInChunk.POSITION_SET_CAPABILITY, this, null, nbt);
+		PlinthsInChunkCapability.INSTANCE.getStorage().readNBT(PlinthsInChunkCapability.INSTANCE, this, null, nbt);
 	}
 
 }

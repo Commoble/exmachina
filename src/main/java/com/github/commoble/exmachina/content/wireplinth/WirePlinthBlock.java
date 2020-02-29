@@ -1,5 +1,8 @@
 package com.github.commoble.exmachina.content.wireplinth;
 
+import java.util.Set;
+import java.util.function.BiConsumer;
+
 import javax.annotation.Nullable;
 
 import com.github.commoble.exmachina.content.registry.TileEntityRegistrar;
@@ -7,20 +10,27 @@ import com.github.commoble.exmachina.content.registry.TileEntityRegistrar;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.IWorldReader;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.IChunk;
 
 public class WirePlinthBlock extends Block
 {
@@ -63,6 +73,44 @@ public class WirePlinthBlock extends Block
 	public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context)
 	{
 		return SHAPES_DUNSWE[state.has(DIRECTION_OF_ATTACHMENT) ? state.get(DIRECTION_OF_ATTACHMENT).ordinal() : 0];
+	}
+	
+	@Override
+	public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult rayTrace)
+	{
+		IChunk chunk = world.getChunk(pos);
+		if (chunk instanceof Chunk)
+		{
+			((Chunk)chunk).getCapability(PlinthsInChunkCapability.INSTANCE)
+				.ifPresent(plinths -> System.out.println(plinths.getPositions().size()));
+		}
+		return ActionResultType.SUCCESS;
+	}
+
+	@Override
+	@Deprecated
+	public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean isMoving)
+	{
+		this.doPlinthSetOperation(world, pos, Set<BlockPos>::add);
+		super.onBlockAdded(state, world, pos, oldState, isMoving);
+	}
+
+	@Override
+	@Deprecated
+	public void onReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving)
+	{
+		this.doPlinthSetOperation(world, pos, Set<BlockPos>::remove);
+		super.onReplaced(state, world, pos, newState, isMoving);
+	}
+	
+	public void doPlinthSetOperation(World world, BlockPos pos, BiConsumer<Set<BlockPos>, BlockPos> consumer)
+	{
+		IChunk chunk = world.getChunk(pos);
+		if (chunk instanceof Chunk)
+		{
+			((Chunk)chunk).getCapability(PlinthsInChunkCapability.INSTANCE)
+				.ifPresent(plinths -> consumer.accept(plinths.getPositions(), pos));
+		}
 	}
 
 

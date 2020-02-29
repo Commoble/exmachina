@@ -2,7 +2,7 @@ package com.github.commoble.exmachina.content.event;
 
 import com.github.commoble.exmachina.ExMachinaMod;
 import com.github.commoble.exmachina.content.ResourceLocations;
-import com.github.commoble.exmachina.content.capability.PlinthsInChunkCapability;
+import com.github.commoble.exmachina.content.wireplinth.PlinthsInChunk;
 
 import net.minecraft.world.IWorld;
 import net.minecraft.world.chunk.Chunk;
@@ -24,6 +24,6 @@ public class CommonForgeEventHandler
 	@SubscribeEvent
 	public static void onAttachCapabilities(AttachCapabilitiesEvent<Chunk> event)
 	{
-		event.addCapability(ResourceLocations.PLINTHS_IN_CHUNK, new PlinthsInChunkCapability());
+		event.addCapability(ResourceLocations.PLINTHS_IN_CHUNK, new PlinthsInChunk());
 	}
 }
