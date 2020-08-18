@@ -1,14 +1,18 @@
 package com.github.commoble.exmachina.content.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
 import com.google.common.collect.Lists;
 
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 
 public class NestedBoundingBox
 {
@@ -23,6 +27,8 @@ public class NestedBoundingBox
 	{
 		this.subBoxes = Collections.unmodifiableList(Lists.newArrayList(boxA, boxB));
 		this.superBox = boxA.superBox.union(boxB.superBox);
+		BlockPos[] blockPosArray = new BlockPos[5];
+		ArrayList<AxisAlignedBB> list = Arrays.stream(blockPosArray).map(AxisAlignedBB::new).collect(Collectors.toCollection(ArrayList::new));
 	}
 	
 	public NestedBoundingBox(@Nonnull AxisAlignedBB box)
