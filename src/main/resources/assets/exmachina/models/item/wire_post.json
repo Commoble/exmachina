@@ -1,5 +1,5 @@
 {
-  "parent":"exmachina:block/wire_plinth",
+  "parent":"exmachina:block/wire_post",
   
     "display": {
         "ground": {
