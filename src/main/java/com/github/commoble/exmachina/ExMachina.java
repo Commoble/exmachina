@@ -3,6 +3,9 @@ package com.github.commoble.exmachina;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.github.commoble.exmachina.client.ClientEvents;
 import com.github.commoble.exmachina.content.BlockRegistrar;
 import com.github.commoble.exmachina.content.ItemRegistrar;
@@ -59,6 +62,7 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 public class ExMachina
 {
 	public static final String MODID = "exmachina";
+	public static final Logger LOGGER = LogManager.getLogger();
 	public static ExMachina INSTANCE;
 	
 	// the network channel we'll use for sending packets associated with this mod
@@ -70,6 +74,7 @@ public class ExMachina
 		CHANNEL_PROTOCOL_VERSION::equals);
 	
 	public final ServerConfig serverConfig;
+	public CircuitBehaviourRegistry circuitBehaviourRegistry = CircuitBehaviourRegistry.EMPTY;
 	
 	// forge constructs this during modloading
 	public ExMachina()
@@ -81,17 +86,24 @@ public class ExMachina
 		
 		// subscribe events to mod bus -- registries and other init events, mostly
 		// subscribe deferred registers so they register our stuff for us
-		subscribeRegisters(modBus,
+		DeferredRegister<?>[] registers =
+		{
 			BlockRegistrar.BLOCKS,
 			ItemRegistrar.ITEMS,
-			TileEntityRegistrar.TYPES);
+			TileEntityRegistrar.TYPES
+		};
+	
+		for (DeferredRegister<?> register : registers)
+		{
+			register.register(modBus);
+		}
 		
 		// subscribe the rest of the mod event listeners
-		modBus.addListener(ExMachina::onCommonSetup);
+		modBus.addListener(this::onCommonSetup);
 		
 		// subscribe events to forge bus -- server init and in-game events
-		forgeBus.addGenericListener(Chunk.class, ExMachina::onAttachChunkCapabilities);
-		forgeBus.addListener(EventPriority.LOW, ExMachina::onEntityPlaceBlock);
+		forgeBus.addGenericListener(Chunk.class, this::onAttachChunkCapabilities);
+		forgeBus.addListener(EventPriority.LOW, this::onEntityPlaceBlock);
 		
 		// subscribe to client events separately so they don't break servers
 		if (FMLEnvironment.dist == Dist.CLIENT)
@@ -102,7 +114,7 @@ public class ExMachina
 		this.serverConfig = ConfigHelper.register(Type.SERVER, ServerConfig::new);
 	}
 	
-	private static void onCommonSetup(FMLCommonSetupEvent event)
+	private void onCommonSetup(FMLCommonSetupEvent event)
 	{
 		// register packets
 		int packetID = 0;
@@ -114,14 +126,17 @@ public class ExMachina
 		
 		// register capabilities
 		CapabilityManager.INSTANCE.register(IPostsInChunk.class, new PostsInChunkCapability.Storage(), PostsInChunk::new);
+		
+		// init API plugins
+		this.circuitBehaviourRegistry = PluginLoader.loadPlugins();
 	}
 	
-	private static void onAttachChunkCapabilities(AttachCapabilitiesEvent<Chunk> event)
+	private void onAttachChunkCapabilities(AttachCapabilitiesEvent<Chunk> event)
 	{
 		event.addCapability(getModRL(Names.POSTS_IN_CHUNK), new PostsInChunk());
 	}
 	
-	private static void onEntityPlaceBlock(BlockEvent.EntityPlaceEvent event)
+	private void onEntityPlaceBlock(BlockEvent.EntityPlaceEvent event)
 	{
 		BlockPos pos = event.getPos();
 		IWorld iworld = event.getWorld();
@@ -179,13 +194,5 @@ public class ExMachina
 	public static <T extends IForgeRegistryEntry<T>> DeferredRegister<T> createDeferredRegister(IForgeRegistry<T> registry)
 	{
 		return DeferredRegister.create(registry, ExMachina.MODID);
-	}
-	
-	public static void subscribeRegisters(IEventBus modBus, DeferredRegister<?>... registers)
-	{
-		for (DeferredRegister<?> register : registers)
-		{
-			register.register(modBus);
-		}
 	}
 }
