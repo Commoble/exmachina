@@ -40,14 +40,18 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 	@Override
 	public LazyOptional<Circuit> getCircuit(BlockPos pos)
 	{
-		LazyOptional<Circuit> circuitHolder = this.circuitMap.getOrDefault(pos, EMPTY_CIRCUIT);
-		if (circuitHolder.isPresent())
+		LazyOptional<Circuit> existingCircuitHolder = this.circuitMap.getOrDefault(pos, EMPTY_CIRCUIT);
+		if (existingCircuitHolder.isPresent())
 		{
-			return circuitHolder;
+			return existingCircuitHolder;
 		}
-		else
+		else // try to build new circuit here if possible
 		{
-			return CircuitBuilder.attemptToBuildCircuitFrom(this.world, pos);
+			LazyOptional<Circuit> builtCircuitHolder = CircuitBuilder.attemptToBuildCircuitFrom(this.world, pos);
+			// if we built a valid circuit, keep track of where it is
+			builtCircuitHolder.ifPresent(circuit -> circuit.getComponentCache().keySet()
+				.forEach(posInCircuit -> this.circuitMap.put(posInCircuit, builtCircuitHolder)));
+			return builtCircuitHolder;
 		}
 	}
 
@@ -66,8 +70,8 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 		// first, if the block was in an extant circuit, we invalidate it if the blockstate changed
 		LazyOptional<Circuit> circuitHolder = this.getCircuit(updatedPos);
 		circuitHolder.ifPresent(circuit -> {
-			Map<BlockPos, Pair<BlockState, CircuitComponent>> components = circuit.getComponentCache();
-			Pair<BlockState, CircuitComponent> cachedComponent = components.get(updatedPos);
+			Map<BlockPos, ? extends Pair<BlockState, ? extends CircuitComponent>> components = circuit.getComponentCache();
+			Pair<BlockState, ? extends CircuitComponent> cachedComponent = components.get(updatedPos);
 			if (cachedComponent != null && cachedComponent.getLeft() != newState)
 			{
 				components.keySet().forEach(addPosToRemovalList);
@@ -89,11 +93,11 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 		{
 			LazyOptional<Circuit> connectedCircuitHolder = this.getCircuit(connectedPos);
 			connectedCircuitHolder.ifPresent(connectedCircuit -> {
-				Map<BlockPos, Pair<BlockState, CircuitComponent>> components = connectedCircuit.getComponentCache();
+				Map<BlockPos, ? extends Pair<BlockState, ? extends CircuitComponent>> components = connectedCircuit.getComponentCache();
 				// if updated block connects to an extant circuit that doesn't contain the updated block 
 				if (!components.containsKey(updatedPos))
 				{
-					Pair<BlockState, CircuitComponent> pair = components.get(connectedPos);
+					Pair<BlockState, ? extends CircuitComponent> pair = components.get(connectedPos);
 					// and if the extant circuit can mutually connect to the new block
 					if (pair != null && pair.getRight().getConnector().apply(this.world, connectedPos).contains(updatedPos))
 					{

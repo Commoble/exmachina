@@ -20,13 +20,13 @@ public class CircuitImpl implements Circuit
 	private final double staticSource;
 	private final List<DoubleSupplier> dynamicLoads;
 	private final List<DoubleSupplier> dynamicSources;
-	private final Map<BlockPos, Pair<BlockState, CircuitComponent>> components;
+	private final Map<BlockPos, ? extends Pair<BlockState, ? extends CircuitComponent>> components;
 
 //	private boolean isValid = true;
 	private boolean needsDynamicUpdate = true;
 	private double current = 0D;
 	
-	public CircuitImpl(IWorld world, double staticLoad, double staticSource, Map<BlockPos, Pair<BlockState, CircuitComponent>> components, List<DoubleSupplier> dynamicLoads, List<DoubleSupplier> dynamicSources)
+	public CircuitImpl(IWorld world, double staticLoad, double staticSource, Map<BlockPos, ? extends Pair<BlockState, ? extends CircuitComponent>> components, List<DoubleSupplier> dynamicLoads, List<DoubleSupplier> dynamicSources)
 	{
 		this.world = world;
 		this.staticLoad = staticLoad;
@@ -40,7 +40,7 @@ public class CircuitImpl implements Circuit
 	@Override
 	public double getPowerSuppliedTo(BlockPos pos)
 	{
-		Pair<BlockState, CircuitComponent> pair = this.components.get(pos);
+		Pair<BlockState, ? extends CircuitComponent> pair = this.components.get(pos);
 		
 		if (pair != null)
 		{
@@ -110,7 +110,7 @@ public class CircuitImpl implements Circuit
 
 
 	@Override
-	public Map<BlockPos, Pair<BlockState, CircuitComponent>> getComponentCache()
+	public Map<BlockPos, ? extends Pair<BlockState, ? extends CircuitComponent>> getComponentCache()
 	{
 		return this.components;
 	}

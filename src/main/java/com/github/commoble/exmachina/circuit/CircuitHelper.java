@@ -8,7 +8,6 @@ public class CircuitHelper
 {
 	public static void onCircuitBlockAdded(IWorld world, BlockState state, BlockPos pos)
 	{
-		
 	}
 	
 	public static void onCircuitBlockRemoved(IWorld world, BlockState state, BlockPos pos)

@@ -79,7 +79,7 @@ public class CircuitBuilder
 			}
 			
 			// we've fully traversed the mutual connections, use the network map to build a circuit object
-			return CircuitBuilder.buildCircuit(world, partialCircuit);
+			return LazyOptional.of(() -> CircuitBuilder.buildCircuit(world, partialCircuit));
 		}
 	}
 	
@@ -116,6 +116,7 @@ public class CircuitBuilder
 		}
 		
 		Circuit circuit = new CircuitImpl(world, staticLoad, staticSource, components, dynamicLoads, dynamicSources);
+		return circuit;
 	}
 	
 	public static class ElementContext

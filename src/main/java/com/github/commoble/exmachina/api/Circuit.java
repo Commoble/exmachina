@@ -57,5 +57,5 @@ public interface Circuit
 	 * when the circuit was built
 	 * @return
 	 */
-	public Map<BlockPos, Pair<BlockState, CircuitComponent>> getComponentCache();
+	public Map<BlockPos, ? extends Pair<BlockState, ? extends CircuitComponent>> getComponentCache();
 }
