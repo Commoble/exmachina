@@ -45,6 +45,7 @@ public interface PluginRegistrator
 	/**
 	 * Returns a supplier for the circuit component data loaded from jsons.
 	 * The supplier is safe to cache; the map itself is not, as the map instance changes when datapacks are reloaded. 
+	 * Keep in mind that querying map.get(block) on the given map returns null for blocks that do not have associated component data
 	 * @return
 	 */
 	public Supplier<Map<Block, ? extends CircuitComponent>> getComponentDataGetter();

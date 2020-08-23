@@ -88,26 +88,29 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 			// if circuit does contain the updated position, we handled it above
 			// if the circuit didn't connect to the old blockstate, and doesn't connect to the new one, we don't worry about it
 		CircuitComponent component = ExMachina.INSTANCE.circuitElementDataManager.data.get(newState.getBlock());
-		Set<BlockPos> connections = component.getConnector().apply(this.world, updatedPos);
-		for (BlockPos connectedPos : connections)
+		if (component != null)
 		{
-			LazyOptional<Circuit> connectedCircuitHolder = this.getCircuit(connectedPos);
-			connectedCircuitHolder.ifPresent(connectedCircuit -> {
-				Map<BlockPos, ? extends Pair<BlockState, ? extends CircuitComponent>> components = connectedCircuit.getComponentCache();
-				// if updated block connects to an extant circuit that doesn't contain the updated block 
-				if (!components.containsKey(updatedPos))
-				{
-					Pair<BlockState, ? extends CircuitComponent> pair = components.get(connectedPos);
-					// and if the extant circuit can mutually connect to the new block
-					if (pair != null && pair.getRight().getConnector().apply(this.world, connectedPos).contains(updatedPos))
+			Set<BlockPos> connections = component.getConnector().apply(this.world, updatedPos);
+			for (BlockPos connectedPos : connections)
+			{
+				LazyOptional<Circuit> connectedCircuitHolder = this.getCircuit(connectedPos);
+				connectedCircuitHolder.ifPresent(connectedCircuit -> {
+					Map<BlockPos, ? extends Pair<BlockState, ? extends CircuitComponent>> components = connectedCircuit.getComponentCache();
+					// if updated block connects to an extant circuit that doesn't contain the updated block 
+					if (!components.containsKey(updatedPos))
 					{
-						// mark the circuit for invalidation and removal from the manager
-						// circuit won't be in the set of circuits to remove yet because it would have been invalidated already
-						components.keySet().forEach(addPosToRemovalList);
-						connectedCircuitHolder.invalidate();
+						Pair<BlockState, ? extends CircuitComponent> pair = components.get(connectedPos);
+						// and if the extant circuit can mutually connect to the new block
+						if (pair != null && pair.getRight().getConnector().apply(this.world, connectedPos).contains(updatedPos))
+						{
+							// mark the circuit for invalidation and removal from the manager
+							// circuit won't be in the set of circuits to remove yet because it would have been invalidated already
+							components.keySet().forEach(addPosToRemovalList);
+							connectedCircuitHolder.invalidate();
+						}
 					}
-				}
-			});
+				});
+			}
 		}
 		
 		// then we remove any invalidated circuits from the map

@@ -17,5 +17,5 @@ public class BlockRegistrar
 	public static final RegistryObject<Block> WIRE_POST = BLOCKS.register(Names.WIRE_POST, () -> new WirePostBlock(AbstractBlock.Properties.from(Blocks.PISTON)));
 	
 	public static final RegistryObject<Block> CURRENT_SOURCE = BLOCKS.register(Names.BATTERY, () -> new Block(AbstractBlock.Properties.from(Blocks.field_235405_no_))); // from lodestone
-	public static final RegistryObject<Block> ELECTRIC_FURNACE = BLOCKS.register(Names.ELECTRIC_FURNACE, () -> new Block(AbstractBlock.Properties.from(Blocks.BLAST_FURNACE)));
+	public static final RegistryObject<Block> ELECTRIC_FURNACE = BLOCKS.register(Names.ELECTRIC_FURNACE, () -> new Block(AbstractBlock.Properties.from(Blocks.SMITHING_TABLE)));
 }
