@@ -4,13 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 
 import org.apache.logging.log4j.Level;
 
+import com.github.commoble.exmachina.api.CircuitComponent;
 import com.github.commoble.exmachina.api.DynamicCircuitElementProperty;
 import com.github.commoble.exmachina.api.PluginRegistrator;
-import com.github.commoble.exmachina.api.PowerConsumer;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -23,7 +24,6 @@ public class CircuitBehaviourRegistry implements PluginRegistrator
 	public final Map<ResourceLocation, BiFunction<IWorld, BlockPos, Set<BlockPos>>> connectionTypes = new HashMap<>();
 	public final Map<ResourceLocation, BiFunction<Block, Map<String, Double>, ToDoubleFunction<BlockState>>> staticProperties = new HashMap<>();
 	public final Map<ResourceLocation, BiFunction<Block, Map<String, Double>, DynamicCircuitElementProperty>> dynamicProperties = new HashMap<>();
-	public final Map<ResourceLocation, PowerConsumer> consumptionTypes = new HashMap<>();
 	
 	public CircuitBehaviourRegistry()
 	{
@@ -59,6 +59,12 @@ public class CircuitBehaviourRegistry implements PluginRegistrator
 				"A dynamic circuit element property was registered to the identifier {} more than once, overwriting an existing value. This is not supported behaviour and may cause unusual phenomena.",
 				identifier.toString());
 		}
+	}
+
+	@Override
+	public Supplier<Map<Block, ? extends CircuitComponent>> getComponentDataGetter()
+	{
+		return ExMachina.INSTANCE.circuitElementDataManager;
 	}
 	
 	

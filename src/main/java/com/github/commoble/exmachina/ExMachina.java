@@ -6,6 +6,10 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.github.commoble.exmachina.api.CircuitManager;
+import com.github.commoble.exmachina.api.CircuitManagerCapability;
+import com.github.commoble.exmachina.circuit.NoStorageForCapability;
+import com.github.commoble.exmachina.circuit.WorldCircuitManager;
 import com.github.commoble.exmachina.client.ClientEvents;
 import com.github.commoble.exmachina.content.BlockRegistrar;
 import com.github.commoble.exmachina.content.ItemRegistrar;
@@ -16,6 +20,7 @@ import com.github.commoble.exmachina.content.wire_post.PostsInChunk;
 import com.github.commoble.exmachina.content.wire_post.PostsInChunkCapability;
 import com.github.commoble.exmachina.content.wire_post.WireBreakPacket;
 import com.github.commoble.exmachina.content.wire_post.WirePostTileEntity;
+import com.github.commoble.exmachina.data.CircuitElementDataManager;
 import com.github.commoble.exmachina.util.ConfigHelper;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
@@ -42,8 +47,10 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -74,7 +81,8 @@ public class ExMachina
 		CHANNEL_PROTOCOL_VERSION::equals);
 	
 	public final ServerConfig serverConfig;
-	public CircuitBehaviourRegistry circuitBehaviourRegistry = CircuitBehaviourRegistry.EMPTY;
+	public CircuitBehaviourRegistry circuitBehaviourRegistry = new CircuitBehaviourRegistry();
+	public CircuitElementDataManager circuitElementDataManager = new CircuitElementDataManager();
 	
 	// forge constructs this during modloading
 	public ExMachina()
@@ -102,8 +110,11 @@ public class ExMachina
 		modBus.addListener(this::onCommonSetup);
 		
 		// subscribe events to forge bus -- server init and in-game events
+		forgeBus.addListener(this::onAddReloadListeners);
 		forgeBus.addGenericListener(Chunk.class, this::onAttachChunkCapabilities);
-		forgeBus.addListener(EventPriority.LOW, this::onEntityPlaceBlock);
+		forgeBus.addGenericListener(World.class, this::onAttachWorldCapabilities);
+		forgeBus.addListener(EventPriority.LOW, this::checkBlockingWiresOnEntityPlaceBlock);
+		forgeBus.addListener(this::onNeighborNotify);
 		
 		// subscribe to client events separately so they don't break servers
 		if (FMLEnvironment.dist == Dist.CLIENT)
@@ -126,17 +137,33 @@ public class ExMachina
 		
 		// register capabilities
 		CapabilityManager.INSTANCE.register(IPostsInChunk.class, new PostsInChunkCapability.Storage(), PostsInChunk::new);
+		CapabilityManager.INSTANCE.register(CircuitManager.class, new NoStorageForCapability<>(), () -> null);
 		
 		// init API plugins
 		this.circuitBehaviourRegistry = PluginLoader.loadPlugins();
 	}
 	
-	private void onAttachChunkCapabilities(AttachCapabilitiesEvent<Chunk> event)
+	private void onAddReloadListeners(AddReloadListenerEvent event)
 	{
-		event.addCapability(getModRL(Names.POSTS_IN_CHUNK), new PostsInChunk());
+		event.addListener(this.circuitElementDataManager);
 	}
 	
-	private void onEntityPlaceBlock(BlockEvent.EntityPlaceEvent event)
+	private void onAttachChunkCapabilities(AttachCapabilitiesEvent<Chunk> event)
+	{
+		PostsInChunk postsInChunk = new PostsInChunk();
+		event.addCapability(getModRL(Names.POSTS_IN_CHUNK), postsInChunk);
+		event.addListener(() -> postsInChunk.holder.invalidate());
+		
+	}
+	
+	private void onAttachWorldCapabilities(AttachCapabilitiesEvent<World> event)
+	{
+		WorldCircuitManager manager = new WorldCircuitManager(event.getObject());
+		event.addCapability(getModRL(Names.CIRCUIT_MANAGER), manager);
+		event.addListener(manager::onCapabilityInvalidated);
+	}
+	
+	private void checkBlockingWiresOnEntityPlaceBlock(BlockEvent.EntityPlaceEvent event)
 	{
 		BlockPos pos = event.getPos();
 		IWorld iworld = event.getWorld();
@@ -183,6 +210,22 @@ public class ExMachina
 					});
 				}
 			}
+		}
+	}
+	
+	private void onNeighborNotify(NeighborNotifyEvent event)
+	{
+		// called when a block update occurs at a given position (including when a blockstate change occurs at that position)
+		// if the blockstate changed, the event's given state is the new blockstate
+		IWorld iworld = event.getWorld();
+		
+		if (iworld instanceof World)
+		{
+			@SuppressWarnings("resource")
+			World world = (World)iworld;
+			BlockState newState = event.getState();
+			BlockPos pos = event.getPos();
+			world.getCapability(CircuitManagerCapability.INSTANCE).ifPresent(manager -> manager.onBlockUpdate(newState, pos));
 		}
 	}
 	

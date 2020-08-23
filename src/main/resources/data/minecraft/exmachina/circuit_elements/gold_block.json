@@ -1,5 +1,4 @@
 {
-	"block": "minecraft:gold_block",
-	"wire_resistance": 0.000000022,
-	"connection": "exmachina:cube_all"
+	"constant_load": 0.000000022,
+	"connector": "exmachina:cube_all"
 }

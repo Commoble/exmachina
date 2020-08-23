@@ -3,10 +3,11 @@ package com.github.commoble.exmachina.data;
 /** To be deserialized from json via GSON **/
 public class RawCircuitElement
 {
-	public String block;
-	public String connection;
-	public double wire_resistance;
-	public RawCircuitProperty production;
-	public RawCircuitProperty load;
-	public String consumption;
+	public double constant_load;
+	public double constant_source;
+	public String connector;
+	public RawCircuitProperty static_source;
+	public RawCircuitProperty static_load;
+	public RawCircuitProperty dynamic_source;
+	public RawCircuitProperty dynamic_load;
 }

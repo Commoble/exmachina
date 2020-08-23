@@ -16,7 +16,7 @@ import net.minecraftforge.common.util.LazyOptional;
 
 public class PostsInChunk implements IPostsInChunk, ICapabilityProvider, INBTSerializable<CompoundNBT>
 {	
-	private final LazyOptional<IPostsInChunk> holder = LazyOptional.of(() -> this);
+	public final LazyOptional<IPostsInChunk> holder = LazyOptional.of(() -> this);
 	
 	private Set<BlockPos> positions = new HashSet<>();
 	

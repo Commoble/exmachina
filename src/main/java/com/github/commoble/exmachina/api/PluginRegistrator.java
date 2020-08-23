@@ -3,6 +3,7 @@ package com.github.commoble.exmachina.api;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 
 import net.minecraft.block.Block;
@@ -22,7 +23,29 @@ public interface PluginRegistrator
 	 */
 	public void registerConnectionType(ResourceLocation identifier, BiFunction<IWorld, BlockPos, Set<BlockPos>> connectionType);
 	
+	/**
+	 * Registers a static property that can be used for electrical component blocks' source and load properties in data jsons.
+	 * Static properties are evaluated less often than dynamic properties, but can only vary by blockstate.
+	 * @param identifier An ID for this property. Data jsons can refer to this property when defining components.
+	 * @param propertyBuilder A function that will be used when deserializing data jsons into components.
+	 */
 	public void registerStaticCircuitElementProperty(ResourceLocation identifier, BiFunction<Block, Map<String, Double>, ToDoubleFunction<BlockState>> propertyBuilder);
 	
+	/**
+	 * Registers a dynamic proprety that can be used for electrical component blocks' source and load properties in data jsons.
+	 * Dynamic properties can use world and positional context, but are evaluated more often than static properties.
+	 * However, they can be reevaluated without rebuilding the entire circuit object.
+	 * They are ideal for block entities whose properties update too frequently to be blockstate-based.
+	 * Static properties are preferable for properties that vary infrequently, if ever.
+	 * @param identifier
+	 * @param propertyBuilder
+	 */
 	public void registerDynamicCircuitElementProperty(ResourceLocation identifier, BiFunction<Block, Map<String, Double>, DynamicCircuitElementProperty> propertyBuilder);
+	
+	/**
+	 * Returns a supplier for the circuit component data loaded from jsons.
+	 * The supplier is safe to cache; the map itself is not, as the map instance changes when datapacks are reloaded. 
+	 * @return
+	 */
+	public Supplier<Map<Block, ? extends CircuitComponent>> getComponentDataGetter();
 }

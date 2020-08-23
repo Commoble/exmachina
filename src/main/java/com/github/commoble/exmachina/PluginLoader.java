@@ -7,7 +7,6 @@ import org.objectweb.asm.Type;
 
 import com.github.commoble.exmachina.api.AutoPlugin;
 import com.github.commoble.exmachina.api.Plugin;
-import com.github.commoble.exmachina.api.PluginRegistrator;
 
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.ModFileScanData.AnnotationData;
@@ -19,13 +18,18 @@ public class PluginLoader
 	 * A) annotated with {@link AutoPlugin}, and
 	 * B) implementing {@link Plugin}
 	 * and then allow the instances to register circuit behaviors
+	 * 
+	 * This is heavily based on Just Enough Item's plugin loader:
+	 * https://github.com/mezz/JustEnoughItems/blob/1.16/src/main/java/mezz/jei/util/AnnotatedInstanceUtil.java
+	 * Just Enough Items is Copyright (c) 2014-2015 mezz and licensed under the MIT license
+	 * https://github.com/mezz/JustEnoughItems/blob/1.16/LICENSE.txt
 	 */
 	public static CircuitBehaviourRegistry loadPlugins()
 	{
 		ExMachina.LOGGER.info("Loading Ex Machina plugins");
 		
 		Type pluginType = Type.getType(AutoPlugin.class);
-		PluginRegistrator registrator = CircuitBlocks::getCircuitEntry;
+		CircuitBehaviourRegistry registrator = new CircuitBehaviourRegistry();
 		
 		// get the names of all classes annotated with the plugin annotation
 		ModList.get().getAllScanData().stream()
@@ -37,6 +41,10 @@ public class PluginLoader
 			.flatMap(PluginLoader::createPluginInstance)
 			// and allow them to register circuit behaviors if they were instantiated successfully
 			.forEach(plugin -> plugin.register(registrator));
+
+		ExMachina.LOGGER.info("Completed loading of Ex Machina plugins");
+		
+		return registrator;
 	}
 	
 	/**
