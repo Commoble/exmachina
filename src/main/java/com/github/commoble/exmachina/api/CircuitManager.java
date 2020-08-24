@@ -17,9 +17,13 @@ public interface CircuitManager
 	
 	/**
 	 * Notifies the circuit manager that a block at this position has updated.
-	 * This is normally done by internal systems and generally shouldn't be needed
-	 * to be called by mods unless they're updating blockstates in a way that doesn't
-	 * cause ordinary block updates
+	 * Normal blockstate updates are handled by internal processes and mods generally
+	 * shouldn't need to call this for those.
+	 * Blocks with connector sets that vary with non-blockstate data may call this
+	 * to inform the circuit manager that connections should be re-checked.
+	 * Note that calling setBlockState or markAndNotifyBlock on the world will automatically
+	 * trigger circuit revalidation, but notifyBlockUpdate does not (so this here must be called as well
+	 * to trigger circuit revalidation).
 	 * @param newState
 	 * @param pos
 	 */

@@ -1,4 +1,8 @@
 {
 	"itemGroup.exmachina": "Ex-Machina",
-	"container.exmachina.electric_furnace": "Furnace"
+	"container.exmachina.electric_furnace": "Furnace",
+	
+	"exmachina.mondometer.no_activity": "No activity detected",
+	"exmachina.mondometer.load": "Load: %s, %s, %s, %s",
+	"exmachina.mondometer.source": "Source: %s, %s, %s, %s"
 }

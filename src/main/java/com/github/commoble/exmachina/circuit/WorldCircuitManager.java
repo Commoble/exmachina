@@ -85,8 +85,9 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 			// A) does not contain the updated position, and
 			// B) has a mutual connection to the updated position from the connected position
 		// then we invalidate that circuit
-			// if circuit does contain the updated position, we handled it above
 			// if the circuit didn't connect to the old blockstate, and doesn't connect to the new one, we don't worry about it
+		// if the circuit did connect to the old blockstate, we invalidate the circuit if the new state
+			// has mutual connections to any position not in that circuit
 		CircuitComponent component = ExMachina.INSTANCE.circuitElementDataManager.data.get(newState.getBlock());
 		if (component != null)
 		{
@@ -107,6 +108,25 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 							// circuit won't be in the set of circuits to remove yet because it would have been invalidated already
 							components.keySet().forEach(addPosToRemovalList);
 							connectedCircuitHolder.invalidate();
+						}
+					}
+					else // if updated block connects to an extant circuit that contains the updated block,
+					{
+						// if the updated block now has any mutual connections to blocks that the extant circuit does not contain,
+						// invalidate that circuit
+						for (BlockPos otherConnectedPos : connections)
+						{
+							if (!components.containsKey(otherConnectedPos))
+							{
+								BlockState otherConnectedState = this.world.getBlockState(otherConnectedPos);
+								CircuitComponent otherConnectedComponent = ExMachina.INSTANCE.circuitElementDataManager.data.get(otherConnectedState.getBlock());
+								if (otherConnectedComponent != null && !otherConnectedComponent.getConnector().apply(this.world, otherConnectedPos).contains(updatedPos))
+								{
+									components.keySet().forEach(addPosToRemovalList);
+									connectedCircuitHolder.invalidate();
+									break;
+								}
+							}
 						}
 					}
 				});

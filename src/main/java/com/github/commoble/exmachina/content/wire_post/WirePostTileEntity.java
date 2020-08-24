@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.github.commoble.exmachina.ExMachina;
+import com.github.commoble.exmachina.api.CircuitManagerCapability;
 import com.github.commoble.exmachina.content.TileEntityRegistrar;
 import com.github.commoble.exmachina.util.NBTListCodec;
 import com.github.commoble.exmachina.util.NBTListCodec.ListNBTType;
@@ -165,8 +166,11 @@ public class WirePostTileEntity extends TileEntity
 
 	public void onDataUpdated()
 	{
+		BlockState state = this.getBlockState();
 		this.markDirty();
-		this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), Constants.BlockFlags.DEFAULT);
+		this.world.notifyBlockUpdate(this.pos, this.getBlockState(), state, Constants.BlockFlags.DEFAULT);
+		// we may have changed our connection set, so tell the circuit manager to revalidate circuits
+		this.world.getCapability(CircuitManagerCapability.INSTANCE).ifPresent(manager -> manager.onBlockUpdate(state, this.pos));
 	}
 
 	@Override

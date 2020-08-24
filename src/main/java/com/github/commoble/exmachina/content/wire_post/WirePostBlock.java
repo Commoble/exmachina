@@ -1,11 +1,13 @@
 package com.github.commoble.exmachina.content.wire_post;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
 import javax.annotation.Nullable;
 
 import com.github.commoble.exmachina.content.TileEntityRegistrar;
+import com.google.common.collect.ImmutableSet;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -22,6 +24,7 @@ import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunk;
@@ -227,32 +230,53 @@ public class WirePostBlock extends Block
 	{
 		return state.rotate(mirrorIn.toRotation(state.get(DIRECTION_OF_ATTACHMENT)));
 	}
-
-	/**
-	 * Can this block provide power. Only wire currently seems to have this change
-	 * based on its state.
-	 * 
-	 * @deprecated call via {@link IBlockState#canProvidePower()} whenever possible.
-	 *             Implementing/overriding is fine.
-	 */
-	@Deprecated
-	@Override
-	public boolean canProvidePower(BlockState state)
+	
+	public static Set<BlockPos> getPotentialConnections(IWorld world, BlockPos pos)
 	{
-		return true;
+		BlockState state = world.getBlockState(pos);
+		Block block = state.getBlock();
+		if (!(block instanceof WirePostBlock))
+		{
+			return ImmutableSet.of();
+		}
+		else
+		{
+			return WirePostTileEntity.getPost(world, pos)
+				.map(post -> {
+					Set<BlockPos> result = new HashSet<>();
+					result.addAll(post.getRemoteConnections());
+					result.add(pos.offset(state.get(DIRECTION_OF_ATTACHMENT)));
+					return result;
+				})
+				.orElse(ImmutableSet.of());
+		}
 	}
 
-	/**
-	 * @deprecated call via
-	 *             {@link IBlockState#getStrongPower(IBlockAccess,BlockPos,EnumFacing)}
-	 *             whenever possible. Implementing/overriding is fine.
-	 */
-	@Deprecated
-	@Override
-	public int getStrongPower(BlockState blockState, IBlockReader blockAccess, BlockPos pos, Direction side)
-	{
-		return blockState.getWeakPower(blockAccess, pos, side);
-	}
+//	/**
+//	 * Can this block provide power. Only wire currently seems to have this change
+//	 * based on its state.
+//	 * 
+//	 * @deprecated call via {@link IBlockState#canProvidePower()} whenever possible.
+//	 *             Implementing/overriding is fine.
+//	 */
+//	@Deprecated
+//	@Override
+//	public boolean canProvidePower(BlockState state)
+//	{
+//		return true;
+//	}
+//
+//	/**
+//	 * @deprecated call via
+//	 *             {@link IBlockState#getStrongPower(IBlockAccess,BlockPos,EnumFacing)}
+//	 *             whenever possible. Implementing/overriding is fine.
+//	 */
+//	@Deprecated
+//	@Override
+//	public int getStrongPower(BlockState blockState, IBlockReader blockAccess, BlockPos pos, Direction side)
+//	{
+//		return blockState.getWeakPower(blockAccess, pos, side);
+//	}
 
 //	/**
 //	 * @deprecated call via
