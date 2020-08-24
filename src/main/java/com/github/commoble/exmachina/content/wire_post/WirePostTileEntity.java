@@ -170,7 +170,7 @@ public class WirePostTileEntity extends TileEntity
 		this.markDirty();
 		this.world.notifyBlockUpdate(this.pos, this.getBlockState(), state, Constants.BlockFlags.DEFAULT);
 		// we may have changed our connection set, so tell the circuit manager to revalidate circuits
-		this.world.getCapability(CircuitManagerCapability.INSTANCE).ifPresent(manager -> manager.onBlockUpdate(state, this.pos));
+		this.world.getCapability(CircuitManagerCapability.INSTANCE).ifPresent(manager -> manager.invalidateCircuit(this.pos));
 	}
 
 	@Override

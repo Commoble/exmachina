@@ -86,8 +86,10 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 			// B) has a mutual connection to the updated position from the connected position
 		// then we invalidate that circuit
 			// if the circuit didn't connect to the old blockstate, and doesn't connect to the new one, we don't worry about it
-		// if the circuit did connect to the old blockstate, we invalidate the circuit if the new state
-			// has mutual connections to any position not in that circuit
+			// if the circuit did connect to the old blockstate,
+				// if the old blockstate changed, we handled it above
+				// if the old blockstate didn't change, we ignore it and rely on the block's developer to
+				// call a circuit invalidation if necessary
 		CircuitComponent component = ExMachina.INSTANCE.circuitElementDataManager.data.get(newState.getBlock());
 		if (component != null)
 		{
@@ -110,25 +112,6 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 							connectedCircuitHolder.invalidate();
 						}
 					}
-					else // if updated block connects to an extant circuit that contains the updated block,
-					{
-						// if the updated block now has any mutual connections to blocks that the extant circuit does not contain,
-						// invalidate that circuit
-						for (BlockPos otherConnectedPos : connections)
-						{
-							if (!components.containsKey(otherConnectedPos))
-							{
-								BlockState otherConnectedState = this.world.getBlockState(otherConnectedPos);
-								CircuitComponent otherConnectedComponent = ExMachina.INSTANCE.circuitElementDataManager.data.get(otherConnectedState.getBlock());
-								if (otherConnectedComponent != null && !otherConnectedComponent.getConnector().apply(this.world, otherConnectedPos).contains(updatedPos))
-								{
-									components.keySet().forEach(addPosToRemovalList);
-									connectedCircuitHolder.invalidate();
-									break;
-								}
-							}
-						}
-					}
 				});
 			}
 		}
@@ -145,5 +128,11 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 			circuitHolder.invalidate();
 		}
 		this.holder.invalidate();
+	}
+
+	@Override
+	public void invalidateCircuit(BlockPos pos)
+	{
+		this.circuitMap.getOrDefault(pos, EMPTY_CIRCUIT).invalidate();
 	}
 }

@@ -22,4 +22,9 @@ public class NoCircuitManager implements CircuitManager
 	{
 	}
 
+	@Override
+	public void invalidateCircuit(BlockPos pos)
+	{
+	}
+
 }
