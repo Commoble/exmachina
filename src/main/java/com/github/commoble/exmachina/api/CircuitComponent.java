@@ -28,7 +28,8 @@ public interface CircuitComponent
 	 * Power queries from circuits return the sum of the power supplied to and drawn from such components.
 	 * The separate power supplied by and drawn from such componenents can be determined by querying the current
 	 * from a circuit the component belongs to and doing the math separately.
-	 * (This can also be done to find the 
+	 * Note that this returns the nominal voltage of an element -- the actual voltage the element is supplying
+	 * to a given circuit can be found by multiplying this value by the circuit's efficiency value
 	 * @param world
 	 * @param pos
 	 * @param state

@@ -23,9 +23,11 @@ import net.minecraft.world.IWorld;
 public class DefinedCircuitComponent implements CircuitComponent
 {
 	public static final StaticProperty STATIC_NOOP = state -> 0D;
+	public static final StaticProperty STATIC_MAX = state -> Double.MAX_VALUE;
 	
 	public final boolean isWire;
 	public final @Nonnull BiFunction<IWorld, BlockPos, Set<BlockPos>> connector;
+	public final @Nonnull StaticProperty maxSourceCurrent;
 	public final @Nonnull StaticProperty staticSource;
 	public final @Nonnull Optional<DynamicProperty> dynamicSource;
 	public final @Nonnull StaticProperty staticLoad;
@@ -35,6 +37,7 @@ public class DefinedCircuitComponent implements CircuitComponent
 	{
 		this.isWire = raw.wire;
 		this.connector = registry.connectionTypes.getOrDefault(new ResourceLocation(raw.connector), (world,pos) -> ImmutableSet.of());
+		this.maxSourceCurrent = getProperty(raw.max_source_current, block).orElse(STATIC_MAX);
 		this.staticSource = getProperty(raw.static_source, block).orElse(STATIC_NOOP);
 		this.dynamicSource = getProperty(raw.dynamic_source, block);
 		this.staticLoad = getProperty(raw.static_load, block).orElse(STATIC_NOOP);

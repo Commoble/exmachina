@@ -1,4 +1,5 @@
 {
 	"static_source": 10,
+	"max_source_current": 2,
 	"connector": "exmachina:cube_all"
 }

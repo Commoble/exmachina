@@ -88,6 +88,8 @@ public class CircuitBuilder
 	{
 		double totalStaticLoad = 0D;
 		double totalStaticSource = 0D;
+		double maxSourceCurrent = Double.MAX_VALUE;
+		
 		List<DoubleSupplier> dynamicLoads = new ArrayList<>();
 		List<DoubleSupplier> dynamicSources = new ArrayList<>();
 		Multiset<Pair<BlockState, DefinedCircuitComponent>> stateCounter = HashMultiset.create();
@@ -124,6 +126,7 @@ public class CircuitBuilder
 			if (staticSource > 0 || element.dynamicSource.isPresent())
 			{
 				hasSource = true;
+				maxSourceCurrent = Math.min(maxSourceCurrent, element.maxSourceCurrent.applyAsDouble(state));
 			}
 			totalStaticSource += count * staticSource;
 			totalStaticLoad += count * staticLoad;
@@ -131,7 +134,7 @@ public class CircuitBuilder
 		
 		if (hasNonWireLoad && hasSource)
 		{
-			Circuit circuit = new CircuitImpl(world, totalStaticLoad, totalStaticSource, components, dynamicLoads, dynamicSources);
+			Circuit circuit = new CircuitImpl(world, maxSourceCurrent, totalStaticLoad, totalStaticSource, components, dynamicLoads, dynamicSources);
 			return LazyOptional.of(() -> circuit);
 		}
 		else

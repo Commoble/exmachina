@@ -36,6 +36,12 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 	{
 		this.world = world;
 	}
+
+	@Override
+	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side)
+	{
+		return CircuitManagerCapability.INSTANCE.orEmpty(cap, this.holder);
+	}
 	
 	@Override
 	public LazyOptional<Circuit> getCircuit(BlockPos pos)
@@ -53,12 +59,6 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 				.forEach(posInCircuit -> this.circuitMap.put(posInCircuit, builtCircuitHolder)));
 			return builtCircuitHolder;
 		}
-	}
-
-	@Override
-	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side)
-	{
-		return CircuitManagerCapability.INSTANCE.orEmpty(cap, this.holder);
 	}
 
 	@Override

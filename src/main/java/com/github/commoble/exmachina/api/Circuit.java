@@ -28,6 +28,16 @@ public interface Circuit
 	public double getCurrent();
 	
 	/**
+	 * Returns a value representing the efficiency of the circuit.
+	 * If there is less current in the circuit than the voltage sources in the circuit
+	 * can supply, this value will be less than 1.
+	 * This value can be multipled by the nominal voltage of a circuit element to find its actual voltage
+	 * in the circuit (or just divide power by current to get actual voltage)
+	 * @return A value in the range (0.0, 1.0]. Returns 1 if there is no current.
+	 */
+	public double getEfficiency();
+	
+	/**
 	 * Mark a circuit as needing to read data from its dynamic components.
 	 * If your component block has a dynamic source or load, this should be called
 	 * when the value updates to notify the circuit that it has to redo some math.
