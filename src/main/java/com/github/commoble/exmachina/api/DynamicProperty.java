@@ -5,7 +5,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 
 @FunctionalInterface
-public interface DynamicCircuitElementProperty
+public interface DynamicProperty
 {
 	public double getValue(IWorld world, BlockPos pos, BlockState state);
 }

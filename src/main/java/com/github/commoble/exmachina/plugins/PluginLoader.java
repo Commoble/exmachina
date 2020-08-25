@@ -1,10 +1,11 @@
-package com.github.commoble.exmachina;
+package com.github.commoble.exmachina.plugins;
 
 import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.objectweb.asm.Type;
 
+import com.github.commoble.exmachina.ExMachina;
 import com.github.commoble.exmachina.api.AutoPlugin;
 import com.github.commoble.exmachina.api.Plugin;
 

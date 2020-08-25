@@ -1,20 +1,21 @@
-package com.github.commoble.exmachina;
+package com.github.commoble.exmachina.plugins;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
-import java.util.function.ToDoubleFunction;
 
 import org.apache.logging.log4j.Level;
 
+import com.github.commoble.exmachina.ExMachina;
 import com.github.commoble.exmachina.api.CircuitComponent;
-import com.github.commoble.exmachina.api.DynamicCircuitElementProperty;
+import com.github.commoble.exmachina.api.DynamicPropertyFactory;
+import com.github.commoble.exmachina.api.JsonObjectReader;
 import com.github.commoble.exmachina.api.PluginRegistrator;
+import com.github.commoble.exmachina.api.StaticPropertyFactory;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
@@ -22,8 +23,8 @@ import net.minecraft.world.IWorld;
 public class CircuitBehaviourRegistry implements PluginRegistrator
 {
 	public final Map<ResourceLocation, BiFunction<IWorld, BlockPos, Set<BlockPos>>> connectionTypes = new HashMap<>();
-	public final Map<ResourceLocation, BiFunction<Block, Map<String, Double>, ToDoubleFunction<BlockState>>> staticProperties = new HashMap<>();
-	public final Map<ResourceLocation, BiFunction<Block, Map<String, Double>, DynamicCircuitElementProperty>> dynamicProperties = new HashMap<>();
+	public final Map<ResourceLocation, JsonObjectReader<StaticPropertyFactory>> staticProperties = new HashMap<>();
+	public final Map<ResourceLocation, JsonObjectReader<DynamicPropertyFactory>> dynamicProperties = new HashMap<>();
 	
 	public CircuitBehaviourRegistry()
 	{
@@ -40,9 +41,9 @@ public class CircuitBehaviourRegistry implements PluginRegistrator
 	}
 
 	@Override
-	public void registerStaticCircuitElementProperty(ResourceLocation identifier, BiFunction<Block, Map<String, Double>, ToDoubleFunction<BlockState>> propertyBuilder)
+	public void registerStaticCircuitElementProperty(ResourceLocation identifier, JsonObjectReader<StaticPropertyFactory> propertyReader)
 	{
-		Object existing = this.staticProperties.put(identifier, propertyBuilder);
+		Object existing = this.staticProperties.put(identifier, propertyReader);
 		if (existing != null)
 		{
 			ExMachina.LOGGER.log(Level.WARN, "A static circuit element property was registered to the identifier {} more than once, overwriting an existing value. This is not supported behaviour and may cause unusual phenomena.", identifier.toString());
@@ -50,9 +51,9 @@ public class CircuitBehaviourRegistry implements PluginRegistrator
 	}
 
 	@Override
-	public void registerDynamicCircuitElementProperty(ResourceLocation identifier, BiFunction<Block, Map<String, Double>, DynamicCircuitElementProperty> propertyBuilder)
+	public void registerDynamicCircuitElementProperty(ResourceLocation identifier, JsonObjectReader<DynamicPropertyFactory> propertyReader)
 	{
-		Object existing = this.dynamicProperties.put(identifier, propertyBuilder);
+		Object existing = this.dynamicProperties.put(identifier, propertyReader);
 		if (existing != null)
 		{
 			ExMachina.LOGGER.log(Level.WARN,

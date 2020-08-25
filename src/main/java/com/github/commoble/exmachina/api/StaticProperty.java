@@ -1,9 +1,11 @@
-package com.github.commoble.exmachina.data;
+package com.github.commoble.exmachina.api;
 
-import java.util.Map;
+import java.util.function.ToDoubleFunction;
 
-public class RawCircuitProperty
+import net.minecraft.block.BlockState;
+
+@FunctionalInterface
+public interface StaticProperty extends ToDoubleFunction<BlockState>
 {
-	public String type;
-	public Map<String, Double> data;
+
 }

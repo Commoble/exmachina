@@ -21,6 +21,8 @@ import com.github.commoble.exmachina.content.wire_post.PostsInChunkCapability;
 import com.github.commoble.exmachina.content.wire_post.WireBreakPacket;
 import com.github.commoble.exmachina.content.wire_post.WirePostTileEntity;
 import com.github.commoble.exmachina.data.CircuitElementDataManager;
+import com.github.commoble.exmachina.plugins.CircuitBehaviourRegistry;
+import com.github.commoble.exmachina.plugins.PluginLoader;
 import com.github.commoble.exmachina.util.ConfigHelper;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;

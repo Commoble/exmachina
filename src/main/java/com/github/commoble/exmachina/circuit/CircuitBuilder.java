@@ -46,6 +46,7 @@ public class CircuitBuilder
 
 			// traverse all blocks connectable to this starting block and assemble the partial circuit
 			// avoid recursive graph solving so we don't cause stack overflows with large networks
+			
 			while (!uncheckedConnectedElements.isEmpty())
 			{
 				ElementContext nextContext = uncheckedConnectedElements.remove();
@@ -79,14 +80,14 @@ public class CircuitBuilder
 			}
 			
 			// we've fully traversed the mutual connections, use the network map to build a circuit object
-			return LazyOptional.of(() -> CircuitBuilder.buildCircuit(world, partialCircuit));
+			return CircuitBuilder.buildCircuit(world, partialCircuit);
 		}
 	}
 	
-	public static Circuit buildCircuit(IWorld world, Map<BlockPos, Pair<BlockState, DefinedCircuitComponent>> components)
+	public static LazyOptional<Circuit> buildCircuit(IWorld world, Map<BlockPos, Pair<BlockState, DefinedCircuitComponent>> components)
 	{
-		double staticLoad = 0D;
-		double staticSource = 0D;
+		double totalStaticLoad = 0D;
+		double totalStaticSource = 0D;
 		List<DoubleSupplier> dynamicLoads = new ArrayList<>();
 		List<DoubleSupplier> dynamicSources = new ArrayList<>();
 		Multiset<Pair<BlockState, DefinedCircuitComponent>> stateCounter = HashMultiset.create();
@@ -105,18 +106,38 @@ public class CircuitBuilder
 		}
 		// calculate static values once per state and multiplying them by the number of states
 		// should make the calculations for e.g. a 100x100x100 cube of wires nicer
+		// also need to find at least one source and at least one non-wire load to build a valid circuit
+		boolean hasNonWireLoad = false;
+		boolean hasSource = false;
 		for (Multiset.Entry<Pair<BlockState, DefinedCircuitComponent>> entry : stateCounter.entrySet())
 		{
 			Pair<BlockState, DefinedCircuitComponent> pair = entry.getElement();
 			BlockState state = pair.getLeft();
 			DefinedCircuitComponent element = pair.getRight();
 			int count = entry.getCount();
-			staticLoad += count * (element.constantLoad + element.staticLoad.applyAsDouble(state));
-			staticSource += count * (element.constantSource + element.staticSource.applyAsDouble(state));
+			double staticLoad = element.staticLoad.applyAsDouble(state);
+			double staticSource = element.staticSource.applyAsDouble(state);
+			if (!element.isWire && (staticLoad > 0 || element.dynamicLoad.isPresent()))
+			{
+				hasNonWireLoad = true;
+			}
+			if (staticSource > 0 || element.dynamicSource.isPresent())
+			{
+				hasSource = true;
+			}
+			totalStaticSource += count * staticSource;
+			totalStaticLoad += count * staticLoad;
 		}
 		
-		Circuit circuit = new CircuitImpl(world, staticLoad, staticSource, components, dynamicLoads, dynamicSources);
-		return circuit;
+		if (hasNonWireLoad && hasSource)
+		{
+			Circuit circuit = new CircuitImpl(world, totalStaticLoad, totalStaticSource, components, dynamicLoads, dynamicSources);
+			return LazyOptional.of(() -> circuit);
+		}
+		else
+		{
+			return WorldCircuitManager.EMPTY_CIRCUIT;
+		}
 	}
 	
 	public static class ElementContext
@@ -130,6 +151,16 @@ public class CircuitBuilder
 			this.pos = pos;
 			this.state = state;
 			this.element = element;
+		}
+		
+		public boolean isNonWireLoad()
+		{
+			return !this.element.isWire && (this.element.staticLoad.applyAsDouble(this.state) > 0 || this.element.dynamicLoad.isPresent()); 
+		}
+		
+		public boolean isSource()
+		{
+			return this.element.staticSource.applyAsDouble(this.state) > 0 || this.element.dynamicSource.isPresent(); 
 		}
 	}
 }

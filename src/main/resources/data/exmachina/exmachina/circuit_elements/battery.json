@@ -1,4 +1,4 @@
 {
-	"constant_source": 10,
+	"static_source": 10,
 	"connector": "exmachina:cube_all"
 }

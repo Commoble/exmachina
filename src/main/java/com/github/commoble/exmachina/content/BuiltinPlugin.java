@@ -15,8 +15,8 @@ public class BuiltinPlugin implements Plugin
 	{
 		registry.registerConnectionType(new ResourceLocation("exmachina:cube_all"), BuiltinFunctions::getCubeConnections);
 		
-		registry.registerStaticCircuitElementProperty(new ResourceLocation("exmachina:constant"), BuiltinFunctions::getConstantProperty);
-		registry.registerStaticCircuitElementProperty(new ResourceLocation("exmachina:blockstate"), BuiltinFunctions::getStateTableProperty);
+		registry.registerStaticCircuitElementProperty(new ResourceLocation("exmachina:constant"), BuiltinFunctions::getConstantPropertyReader);
+		registry.registerStaticCircuitElementProperty(new ResourceLocation("exmachina:blockstate"), BuiltinFunctions::getStateTablePropertyReader);
 	}
 
 }

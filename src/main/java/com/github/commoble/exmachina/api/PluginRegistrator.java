@@ -4,10 +4,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
-import java.util.function.ToDoubleFunction;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
@@ -27,9 +25,9 @@ public interface PluginRegistrator
 	 * Registers a static property that can be used for electrical component blocks' source and load properties in data jsons.
 	 * Static properties are evaluated less often than dynamic properties, but can only vary by blockstate.
 	 * @param identifier An ID for this property. Data jsons can refer to this property when defining components.
-	 * @param propertyBuilder A function that will be used when deserializing data jsons into components.
+	 * @param propertyReader A function that will be used when deserializing data jsons into components.
 	 */
-	public void registerStaticCircuitElementProperty(ResourceLocation identifier, BiFunction<Block, Map<String, Double>, ToDoubleFunction<BlockState>> propertyBuilder);
+	public void registerStaticCircuitElementProperty(ResourceLocation identifier, JsonObjectReader<StaticPropertyFactory> propertyReader);
 	
 	/**
 	 * Registers a dynamic proprety that can be used for electrical component blocks' source and load properties in data jsons.
@@ -38,9 +36,9 @@ public interface PluginRegistrator
 	 * They are ideal for block entities whose properties update too frequently to be blockstate-based.
 	 * Static properties are preferable for properties that vary infrequently, if ever.
 	 * @param identifier
-	 * @param propertyBuilder
+	 * @param propertyReader
 	 */
-	public void registerDynamicCircuitElementProperty(ResourceLocation identifier, BiFunction<Block, Map<String, Double>, DynamicCircuitElementProperty> propertyBuilder);
+	public void registerDynamicCircuitElementProperty(ResourceLocation identifier, JsonObjectReader<DynamicPropertyFactory> propertyReader);
 	
 	/**
 	 * Returns a supplier for the circuit component data loaded from jsons.

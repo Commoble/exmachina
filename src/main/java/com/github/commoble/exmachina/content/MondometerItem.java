@@ -8,7 +8,7 @@ import com.github.commoble.exmachina.api.Circuit;
 import com.github.commoble.exmachina.api.CircuitComponent;
 import com.github.commoble.exmachina.api.CircuitManager;
 import com.github.commoble.exmachina.api.CircuitManagerCapability;
-import com.github.commoble.exmachina.api.util.EngineeringNotation;
+import com.github.commoble.exmachina.util.EngineeringNotation;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;

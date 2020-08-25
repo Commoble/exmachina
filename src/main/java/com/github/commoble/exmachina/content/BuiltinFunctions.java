@@ -1,5 +1,6 @@
 package com.github.commoble.exmachina.content;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -7,13 +8,19 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.function.ToDoubleFunction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.github.commoble.exmachina.api.StaticProperty;
+import com.github.commoble.exmachina.api.StaticPropertyFactory;
 import com.github.commoble.exmachina.data.StateReader;
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.reflect.TypeToken;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -24,6 +31,10 @@ import net.minecraft.world.IWorld;
 
 public class BuiltinFunctions
 {
+	
+	public static final Type STATE_TABLE_TYPE = new TypeToken<Map<String, Double>>(){}.getType();
+	public static final Gson GSON = new Gson();
+	
 	/**
 	 * Return the set of the six block positions around a given position.
 	 * @param world
@@ -41,14 +52,29 @@ public class BuiltinFunctions
 		return set;
 	}
 	
-	public static ToDoubleFunction<BlockState> getConstantProperty(Block block, Map<String, Double> data)
+	public static StaticPropertyFactory getConstantPropertyReader(@Nonnull JsonObject object) throws JsonParseException
 	{
-		double value = data == null ? 0D : data.getOrDefault("value", 0D);
-		
-		return state -> value;
+		JsonElement valueElement = object.get("value");
+		if (valueElement == null)
+		{
+			throw new JsonParseException("Constant property must specify a value field");
+		}
+		double value = valueElement.getAsDouble();
+		return block -> state -> value;
 	}
 	
-	public static ToDoubleFunction<BlockState> getStateTableProperty(Block block, Map<String, Double> data)
+	public static StaticPropertyFactory getStateTablePropertyReader(@Nonnull JsonObject object) throws JsonParseException
+	{
+		JsonElement variantsElement = object.get("variants");
+		if (variantsElement == null)
+		{
+			throw new JsonParseException("Blockstate table property must specify a variants object");
+		}
+		Map<String, Double> variants = GSON.fromJson(variantsElement, STATE_TABLE_TYPE);
+		return block -> getStateTableProperty(block, variants);
+	}
+	
+	public static StaticProperty getStateTableProperty(Block block, Map<String, Double> data)
 	{
 		Map<BlockState, Double> map = getStateMapper(block, data);
 		

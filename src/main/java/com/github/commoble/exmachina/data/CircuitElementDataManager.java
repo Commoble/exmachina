@@ -4,10 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import com.github.commoble.exmachina.CircuitBehaviourRegistry;
 import com.github.commoble.exmachina.ExMachina;
 import com.github.commoble.exmachina.api.CircuitComponent;
+import com.github.commoble.exmachina.api.DynamicPropertyFactory;
+import com.github.commoble.exmachina.api.StaticPropertyFactory;
+import com.github.commoble.exmachina.plugins.CircuitBehaviourRegistry;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 
 import net.minecraft.block.Block;
@@ -19,7 +22,14 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 public class CircuitElementDataManager extends JsonReloadListener implements Supplier<Map<Block, ? extends CircuitComponent>>
 {	
-	public static final Gson GSON = new Gson();
+	public static final Gson GSON = new GsonBuilder()
+		.registerTypeAdapter(StaticPropertyFactory.class, new ComponentPropertyTypeAdapter<StaticPropertyFactory>("static",
+			id -> ExMachina.INSTANCE.circuitBehaviourRegistry.staticProperties.get(id),
+			x -> block -> state -> x))
+		.registerTypeAdapter(DynamicPropertyFactory.class, new ComponentPropertyTypeAdapter<DynamicPropertyFactory>("dynamic",
+			id -> ExMachina.INSTANCE.circuitBehaviourRegistry.dynamicProperties.get(id),
+			x -> block -> (world, pos, state) -> x))
+		.create();
 	
 	// use a subfolder so we're less likely to conflict with other mods
 	// i.e. this loads jsons at resources/data/modid/exmachina/circuit_elements/name.json
