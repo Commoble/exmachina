@@ -16,7 +16,6 @@ import net.minecraft.world.IWorld;
 public class CircuitImpl implements Circuit
 {	
 	private final IWorld world;
-	private final double maxSourceCurrent;
 	private final double staticLoad;
 	private final double staticSource;
 	private final List<DoubleSupplier> dynamicLoads;
@@ -26,12 +25,10 @@ public class CircuitImpl implements Circuit
 //	private boolean isValid = true;
 	private boolean needsDynamicUpdate = true;
 	private double current = 0D;
-	private double idealCurrent = 0D;
 	
-	public CircuitImpl(IWorld world, double maxSourceCurrent, double staticLoad, double staticSource, Map<BlockPos, ? extends Pair<BlockState, ? extends CircuitComponent>> components, List<DoubleSupplier> dynamicLoads, List<DoubleSupplier> dynamicSources)
+	public CircuitImpl(IWorld world, double staticLoad, double staticSource, Map<BlockPos, ? extends Pair<BlockState, ? extends CircuitComponent>> components, List<DoubleSupplier> dynamicLoads, List<DoubleSupplier> dynamicSources)
 	{
 		this.world = world;
-		this.maxSourceCurrent = maxSourceCurrent;
 		this.staticLoad = staticLoad;
 		this.staticSource = staticSource;
 		this.dynamicLoads = dynamicLoads;
@@ -53,7 +50,7 @@ public class CircuitImpl implements Circuit
 			CircuitComponent element = pair.getRight();
 			
 			double load = element.getLoad(this.world, state, pos);
-			double source = element.getSource(this.world, state, pos) * current / this.idealCurrent;
+			double source = element.getSource(this.world, state, pos);
 			
 			double loadPower = current*current*load; // power supplied to position
 			double sourcePower = current*source; // power drawn from position
@@ -65,21 +62,6 @@ public class CircuitImpl implements Circuit
 			return 0D;
 		}
 	}
-
-
-//	@Override
-//	public boolean isValid()
-//	{
-//		return this.isValid && this.world != null;
-//	}
-//
-//
-//	@Override
-//	public Circuit invalidate()
-//	{
-//		this.isValid = false;
-//		return this;
-//	}
 
 	@Override
 	public double getCurrent()
@@ -97,8 +79,7 @@ public class CircuitImpl implements Circuit
 				totalSource += source.getAsDouble();
 			}
 			
-			this.idealCurrent = totalSource / totalLoad;
-			this.current = Math.min(this.maxSourceCurrent, this.idealCurrent);
+			this.current = totalSource / totalLoad;
 			this.needsDynamicUpdate = false;
 		}
 		
@@ -117,13 +98,5 @@ public class CircuitImpl implements Circuit
 	public Map<BlockPos, ? extends Pair<BlockState, ? extends CircuitComponent>> getComponentCache()
 	{
 		return this.components;
-	}
-
-
-	@Override
-	public double getEfficiency()
-	{
-		double actualCurrent = this.getCurrent();
-		return this.idealCurrent == 0D || actualCurrent == 0 ? 1D : actualCurrent / this.idealCurrent;
 	}
 }

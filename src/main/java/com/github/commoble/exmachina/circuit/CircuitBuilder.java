@@ -88,7 +88,6 @@ public class CircuitBuilder
 	{
 		double totalStaticLoad = 0D;
 		double totalStaticSource = 0D;
-		double maxSourceCurrent = Double.MAX_VALUE;
 		
 		List<DoubleSupplier> dynamicLoads = new ArrayList<>();
 		List<DoubleSupplier> dynamicSources = new ArrayList<>();
@@ -109,7 +108,7 @@ public class CircuitBuilder
 		// calculate static values once per state and multiplying them by the number of states
 		// should make the calculations for e.g. a 100x100x100 cube of wires nicer
 		// also need to find at least one source and at least one non-wire load to build a valid circuit
-		boolean hasNonWireLoad = false;
+		boolean hasLoad = false;
 		boolean hasSource = false;
 		for (Multiset.Entry<Pair<BlockState, DefinedCircuitComponent>> entry : stateCounter.entrySet())
 		{
@@ -119,22 +118,21 @@ public class CircuitBuilder
 			int count = entry.getCount();
 			double staticLoad = element.staticLoad.applyAsDouble(state);
 			double staticSource = element.staticSource.applyAsDouble(state);
-			if (!element.isWire && (staticLoad > 0 || element.dynamicLoad.isPresent()))
+			if (staticLoad > 0 || element.dynamicLoad.isPresent())
 			{
-				hasNonWireLoad = true;
+				hasLoad = true;
 			}
 			if (staticSource > 0 || element.dynamicSource.isPresent())
 			{
 				hasSource = true;
-				maxSourceCurrent = Math.min(maxSourceCurrent, element.maxSourceCurrent.applyAsDouble(state));
 			}
 			totalStaticSource += count * staticSource;
 			totalStaticLoad += count * staticLoad;
 		}
 		
-		if (hasNonWireLoad && hasSource)
+		if (hasLoad && hasSource)
 		{
-			Circuit circuit = new CircuitImpl(world, maxSourceCurrent, totalStaticLoad, totalStaticSource, components, dynamicLoads, dynamicSources);
+			Circuit circuit = new CircuitImpl(world, totalStaticLoad, totalStaticSource, components, dynamicLoads, dynamicSources);
 			return LazyOptional.of(() -> circuit);
 		}
 		else
@@ -154,16 +152,6 @@ public class CircuitBuilder
 			this.pos = pos;
 			this.state = state;
 			this.element = element;
-		}
-		
-		public boolean isNonWireLoad()
-		{
-			return !this.element.isWire && (this.element.staticLoad.applyAsDouble(this.state) > 0 || this.element.dynamicLoad.isPresent()); 
-		}
-		
-		public boolean isSource()
-		{
-			return this.element.staticSource.applyAsDouble(this.state) > 0 || this.element.dynamicSource.isPresent(); 
 		}
 	}
 }

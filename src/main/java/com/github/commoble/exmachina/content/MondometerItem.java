@@ -44,7 +44,7 @@ public class MondometerItem extends Item
 		ITextComponent message = manager.getCircuit(pos)
 			.map(circuit -> getCircuitMessage(world, circuit, pos))
 			.orElse(NO_CIRCUIT_MESSAGE);
-		player.sendStatusMessage(message, false);
+		player.sendStatusMessage(message, true);
 	}
 	
 	public static ITextComponent getCircuitMessage(World world, Circuit circuit, BlockPos pos)

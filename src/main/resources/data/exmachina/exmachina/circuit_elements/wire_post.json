@@ -1,5 +1,4 @@
 {
 	"static_load": 0.1,
-	"connector": "exmachina:wire_post",
-	"wire": true
+	"connector": "exmachina:wire_post"
 }
