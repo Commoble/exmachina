@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.util;
+package commoble.exmachina.util;
 
 import java.util.ArrayList;
 import java.util.List;
