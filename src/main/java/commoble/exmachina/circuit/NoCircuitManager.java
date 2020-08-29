@@ -1,8 +1,7 @@
-package com.github.commoble.exmachina.circuit;
+package commoble.exmachina.circuit;
 
-import com.github.commoble.exmachina.api.Circuit;
-import com.github.commoble.exmachina.api.CircuitManager;
-
+import commoble.exmachina.api.Circuit;
+import commoble.exmachina.api.CircuitManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.LazyOptional;

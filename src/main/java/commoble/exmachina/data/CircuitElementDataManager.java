@@ -1,18 +1,18 @@
-package com.github.commoble.exmachina.data;
+package commoble.exmachina.data;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import com.github.commoble.exmachina.ExMachina;
-import com.github.commoble.exmachina.api.CircuitComponent;
-import com.github.commoble.exmachina.api.DynamicPropertyFactory;
-import com.github.commoble.exmachina.api.StaticPropertyFactory;
-import com.github.commoble.exmachina.plugins.CircuitBehaviourRegistry;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 
+import commoble.exmachina.ExMachina;
+import commoble.exmachina.api.CircuitComponent;
+import commoble.exmachina.api.DynamicPropertyFactory;
+import commoble.exmachina.api.StaticPropertyFactory;
+import commoble.exmachina.plugins.CircuitBehaviourRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.resources.JsonReloadListener;
 import net.minecraft.profiler.IProfiler;

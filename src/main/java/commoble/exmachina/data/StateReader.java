@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.data;
+package commoble.exmachina.data;
 
 import java.util.Iterator;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.circuit;
+package commoble.exmachina.circuit;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,12 +9,11 @@ import java.util.function.Consumer;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.github.commoble.exmachina.ExMachina;
-import com.github.commoble.exmachina.api.Circuit;
-import com.github.commoble.exmachina.api.CircuitComponent;
-import com.github.commoble.exmachina.api.CircuitManager;
-import com.github.commoble.exmachina.api.CircuitManagerCapability;
-
+import commoble.exmachina.ExMachina;
+import commoble.exmachina.api.Circuit;
+import commoble.exmachina.api.CircuitComponent;
+import commoble.exmachina.api.CircuitManager;
+import commoble.exmachina.api.CircuitManagerCapability;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;

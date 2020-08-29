@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.api;
+package commoble.exmachina.api;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

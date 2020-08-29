@@ -1,10 +1,9 @@
-package com.github.commoble.exmachina.content;
+package commoble.exmachina.content;
 
 
-import com.github.commoble.exmachina.api.AutoPlugin;
-import com.github.commoble.exmachina.api.Plugin;
-import com.github.commoble.exmachina.api.PluginRegistrator;
-
+import commoble.exmachina.api.AutoPlugin;
+import commoble.exmachina.api.Plugin;
+import commoble.exmachina.api.PluginRegistrator;
 import net.minecraft.util.ResourceLocation;
 
 @AutoPlugin

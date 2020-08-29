@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.circuit;
+package commoble.exmachina.circuit;
 
 import net.minecraft.nbt.INBT;
 import net.minecraft.util.Direction;

@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.api;
+package commoble.exmachina.api;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;

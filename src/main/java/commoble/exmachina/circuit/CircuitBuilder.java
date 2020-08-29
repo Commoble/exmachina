@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.circuit;
+package commoble.exmachina.circuit;
 
 import java.util.ArrayList;
 import java.util.Deque;
@@ -13,12 +13,12 @@ import javax.annotation.Nonnull;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.github.commoble.exmachina.ExMachina;
-import com.github.commoble.exmachina.api.Circuit;
-import com.github.commoble.exmachina.data.DefinedCircuitComponent;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 
+import commoble.exmachina.ExMachina;
+import commoble.exmachina.api.Circuit;
+import commoble.exmachina.data.DefinedCircuitComponent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;

@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.api;
+package commoble.exmachina.api;
 
 public interface Plugin
 {

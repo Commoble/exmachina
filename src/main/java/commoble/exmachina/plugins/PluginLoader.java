@@ -1,14 +1,13 @@
-package com.github.commoble.exmachina.plugins;
+package commoble.exmachina.plugins;
 
 import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.objectweb.asm.Type;
 
-import com.github.commoble.exmachina.ExMachina;
-import com.github.commoble.exmachina.api.AutoPlugin;
-import com.github.commoble.exmachina.api.Plugin;
-
+import commoble.exmachina.ExMachina;
+import commoble.exmachina.api.AutoPlugin;
+import commoble.exmachina.api.Plugin;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.ModFileScanData.AnnotationData;
 

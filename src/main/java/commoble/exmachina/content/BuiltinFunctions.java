@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.content;
+package commoble.exmachina.content;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -12,9 +12,6 @@ import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.github.commoble.exmachina.api.StaticProperty;
-import com.github.commoble.exmachina.api.StaticPropertyFactory;
-import com.github.commoble.exmachina.data.StateReader;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -22,6 +19,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 
+import commoble.exmachina.api.StaticProperty;
+import commoble.exmachina.api.StaticPropertyFactory;
+import commoble.exmachina.data.StateReader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.StateContainer;

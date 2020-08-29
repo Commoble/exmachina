@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.data;
+package commoble.exmachina.data;
 
 import java.util.Optional;
 import java.util.Set;
@@ -8,12 +8,12 @@ import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.github.commoble.exmachina.api.CircuitComponent;
-import com.github.commoble.exmachina.api.DynamicProperty;
-import com.github.commoble.exmachina.api.StaticProperty;
-import com.github.commoble.exmachina.plugins.CircuitBehaviourRegistry;
 import com.google.common.collect.ImmutableSet;
 
+import commoble.exmachina.api.CircuitComponent;
+import commoble.exmachina.api.DynamicProperty;
+import commoble.exmachina.api.StaticProperty;
+import commoble.exmachina.plugins.CircuitBehaviourRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.ResourceLocation;

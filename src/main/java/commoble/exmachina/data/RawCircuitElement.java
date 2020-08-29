@@ -1,7 +1,7 @@
-package com.github.commoble.exmachina.data;
+package commoble.exmachina.data;
 
-import com.github.commoble.exmachina.api.DynamicPropertyFactory;
-import com.github.commoble.exmachina.api.StaticPropertyFactory;
+import commoble.exmachina.api.DynamicPropertyFactory;
+import commoble.exmachina.api.StaticPropertyFactory;
 
 /** To be deserialized from json via GSON **/
 public class RawCircuitElement

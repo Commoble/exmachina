@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.plugins;
+package commoble.exmachina.plugins;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,13 +8,12 @@ import java.util.function.Supplier;
 
 import org.apache.logging.log4j.Level;
 
-import com.github.commoble.exmachina.ExMachina;
-import com.github.commoble.exmachina.api.CircuitComponent;
-import com.github.commoble.exmachina.api.DynamicPropertyFactory;
-import com.github.commoble.exmachina.api.JsonObjectReader;
-import com.github.commoble.exmachina.api.PluginRegistrator;
-import com.github.commoble.exmachina.api.StaticPropertyFactory;
-
+import commoble.exmachina.ExMachina;
+import commoble.exmachina.api.CircuitComponent;
+import commoble.exmachina.api.DynamicPropertyFactory;
+import commoble.exmachina.api.JsonObjectReader;
+import commoble.exmachina.api.PluginRegistrator;
+import commoble.exmachina.api.StaticPropertyFactory;
 import net.minecraft.block.Block;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;

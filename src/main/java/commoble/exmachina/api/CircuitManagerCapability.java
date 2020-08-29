@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.api;
+package commoble.exmachina.api;
 
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;

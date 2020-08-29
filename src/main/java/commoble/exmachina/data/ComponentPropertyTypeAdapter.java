@@ -1,10 +1,9 @@
-package com.github.commoble.exmachina.data;
+package commoble.exmachina.data;
 
 import java.lang.reflect.Type;
 import java.util.function.DoubleFunction;
 import java.util.function.Function;
 
-import com.github.commoble.exmachina.api.JsonObjectReader;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -12,6 +11,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 
+import commoble.exmachina.api.JsonObjectReader;
 import net.minecraft.util.ResourceLocation;
 
 public class ComponentPropertyTypeAdapter<T> implements JsonDeserializer<T>

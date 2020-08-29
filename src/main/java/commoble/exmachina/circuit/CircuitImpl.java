@@ -1,4 +1,4 @@
-package com.github.commoble.exmachina.circuit;
+package commoble.exmachina.circuit;
 
 import java.util.List;
 import java.util.Map;
@@ -6,9 +6,8 @@ import java.util.function.DoubleSupplier;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.github.commoble.exmachina.api.Circuit;
-import com.github.commoble.exmachina.api.CircuitComponent;
-
+import commoble.exmachina.api.Circuit;
+import commoble.exmachina.api.CircuitComponent;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
