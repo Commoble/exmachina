@@ -29,17 +29,16 @@ configurations {
 	apiCompile.extendsFrom(compile)
 }
 
+repositories {
+	maven { url 'https://www.dogforce-games.com/maven/' }
+	maven {  url "https://maven.tterrag.com/" }
+}
+
 minecraft {
-    // The mappings can be changed at any time, and must be in the following format.
-    // snapshot_YYYYMMDD   Snapshot are built nightly.
-    // stable_#            Stables are built at the discretion of the MCP team.
-    // Use non-default mappings at your own risk. they may not always work.
-    // Simply re-run your setup task after changing the mappings to update your workspace.
-    // mappings channel: 'snapshot', version: "${mappings_version}"
     mappings channel: 'snapshot', version: '20200814-mixed-1.16.2'
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
     
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
@@ -129,31 +128,10 @@ artifacts {
 	archives apiJar
 }
 
-//task("uploadJars", dependsOn: "build") {
-//	description = "uploads JARs"
-//	if (project.hasProperty("local_maven")) {
-//		apply plugin: "maven"
-//		uploadArchives {
-//			repositories {
-//				mavenDeployer {
-//					repository(url: "file://${local_maven}")
-//				}
-//			}
-//		}
-//	}
-//}
-
 jar.finalizedBy('reobfJar') 
 
-repositories {
-	maven {
-		url 'https://www.dogforce-games.com/maven/'
-	}
-	maven {
-        url "https://maven.tterrag.com/"
-    }
-}
-
+// run "gradlew build publish" to build jars and generate a maven repo for them
+// run "gradlew build" to build the jars without mavening them
 publishing {
     publications {
         mavenJava(MavenPublication) {

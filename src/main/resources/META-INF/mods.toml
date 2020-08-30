@@ -8,7 +8,7 @@ modLoader="javafml" #mandatory
 # A version range to match for said mod loader - for regular FML @Mod it will be the forge version
 loaderVersion="[25,)" #mandatory (24 is current forge version)
 # A URL to refer people to when problems occur with this mod
-issueTrackerURL="http://my.issue.tracker/" #optional
+issueTrackerURL="https://github.com/Commoble/exmachina/issues" #optional
 license="MIT License"
 # A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]] #mandatory
@@ -19,18 +19,18 @@ version="${file.jarVersion}" #mandatory
  # A display name for the mod
 displayName="Ex Machina" #mandatory
 # A URL to query for updates for this mod. See the JSON update specification <here>
-updateJSONURL="http://myurl.me/" #optional
+#updateJSONURL="http://myurl.me/" #optional
 # A URL for the "homepage" for this mod, displayed in the mod UI
-displayURL="http://example.com/" #optional
+displayURL="https://www.curseforge.com/minecraft/mc-mods/exmachina" #optional
 # A file name (in the root of the mod JAR) containing a logo for display
-logoFile="examplemod.png" #optional
+logoFile="exmachina_logo_large.png" #optional
 # A text field displayed in the mod UI
-credits="Commoble" #optional
+credits="I hear the Minecraft Mod Development discord is the cat's bananas" #optional
 # A text field displayed in the mod UI
-authors="I hear the Minecraft Mod Development discord is the cat's bananas" #optional
+authors="Commoble" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-Commoble forgot to add the description before he released the mod, go yell at him
+Ex Machina is a power API for the Forge modloader that uses JSON data to assign power properties to blocks.
 '''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 [[dependencies.exmachina]] #optional
