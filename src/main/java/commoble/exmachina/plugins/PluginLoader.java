@@ -23,6 +23,7 @@ public class PluginLoader
 	 * https://github.com/mezz/JustEnoughItems/blob/1.16/src/main/java/mezz/jei/util/AnnotatedInstanceUtil.java
 	 * Just Enough Items is Copyright (c) 2014-2015 mezz and licensed under the MIT license
 	 * https://github.com/mezz/JustEnoughItems/blob/1.16/LICENSE.txt
+	 * @return the registry, after all plugins register their things into it
 	 */
 	public static CircuitBehaviourRegistry loadPlugins()
 	{

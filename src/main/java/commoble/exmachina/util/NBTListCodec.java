@@ -45,7 +45,7 @@ SOFTWARE.
 /**
  * Helper class for converting lists or list-like collections of arbitrary data to NBT and back.
  * 
- * @param ENTRY the data type in the actual java list, i.e. List<ENTRY>
+ * @param ENTRY the data type in the actual java list
  * @param RAW either a primitive or an NBT collection type, see ListNBTType instances
  */
 public class NBTListCodec<ENTRY, RAW>
@@ -75,7 +75,7 @@ public class NBTListCodec<ENTRY, RAW>
 	}
 	
 	/**
-	 * Reconstructs and returns a List<T> from a CompoundNBT
+	 * Reconstructs and returns a List from a CompoundNBT
 	 * If the nbt used was given by this.write(list), the list returned will be a reconstruction of the original List
 	 * @param compound The CompoundNBT to read and construct the List from
 	 * @return A List that the data contained in the CompoundNBT represents
@@ -102,7 +102,7 @@ public class NBTListCodec<ENTRY, RAW>
 	/**
 	 * Given a list and a CompoundNBT,writes the contents of that list into the NBT
 	 * The same CompoundNBT can be given to this.read to retrieve that map 
-	 * @param list A List<T> to write into the nbt
+	 * @param list A List to write into the nbt
 	 * @param compound A CompoundNBT to write the list into
 	 * @return A CompoundNBT that, when used as the argument to this.read(nbt), will cause that function to reconstruct and return a copy of the original list
 	 */

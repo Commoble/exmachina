@@ -37,9 +37,9 @@ public class BuiltinFunctions
 	
 	/**
 	 * Return the set of the six block positions around a given position.
-	 * @param world
-	 * @param pos
-	 * @return
+	 * @param world A world
+	 * @param pos A position in the world
+	 * @return The set of the six positions adjacent to the given position
 	 */
 	public static Set<BlockPos> getCubeConnections(IWorld world, BlockPos pos)
 	{
@@ -52,6 +52,12 @@ public class BuiltinFunctions
 		return set;
 	}
 	
+	/**
+	 * Return a constant value
+	 * @param object A json object for the static property
+	 * @return a static property factory
+	 * @throws JsonParseException If "value" field in json is null
+	 */
 	public static StaticPropertyFactory getConstantPropertyReader(@Nonnull JsonObject object) throws JsonParseException
 	{
 		JsonElement valueElement = object.get("value");

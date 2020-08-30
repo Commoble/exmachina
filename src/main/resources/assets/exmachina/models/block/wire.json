@@ -1,8 +1,0 @@
-{
-	"parent": "block/cube_all",
-	"textures":
-	{
-		"all": "exmachina:block/wire",
-		"particle": "exmachina:block/wire"
-	}
-}

@@ -22,9 +22,12 @@ public class StateReader
 	private static final Splitter EQUALS_SPLITTER = Splitter.on('=').limit(2);
 
 	/**
-	 * This is from ModelBakery -- we're pasting it here so it's available for
-	 * server data
-	 **/
+	 * This is based on how blockstate jsons are parsed in ModelBakery; we need it to be
+	 * available for server data. Parses a blockstate property filter string into a blockstate predicate.
+	 * @param stateContainer A statecontainer from a Block
+	 * @param keyList A blockstate property filter (same format as blockstate .jsons)
+	 * @return A Predicate that returns true for the states specified by the string and false otherwise
+	 */
 	public static Predicate<BlockState> parseVariantKey(StateContainer<Block, BlockState> stateContainer, String keyList)
 	{
 		Map<Property<?>, Comparable<?>> map = Maps.newHashMap();

@@ -1,7 +1,0 @@
-{   
-    "parent": "block/snow_height10",
-    "textures": {
-        "particle": "exmachina:blocks/ash",
-        "texture": "exmachina:blocks/ash"
-    }
-}

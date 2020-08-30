@@ -39,15 +39,29 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 public class ConfigHelper
 {
-	/** as with the other register method, but the contexts are assumed **/
+	/**
+	 * As with the other register method, but the contexts are assumed
+	 * @param <T> The config class implementation (defined by the user)
+	 * @param configType Which forge config type this config will be (client, common, server)
+	 * @param configBuilder The constructor for the config class T
+	 * @return The config class we construct
+	 */
 	public static <T> T register(
 		final ModConfig.Type configType,
 		final BiFunction<ForgeConfigSpec.Builder, Subscriber, T> configBuilder)
 	{
 		return register(ModLoadingContext.get(), FMLJavaModLoadingContext.get(), configType, configBuilder);
 	}
-	
-	/** call this in either your @Mod class constructor or in FMLCommonSetupEvent or in FMLClientSetupEvent **/
+
+	/**
+	 * call this in either your @Mod class constructor or in FMLCommonSetupEvent or in FMLClientSetupEvent
+	 * @param <T> The config class implementation (defined by the user)
+	 * @param modContext ModLoadingContext.get()
+	 * @param fmlContext FMLJavaModLoadingContext.get()
+	 * @param configType Which forge config type this config will be (client, common, server)
+	 * @param configBuilder The constructor for the config class T
+	 * @return The config class we construct
+	 */
 	public static <T> T register(
 		final ModLoadingContext modContext,
 		final FMLJavaModLoadingContext fmlContext,

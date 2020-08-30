@@ -19,6 +19,16 @@ archivesBaseName = "${modid}"
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
+sourceSets {
+	api
+	main
+	test
+}
+
+configurations {
+	apiCompile.extendsFrom(compile)
+}
+
 minecraft {
     // The mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   Snapshot are built nightly.
@@ -46,6 +56,7 @@ minecraft {
             mods {
                 exmachina {
                     source sourceSets.main
+					source sourceSets.api
                 }
             }
         }
@@ -62,6 +73,7 @@ minecraft {
             mods {
                 exmachina {
                     source sourceSets.main
+					source sourceSets.api
                 }
             }
         }
@@ -70,10 +82,16 @@ minecraft {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
+	implementation sourceSets.api.output
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
 jar {
+	from sourceSets.main.output.classesDirs
+	from sourceSets.api.output.classesDirs
+	from sourceSets.main.output.resourcesDir
+	from sourceSets.api.output.resourcesDir
+	
     manifest {
         attributes([
             "Specification-Title": "${modid}",
@@ -88,6 +106,43 @@ jar {
     }
 }
 
+task javadocJar(type: Jar, dependsOn: javadoc) {
+	classifier = "javadoc"
+	from javadoc.destinationDir
+}
+
+task sourcesJar(type: Jar) {
+	classifier = "sources"
+	from sourceSets.main.allJava
+	from sourceSets.api.allJava
+}
+
+task apiJar(type: Jar) {
+	classifier = "api"
+	from sourceSets.api.output
+	from sourceSets.api.allJava
+}
+
+artifacts {
+	archives javadocJar
+	archives sourcesJar
+	archives apiJar
+}
+
+//task("uploadJars", dependsOn: "build") {
+//	description = "uploads JARs"
+//	if (project.hasProperty("local_maven")) {
+//		apply plugin: "maven"
+//		uploadArchives {
+//			repositories {
+//				mavenDeployer {
+//					repository(url: "file://${local_maven}")
+//				}
+//			}
+//		}
+//	}
+//}
+
 jar.finalizedBy('reobfJar') 
 
 repositories {
@@ -99,16 +154,19 @@ repositories {
     }
 }
 
-// TODO automate publishing better
-//publishing {
-//    publications {
-//        mavenJava(MavenPublication) {
-//            artifact jar
-//        }
-//    }
-//    repositories {
-//        maven {
-//            url "file:///${project.projectDir}/mcmodsrepo"
-//        }
-//    }
-//}
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+			artifact apiJar
+			artifact sourcesJar
+			artifact javadocJar
+        }
+    }
+    repositories {
+        maven {
+			name="localMaven"
+            url "file:///${project.projectDir}/maven"
+        }
+    }
+}
