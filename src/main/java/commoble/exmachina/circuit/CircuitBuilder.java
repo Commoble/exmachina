@@ -46,8 +46,9 @@ public class CircuitBuilder
 
 			// traverse all blocks connectable to this starting block and assemble the partial circuit
 			// avoid recursive graph solving so we don't cause stack overflows with large networks
+			int maxSize = ExMachina.INSTANCE.serverConfig.max_circuit_size_in_blocks.get();
 			
-			while (!uncheckedConnectedElements.isEmpty())
+			while (!uncheckedConnectedElements.isEmpty() && partialCircuit.size() < maxSize)
 			{
 				ElementContext nextContext = uncheckedConnectedElements.remove();
 				BlockPos nextPos = nextContext.pos;

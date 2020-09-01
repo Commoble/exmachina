@@ -15,7 +15,7 @@ public class ServerConfig
 		this.max_circuit_size_in_blocks = subscriber.subscribe(builder
 			.comment("Maximum size of circuits in blocks")
 			.translation("exmachina.config.max_circuit_size_in_blocks")
-			.defineInRange("max_circuit_size_in_blocks", 2000, 1, Integer.MAX_VALUE));
+			.defineInRange("max_circuit_size_in_blocks", 10000, 1, Integer.MAX_VALUE));
 		
 		builder.pop();
 	}
