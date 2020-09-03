@@ -91,7 +91,7 @@ public class BuiltinFunctions
 		
 		// optional field, will use the default state's direction if not present
 		JsonElement unrotatedDirectionElement = object.get("unrotated_direction");
-		@Nullable Direction unrotatedDirection = unrotatedDirectionElement == null ? null : Direction.byName(unrotatedDirectionElement.toString());
+		@Nullable Direction unrotatedDirection = unrotatedDirectionElement == null ? null : Direction.byName(unrotatedDirectionElement.getAsString());
 
 		// filter the directions through a Set to remove duplicates
 		Set<Direction> directions = new HashSet<>();
