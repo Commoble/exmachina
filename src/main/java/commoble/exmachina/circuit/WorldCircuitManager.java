@@ -28,8 +28,9 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 	
 	public final LazyOptional<CircuitManager> holder = LazyOptional.of(() -> this);
 	
-	private final Map<BlockPos, LazyOptional<Circuit>> circuitMap = new HashMap<>();
+	private Map<BlockPos, LazyOptional<Circuit>> circuitMap = new HashMap<>();
 	private final World world;
+	private int lastKnownGeneration = 0;
 	
 	public WorldCircuitManager(World world)
 	{
@@ -45,6 +46,15 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 	@Override
 	public LazyOptional<Circuit> getCircuit(BlockPos pos)
 	{
+		// if data has been reloaded, dump the circuit map
+		int actualGeneration = ExMachina.INSTANCE.circuitElementDataManager.getCurrentGeneration();
+		if (this.lastKnownGeneration != actualGeneration)
+		{
+			this.circuitMap.values().forEach(circuit -> circuit.invalidate());
+			this.lastKnownGeneration = actualGeneration;
+			this.circuitMap = new HashMap<>();
+		}
+		
 		LazyOptional<Circuit> existingCircuitHolder = this.circuitMap.getOrDefault(pos, EMPTY_CIRCUIT);
 		if (existingCircuitHolder.isPresent())
 		{

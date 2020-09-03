@@ -40,9 +40,20 @@ public class CircuitElementDataManager extends JsonReloadListener implements Sup
 
 	public Map<Block, DefinedCircuitComponent> data = new HashMap<>();
 	
+	private int currentGeneration = 0;
+	
 	public CircuitElementDataManager()
 	{
 		super(GSON, FOLDER);
+	}
+	
+	/**
+	 * Returns a generation index. This number increments every time datapacks are reloaded.
+	 * @return The current iteration of the generation of the data
+	 */
+	public int getCurrentGeneration()
+	{
+		return this.currentGeneration;
 	}
 
 	@Override
@@ -51,6 +62,8 @@ public class CircuitElementDataManager extends JsonReloadListener implements Sup
 	// no merging is done here, so jsons with the same modid:name identifier are overwritten by datapack priority
 	protected void apply(Map<ResourceLocation, JsonElement> jsons, IResourceManager resourceManager, IProfiler profiler)
 	{
+		this.currentGeneration++;
+		
 		Map<Block, DefinedCircuitComponent> newMap = new HashMap<>();
 		CircuitBehaviourRegistry circuitBehaviourRegistry = ExMachina.INSTANCE.circuitBehaviourRegistry;
 		for (java.util.Map.Entry<ResourceLocation, JsonElement> entry : jsons.entrySet())
