@@ -2,63 +2,46 @@ package commoble.exmachina.plugins;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import org.apache.logging.log4j.Level;
 
 import commoble.exmachina.ExMachina;
 import commoble.exmachina.api.CircuitComponent;
+import commoble.exmachina.api.ConnectorFactory;
 import commoble.exmachina.api.DynamicPropertyFactory;
 import commoble.exmachina.api.JsonObjectReader;
 import commoble.exmachina.api.PluginRegistrator;
 import commoble.exmachina.api.StaticPropertyFactory;
 import net.minecraft.block.Block;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
 
 public class CircuitBehaviourRegistry implements PluginRegistrator
 {
-	public final Map<ResourceLocation, BiFunction<IWorld, BlockPos, Set<BlockPos>>> connectionTypes = new HashMap<>();
+	public final Map<ResourceLocation, JsonObjectReader<ConnectorFactory>> connectionTypes = new HashMap<>();
 	public final Map<ResourceLocation, JsonObjectReader<StaticPropertyFactory>> staticProperties = new HashMap<>();
 	public final Map<ResourceLocation, JsonObjectReader<DynamicPropertyFactory>> dynamicProperties = new HashMap<>();
 	
 	public CircuitBehaviourRegistry()
 	{
 	}
-
+	
 	@Override
-	public void registerConnectionType(ResourceLocation identifier, BiFunction<IWorld, BlockPos, Set<BlockPos>> connectionType)
+	public void registerConnectionType(ResourceLocation identifier, JsonObjectReader<ConnectorFactory> connectionType)
 	{
-		Object existing = this.connectionTypes.put(identifier, connectionType);
-		if (existing != null)
-		{
-			ExMachina.LOGGER.log(Level.WARN, "A connection type was registered to the identifier {} more than once, overwriting an existing value. This is not supported behaviour and may cause unusual phenomena.", identifier.toString());
-		}
+		this.registerToNewIdentifierOrLogWarning(identifier, connectionType, this.connectionTypes, "connection type");
 	}
 
 	@Override
 	public void registerStaticCircuitElementProperty(ResourceLocation identifier, JsonObjectReader<StaticPropertyFactory> propertyReader)
 	{
-		Object existing = this.staticProperties.put(identifier, propertyReader);
-		if (existing != null)
-		{
-			ExMachina.LOGGER.log(Level.WARN, "A static circuit element property was registered to the identifier {} more than once, overwriting an existing value. This is not supported behaviour and may cause unusual phenomena.", identifier.toString());
-		}
+		this.registerToNewIdentifierOrLogWarning(identifier, propertyReader, this.staticProperties, "static circuit element property");
 	}
 
 	@Override
 	public void registerDynamicCircuitElementProperty(ResourceLocation identifier, JsonObjectReader<DynamicPropertyFactory> propertyReader)
 	{
-		Object existing = this.dynamicProperties.put(identifier, propertyReader);
-		if (existing != null)
-		{
-			ExMachina.LOGGER.log(Level.WARN,
-				"A dynamic circuit element property was registered to the identifier {} more than once, overwriting an existing value. This is not supported behaviour and may cause unusual phenomena.",
-				identifier.toString());
-		}
+		this.registerToNewIdentifierOrLogWarning(identifier, propertyReader, this.dynamicProperties, "dynamic circuit element property");
 	}
 
 	@Override
@@ -67,5 +50,15 @@ public class CircuitBehaviourRegistry implements PluginRegistrator
 		return ExMachina.INSTANCE.circuitElementDataManager;
 	}
 	
-	
+	private <VALUE> void registerToNewIdentifierOrLogWarning(ResourceLocation identifier, VALUE value, Map<ResourceLocation, VALUE> map, String valueTypeName)
+	{
+		Object existing = map.put(identifier, value);
+		if (existing != null)
+		{
+			ExMachina.LOGGER.log(Level.WARN,
+				"A {} was registered to the identifier {} more than once, overwriting an existing value. This is not supported behaviour and may cause unusual phenomena.",
+				valueTypeName,
+				identifier.toString());
+		}
+	}
 }

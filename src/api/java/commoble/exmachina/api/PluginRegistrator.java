@@ -1,30 +1,42 @@
 package commoble.exmachina.api;
 
 import java.util.Map;
-import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import net.minecraft.block.Block;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
 
 public interface PluginRegistrator
 {
+	
 	/**
 	 * Registers a connection type that can be referred to in data packs.
-	 * This determines what block-positions a given block's circuit element can connect to in a circuit.
-	 * Two blocks can be connected in a circuit if they belong to each other's respective position-sets determined by this.
-	 * @param identifier A registry identifier for the connection type
-	 * @param connectionType A function that determines which positions a circuit element is allowed to connect to.
+	 * Registering a connection type in this manner allows extra parameters to be specified in jsons.
+	 * 
+	 * A circuit element json can specify one of these connection types with an object field, e.g.
+	 * "connector":
+	 * {
+	 * 	"type": "exmachina:directions_except",
+	 * 	"values": ["up"]
+	 * }
+	 * 
+	 * A user can optionally refer to a connection type as a simple string field in their json:
+	 * 
+	 * "connector": "exmachina:all_directions"
+	 * 
+	 * In this case, a JsonObject object with just the type field will be generated and used as the argument to
+	 * the registered ConnectorFactory, for consistency.
+	 * 
+	 * 
+	 * @param identifier An ID for this connection type. Data jsons can refer to this property when defining circuit elements.
+	 * @param connectionType The connector factory deserializer being registered
 	 */
-	public void registerConnectionType(ResourceLocation identifier, BiFunction<IWorld, BlockPos, Set<BlockPos>> connectionType);
+	public void registerConnectionType(ResourceLocation identifier, JsonObjectReader<ConnectorFactory> connectionType);
 	
 	/**
 	 * Registers a static property that can be used for electrical component blocks' source and load properties in data jsons.
 	 * Static properties are evaluated less often than dynamic properties, but can only vary by blockstate.
-	 * @param identifier An ID for this property. Data jsons can refer to this property when defining components.
+	 * @param identifier An ID for this property. Data jsons can refer to this property when defining circuit elements.
 	 * @param propertyReader A function that will be used when deserializing data jsons into components.
 	 */
 	public void registerStaticCircuitElementProperty(ResourceLocation identifier, JsonObjectReader<StaticPropertyFactory> propertyReader);

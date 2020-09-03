@@ -1,8 +1,5 @@
 package commoble.exmachina.api;
 
-import java.util.Set;
-import java.util.function.BiFunction;
-
 import javax.annotation.Nonnull;
 
 import net.minecraft.block.BlockState;
@@ -42,5 +39,5 @@ public interface CircuitComponent
 	 * @return
 	 */
 	@Nonnull
-	public BiFunction<IWorld, BlockPos, Set<BlockPos>> getConnector();
+	public Connector getConnector();
 }

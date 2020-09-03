@@ -92,7 +92,7 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 		CircuitComponent component = ExMachina.INSTANCE.circuitElementDataManager.data.get(newState.getBlock());
 		if (component != null)
 		{
-			Set<BlockPos> connections = component.getConnector().apply(this.world, updatedPos);
+			Set<BlockPos> connections = component.getConnector().apply(this.world, updatedPos, newState);
 			for (BlockPos connectedPos : connections)
 			{
 				LazyOptional<Circuit> connectedCircuitHolder = this.getCircuit(connectedPos);
@@ -103,7 +103,7 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 					{
 						Pair<BlockState, ? extends CircuitComponent> pair = components.get(connectedPos);
 						// and if the extant circuit can mutually connect to the new block
-						if (pair != null && pair.getRight().getConnector().apply(this.world, connectedPos).contains(updatedPos))
+						if (pair != null && pair.getRight().getConnector().apply(this.world, connectedPos, pair.getLeft()).contains(updatedPos))
 						{
 							// mark the circuit for invalidation and removal from the manager
 							// circuit won't be in the set of circuits to remove yet because it would have been invalidated already

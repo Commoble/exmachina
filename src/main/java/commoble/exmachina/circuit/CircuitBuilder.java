@@ -53,7 +53,7 @@ public class CircuitBuilder
 				ElementContext nextContext = uncheckedConnectedElements.remove();
 				BlockPos nextPos = nextContext.pos;
 
-				Set<BlockPos> possibleConnections = nextContext.element.connector.apply(world, nextPos);
+				Set<BlockPos> possibleConnections = nextContext.element.connector.apply(world, nextPos, nextContext.state);
 				
 				for (BlockPos possibleConnectedPos : possibleConnections)
 				{
@@ -65,7 +65,7 @@ public class CircuitBuilder
 						DefinedCircuitComponent connectedElement = data.get(connectedBlock);
 						if (connectedElement != null && connectedElement.connector != null)
 						{
-							if (connectedElement.connector.apply(world, possibleConnectedPos).contains(nextPos))
+							if (connectedElement.connector.apply(world, possibleConnectedPos, connectedState).contains(nextPos))
 							{
 								// the two positions connect to each other
 								// nextPos has been established as being part of the circuit

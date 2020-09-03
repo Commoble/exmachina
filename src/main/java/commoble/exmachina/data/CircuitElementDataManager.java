@@ -10,6 +10,7 @@ import com.google.gson.JsonElement;
 
 import commoble.exmachina.ExMachina;
 import commoble.exmachina.api.CircuitComponent;
+import commoble.exmachina.api.ConnectorFactory;
 import commoble.exmachina.api.DynamicPropertyFactory;
 import commoble.exmachina.api.StaticPropertyFactory;
 import commoble.exmachina.plugins.CircuitBehaviourRegistry;
@@ -30,6 +31,7 @@ public class CircuitElementDataManager extends JsonReloadListener implements Sup
 		.registerTypeAdapter(DynamicPropertyFactory.class, new ComponentPropertyTypeAdapter<DynamicPropertyFactory>("dynamic",
 			id -> ExMachina.INSTANCE.circuitBehaviourRegistry.dynamicProperties.get(id),
 			x -> block -> (world, pos, state) -> x))
+		.registerTypeAdapter(ConnectorFactory.class, ConnectorFactoryTypeAdapter.INSTANCE)
 		.create();
 	
 	// use a subfolder so we're less likely to conflict with other mods
@@ -85,5 +87,5 @@ public class CircuitElementDataManager extends JsonReloadListener implements Sup
 		return this.data;
 	}
 	
-	
+
 }

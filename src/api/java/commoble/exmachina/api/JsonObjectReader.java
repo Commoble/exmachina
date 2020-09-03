@@ -3,11 +3,10 @@ package commoble.exmachina.api;
 import javax.annotation.Nonnull;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 
 @FunctionalInterface
-/** This is just Function<JsonObject, T> but with non-null arg and throws declaration **/
+/** This is just Function<JsonObject, T> but with non-null arg**/
 public interface JsonObjectReader<T>
 {
-	public T deserialize(@Nonnull JsonObject jsonObject) throws JsonParseException;
+	public T deserialize(@Nonnull JsonObject jsonObject);
 }

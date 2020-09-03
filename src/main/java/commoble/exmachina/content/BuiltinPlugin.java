@@ -12,7 +12,8 @@ public class BuiltinPlugin implements Plugin
 	@Override
 	public void register(PluginRegistrator registry)
 	{
-		registry.registerConnectionType(new ResourceLocation("exmachina:cube_all"), BuiltinFunctions::getCubeConnections);
+		registry.registerConnectionType(new ResourceLocation("exmachina:all_directions"), json -> block -> BuiltinFunctions::getAllDirectionsConnectionSet);
+		registry.registerConnectionType(new ResourceLocation("exmachina:directions"), BuiltinFunctions::readRotatableDirections);
 		
 		registry.registerStaticCircuitElementProperty(new ResourceLocation("exmachina:constant"), BuiltinFunctions::getConstantPropertyReader);
 		registry.registerStaticCircuitElementProperty(new ResourceLocation("exmachina:blockstate"), BuiltinFunctions::getStateTablePropertyReader);
