@@ -122,10 +122,19 @@ task apiJar(type: Jar) {
 	from sourceSets.api.allJava
 }
 
+task debugJar(type: Jar) {
+	classifier = "debug"
+	from sourceSets.main.output
+	from sourceSets.api.output
+	from sourceSets.main.allJava
+	from sourceSets.api.allJava
+}
+
 artifacts {
 	archives javadocJar
 	archives sourcesJar
 	archives apiJar
+	archives debugJar
 }
 
 jar.finalizedBy('reobfJar') 
@@ -140,6 +149,7 @@ publishing {
 			artifact apiJar
 			artifact sourcesJar
 			artifact javadocJar
+			artifact debugJar
         }
     }
     repositories {
