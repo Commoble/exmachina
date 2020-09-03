@@ -11,8 +11,8 @@ repositories {
 }
 
 dependencies {
-  compileOnly fg.deobf("commoble.exmachina:exmachina:1.16.2-0.0.0.0:api")
-  runtimeOnly fg.deobf("commoble.exmachina:exmachina:1.16.2-0.0.0.0")
+  compileOnly fg.deobf("commoble.exmachina:exmachina-1.16.2:0.1.0.0:api")
+  runtimeOnly fg.deobf("commoble.exmachina:exmachina-1.16.2:0.1.0.0")
 }
 ```
 
