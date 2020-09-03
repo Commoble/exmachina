@@ -11,10 +11,14 @@ repositories {
 }
 
 dependencies {
-  compileOnly fg.deobf("commoble.exmachina:exmachina-1.16.2:0.1.0.0:api")
-  runtimeOnly fg.deobf("commoble.exmachina:exmachina-1.16.2:0.1.0.0")
+  compileOnly fg.deobf("commoble.exmachina:exmachina-${mc_version}:${exmachina_version}:api")
+  runtimeOnly fg.deobf("commoble.exmachina:exmachina-${mc_version}:${exmachina_version}")
 }
 ```
+where ${mc_version} is (for example) 1.16.2 and ${exmachina_version} is the 4-digit version number of exmachina.
+
+You may optionally use :debug instead of :api for the full sources, allowing the use of the full sources.
+
 
 JSON specification for block properties coming soon. See Ex Machina Essentials for an example of a mod that uses this API:
 https://github.com/Commoble/exmachina-essentials
