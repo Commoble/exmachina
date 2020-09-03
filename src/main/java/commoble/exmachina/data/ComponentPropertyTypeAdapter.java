@@ -65,7 +65,7 @@ public class ComponentPropertyTypeAdapter<T> implements JsonDeserializer<T>
 			JsonObjectReader<T> deserializer = this.map.apply(new ResourceLocation(typeName));
 			if (deserializer == null)
 			{
-				throw new JsonParseException(String.format("Failed to parse component property object: No {} property deserializer registered for: {}", this.mapName, typeName));
+				throw new JsonParseException(String.format("Failed to parse component property object: No %s property deserializer registered for: %s", this.mapName, typeName));
 			}
 			return deserializer.deserialize(object);
 		}

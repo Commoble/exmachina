@@ -55,26 +55,33 @@ public class CircuitElementDataManager extends JsonReloadListener implements Sup
 		CircuitBehaviourRegistry circuitBehaviourRegistry = ExMachina.INSTANCE.circuitBehaviourRegistry;
 		for (java.util.Map.Entry<ResourceLocation, JsonElement> entry : jsons.entrySet())
 		{
-			// gson the json element into an intermediary class
-			RawCircuitElement raw = GSON.fromJson(entry.getValue(), RawCircuitElement.class);
 			ResourceLocation key = entry.getKey();
-			if (ForgeRegistries.BLOCKS.containsKey(key))
+			try
 			{
-				// and use it to create the finalized element
-				// block registry returns nonnull values
-				Block block = ForgeRegistries.BLOCKS.getValue(entry.getKey());
-				if (block == Blocks.AIR)
+				// gson the json element into an intermediary class
+				RawCircuitElement raw = GSON.fromJson(entry.getValue(), RawCircuitElement.class);
+				if (ForgeRegistries.BLOCKS.containsKey(key))
 				{
-					ExMachina.LOGGER.warn("While attempting to retrieve a block for the circuit element defined for {}, found minecraft:air. This is disallowed as it generally indicates a broken registry and registering circuit elements to air causes performance issues.", key);
+					// and use it to create the finalized element
+					// block registry returns nonnull values
+					Block block = ForgeRegistries.BLOCKS.getValue(entry.getKey());
+					if (block == Blocks.AIR)
+					{
+						ExMachina.LOGGER.warn("While attempting to retrieve a block for the circuit element defined for {}, found minecraft:air. This is disallowed as it generally indicates a broken registry and registering circuit elements to air causes performance issues.", key);
+					}
+					else
+					{
+						newMap.put(block, new DefinedCircuitComponent(raw, block, circuitBehaviourRegistry));
+					}
 				}
 				else
 				{
-					newMap.put(block, new DefinedCircuitComponent(raw, block, circuitBehaviourRegistry));
+					ExMachina.LOGGER.warn("Circuit element json present for unused block id: {} -- this circuit element will not be registered.", key.toString());
 				}
 			}
-			else
+			catch (Exception e)
 			{
-				ExMachina.LOGGER.warn("Circuit element json present for unused block id: {} -- this circuit element will not be registered.", key.toString());
+				ExMachina.LOGGER.error("Failed to read circuit element json {}", key.toString(), e);
 			}
 		}
 		

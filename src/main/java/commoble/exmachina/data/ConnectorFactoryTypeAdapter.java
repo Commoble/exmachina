@@ -41,7 +41,7 @@ public class ConnectorFactoryTypeAdapter implements JsonDeserializer<ConnectorFa
 			JsonObjectReader<ConnectorFactory> deserializer = ExMachina.INSTANCE.circuitBehaviourRegistry.connectionTypes.get(new ResourceLocation(typeName));
 			if (deserializer == null)
 			{
-				throw new JsonParseException(String.format("Failed to parse component property object: no connector property deserializer registered for: {}", typeName));
+				throw new JsonParseException(String.format("Failed to parse component property object: no connector property deserializer registered for: %s", typeName));
 			}
 			return deserializer.deserialize(object);
 		}
@@ -67,7 +67,7 @@ public class ConnectorFactoryTypeAdapter implements JsonDeserializer<ConnectorFa
 			if (reader == null)
 			{
 				// if no simple factory for the given name exists, throw a parse error
-				throw new JsonParseException(String.format("Failed to parse component connector field: No connection type registered to identifier {}", typeString));
+				throw new JsonParseException(String.format("Failed to parse component connector field: No connection type registered to identifier %s", typeString));
 			}
 			JsonObject object = new JsonObject();
 			object.addProperty("type", typeString);
