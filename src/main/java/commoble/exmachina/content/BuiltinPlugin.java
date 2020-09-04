@@ -17,6 +17,7 @@ public class BuiltinPlugin implements Plugin
 		
 		registry.registerStaticCircuitElementProperty(new ResourceLocation("exmachina:constant"), BuiltinFunctions::getConstantPropertyReader);
 		registry.registerStaticCircuitElementProperty(new ResourceLocation("exmachina:blockstate"), BuiltinFunctions::getStateTablePropertyReader);
+		registry.registerStaticCircuitElementProperty(new ResourceLocation("exmachina:property"), BuiltinFunctions::readBlockstateMultiplier);
 	}
 
 }

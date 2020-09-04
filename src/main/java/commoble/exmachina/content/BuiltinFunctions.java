@@ -29,7 +29,9 @@ import commoble.exmachina.data.StateReader;
 import commoble.exmachina.util.DirectionHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
+import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.Property;
 import net.minecraft.state.StateContainer;
 import net.minecraft.util.Direction;
@@ -183,5 +185,29 @@ public class BuiltinFunctions
 			return map;
 		}
 		
+	}
+
+	public static StaticPropertyFactory readBlockstateMultiplier(JsonObject json)
+	{
+		String propertyName = json.get("property").getAsString();
+		double multiplier = json.get("scale").getAsDouble();
+		return block -> getBlockstateMultiplier(block, propertyName, multiplier);
+	}
+	
+	private static StaticProperty getBlockstateMultiplier(Block block, String propertyName, double multiplier)
+	{
+		Property<?> property = block.getStateContainer().getProperty(propertyName);
+		if (property instanceof BooleanProperty)
+		{
+			return state -> state.get((BooleanProperty)property) ? multiplier : 0D;
+		}
+		else if (property instanceof IntegerProperty)
+		{
+			return state -> state.get((IntegerProperty)property) * multiplier;
+		}
+		else
+		{
+			return state -> 0D;
+		}
 	}
 }
