@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+
+import javax.annotation.Nonnull;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -24,11 +27,11 @@ import net.minecraftforge.common.util.LazyOptional;
 
 public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 {
-	public static final LazyOptional<Circuit> EMPTY_CIRCUIT = LazyOptional.empty();
+	public static final Optional<Circuit> EMPTY_CIRCUIT = Optional.empty();
 	
 	public final LazyOptional<CircuitManager> holder = LazyOptional.of(() -> this);
 	
-	private Map<BlockPos, LazyOptional<Circuit>> circuitMap = new HashMap<>();
+	private Map<BlockPos, Optional<Circuit>> circuitMap = new HashMap<>();
 	private final World world;
 	private int lastKnownGeneration = 0;
 	
@@ -44,25 +47,24 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 	}
 	
 	@Override
-	public LazyOptional<Circuit> getCircuit(BlockPos pos)
+	public Optional<Circuit> getCircuit(BlockPos pos)
 	{
 		// if data has been reloaded, dump the circuit map
 		int actualGeneration = ExMachina.INSTANCE.circuitElementDataManager.getCurrentGeneration();
 		if (this.lastKnownGeneration != actualGeneration)
 		{
-			this.circuitMap.values().forEach(circuit -> circuit.invalidate());
 			this.lastKnownGeneration = actualGeneration;
 			this.circuitMap = new HashMap<>();
 		}
 		
-		LazyOptional<Circuit> existingCircuitHolder = this.circuitMap.getOrDefault(pos, EMPTY_CIRCUIT);
+		Optional<Circuit> existingCircuitHolder = this.circuitMap.getOrDefault(pos, EMPTY_CIRCUIT);
 		if (existingCircuitHolder.isPresent())
 		{
 			return existingCircuitHolder;
 		}
 		else // try to build new circuit here if possible
 		{
-			LazyOptional<Circuit> builtCircuitHolder = CircuitBuilder.attemptToBuildCircuitFrom(this.world, pos);
+			Optional<Circuit> builtCircuitHolder = CircuitBuilder.attemptToBuildCircuitFrom(this.world, pos);
 			// if we built a valid circuit, keep track of where it is
 			builtCircuitHolder.ifPresent(circuit -> circuit.getComponentCache().keySet()
 				.forEach(posInCircuit -> this.circuitMap.put(posInCircuit, builtCircuitHolder)));
@@ -76,15 +78,14 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 		List<BlockPos> positionsToRemove = new ArrayList<>(); // no two circuit instances *should* share any blockpos
 		Consumer<BlockPos> addPosToRemovalList = positionsToRemove::add;
 		
-		// first, if the block was in an extant circuit, we invalidate it if the blockstate changed
-		LazyOptional<Circuit> circuitHolder = this.getCircuit(updatedPos);
+		// first, if the block was in an extant circuit, mark the position for removal
+		Optional<Circuit> circuitHolder = this.getCircuit(updatedPos);
 		circuitHolder.ifPresent(circuit -> {
 			Map<BlockPos, ? extends Pair<BlockState, ? extends CircuitComponent>> components = circuit.getComponentCache();
 			Pair<BlockState, ? extends CircuitComponent> cachedComponent = components.get(updatedPos);
 			if (cachedComponent != null && cachedComponent.getLeft() != newState)
 			{
 				components.keySet().forEach(addPosToRemovalList);
-				circuitHolder.invalidate();
 			}
 		});
 		
@@ -93,7 +94,7 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 		// if the circuit
 			// A) does not contain the updated position, and
 			// B) has a mutual connection to the updated position from the connected position
-		// then we invalidate that circuit
+		// then we mark the circuit for removal
 			// if the circuit didn't connect to the old blockstate, and doesn't connect to the new one, we don't worry about it
 			// if the circuit did connect to the old blockstate,
 				// if the old blockstate changed, we handled it above
@@ -105,7 +106,7 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 			Set<BlockPos> connections = component.getConnector().apply(this.world, updatedPos, newState);
 			for (BlockPos connectedPos : connections)
 			{
-				LazyOptional<Circuit> connectedCircuitHolder = this.getCircuit(connectedPos);
+				Optional<Circuit> connectedCircuitHolder = this.getCircuit(connectedPos);
 				connectedCircuitHolder.ifPresent(connectedCircuit -> {
 					Map<BlockPos, ? extends Pair<BlockState, ? extends CircuitComponent>> components = connectedCircuit.getComponentCache();
 					// if updated block connects to an extant circuit that doesn't contain the updated block 
@@ -118,7 +119,6 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 							// mark the circuit for invalidation and removal from the manager
 							// circuit won't be in the set of circuits to remove yet because it would have been invalidated already
 							components.keySet().forEach(addPosToRemovalList);
-							connectedCircuitHolder.invalidate();
 						}
 					}
 				});
@@ -132,16 +132,17 @@ public class WorldCircuitManager implements CircuitManager, ICapabilityProvider
 	
 	public void onCapabilityInvalidated()
 	{
-		for (LazyOptional<Circuit> circuitHolder : this.circuitMap.values())
-		{
-			circuitHolder.invalidate();
-		}
 		this.holder.invalidate();
 	}
 
 	@Override
 	public void invalidateCircuit(BlockPos pos)
 	{
-		this.circuitMap.getOrDefault(pos, EMPTY_CIRCUIT).invalidate();
+		this.circuitMap.getOrDefault(pos, EMPTY_CIRCUIT).ifPresent(this::invalidateCircuitInstance);
+	}
+	
+	private void invalidateCircuitInstance(@Nonnull Circuit circuit)
+	{
+		circuit.getComponentCache().keySet().forEach(this.circuitMap::remove);
 	}
 }

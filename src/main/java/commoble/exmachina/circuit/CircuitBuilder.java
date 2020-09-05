@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
 
@@ -27,7 +28,7 @@ import net.minecraftforge.common.util.LazyOptional;
 
 public class CircuitBuilder
 {
-	public static LazyOptional<Circuit> attemptToBuildCircuitFrom(IWorld world, BlockPos pos)
+	public static Optional<Circuit> attemptToBuildCircuitFrom(IWorld world, BlockPos pos)
 	{
 		Map<Block, DefinedCircuitComponent> data = ExMachina.INSTANCE.circuitElementDataManager.data;
 		BlockState state = world.getBlockState(pos);
