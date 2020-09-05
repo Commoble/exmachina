@@ -24,7 +24,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
-import net.minecraftforge.common.util.LazyOptional;
 
 public class CircuitBuilder
 {
@@ -86,7 +85,7 @@ public class CircuitBuilder
 		}
 	}
 	
-	public static LazyOptional<Circuit> buildCircuit(IWorld world, Map<BlockPos, Pair<BlockState, DefinedCircuitComponent>> components)
+	public static Optional<Circuit> buildCircuit(IWorld world, Map<BlockPos, Pair<BlockState, DefinedCircuitComponent>> components)
 	{
 		double totalStaticLoad = 0D;
 		double totalStaticSource = 0D;
@@ -135,7 +134,7 @@ public class CircuitBuilder
 		if (hasLoad && hasSource)
 		{
 			Circuit circuit = new CircuitImpl(world, totalStaticLoad, totalStaticSource, components, dynamicLoads, dynamicSources);
-			return LazyOptional.of(() -> circuit);
+			return Optional.of(circuit);
 		}
 		else
 		{
