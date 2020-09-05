@@ -27,6 +27,8 @@ public interface PluginRegistrator
 	 * In this case, a JsonObject object with just the type field will be generated and used as the argument to
 	 * the registered ConnectorFactory, for consistency.
 	 * 
+	 * Exceptions thrown by the JsonObjectReader will be caught and logged while reading circuit element jsons.
+	 * If this occurs, the circuit element will be skipped and not be registered, and the data loader will continue to the next json.
 	 * 
 	 * @param identifier An ID for this connection type. Data jsons can refer to this property when defining circuit elements.
 	 * @param connectionType The connector factory deserializer being registered
@@ -36,6 +38,10 @@ public interface PluginRegistrator
 	/**
 	 * Registers a static property that can be used for electrical component blocks' source and load properties in data jsons.
 	 * Static properties are evaluated less often than dynamic properties, but can only vary by blockstate.
+	 * 
+	 * Exceptions thrown by the JsonObjectReader will be caught and logged while reading circuit element jsons.
+	 * If this occurs, the circuit element will be skipped and not be registered, and the data loader will continue to the next json.
+	 * 
 	 * @param identifier An ID for this property. Data jsons can refer to this property when defining circuit elements.
 	 * @param propertyReader A function that will be used when deserializing data jsons into components.
 	 */
@@ -47,6 +53,10 @@ public interface PluginRegistrator
 	 * However, they can be reevaluated without rebuilding the entire circuit object.
 	 * They are ideal for block entities whose properties update too frequently to be blockstate-based.
 	 * Static properties are preferable for properties that vary infrequently, if ever.
+	 * 
+	 * Exceptions thrown by the JsonObjectReader will be caught and logged while reading circuit element jsons.
+	 * If this occurs, the circuit element will be skipped and not be registered, and the data loader will continue to the next json.
+	 * 
 	 * @param identifier
 	 * @param propertyReader
 	 */
