@@ -21,7 +21,7 @@ public class CircuitImpl implements Circuit
 	private final List<DoubleSupplier> dynamicSources;
 	private final Map<BlockPos, ? extends Pair<BlockState, ? extends CircuitComponent>> components;
 
-//	private boolean isValid = true;
+	private long lastDynamicUpdateTime = -1L;
 	private boolean needsDynamicUpdate = true;
 	private double current = 0D;
 	
@@ -65,7 +65,8 @@ public class CircuitImpl implements Circuit
 	@Override
 	public double getCurrent()
 	{
-		if (this.needsDynamicUpdate)
+		long time = this.world.getWorldInfo().getGameTime();
+		if (this.needsDynamicUpdate && time > this.lastDynamicUpdateTime)
 		{
 			double totalLoad = this.staticLoad;
 			double totalSource = this.staticSource;
@@ -80,6 +81,7 @@ public class CircuitImpl implements Circuit
 			
 			this.current = totalSource / totalLoad;
 			this.needsDynamicUpdate = false;
+			this.lastDynamicUpdateTime = time;
 		}
 		
 		return this.current;
