@@ -3,13 +3,15 @@ package commoble.exmachina;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import commoble.databuddy.plugin.PluginLoader;
+import commoble.exmachina.api.AutoPlugin;
 import commoble.exmachina.api.CircuitManager;
 import commoble.exmachina.api.CircuitManagerCapability;
+import commoble.exmachina.api.Plugin;
 import commoble.exmachina.circuit.NoStorageForCapability;
 import commoble.exmachina.circuit.WorldCircuitManager;
 import commoble.exmachina.data.CircuitElementDataManager;
 import commoble.exmachina.plugins.CircuitBehaviourRegistry;
-import commoble.exmachina.plugins.PluginLoader;
 import commoble.exmachina.util.ConfigHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.ResourceLocation;
@@ -74,7 +76,7 @@ public class ExMachina
 		CapabilityManager.INSTANCE.register(CircuitManager.class, new NoStorageForCapability<>(), () -> null);
 		
 		// init API plugins
-		this.circuitBehaviourRegistry = PluginLoader.loadPlugins();
+		this.circuitBehaviourRegistry = PluginLoader.loadPlugins(AutoPlugin.class, Plugin.class, new CircuitBehaviourRegistry(), LOGGER, MODID);
 	}
 	
 	private void onAddReloadListeners(AddReloadListenerEvent event)

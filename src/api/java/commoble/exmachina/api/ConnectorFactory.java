@@ -7,5 +7,6 @@ import net.minecraft.block.Block;
 @FunctionalInterface
 public interface ConnectorFactory extends Function<Block, Connector>
 {
-
+	@Override
+	public Connector apply(Block block);
 }

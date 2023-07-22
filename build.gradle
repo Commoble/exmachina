@@ -8,10 +8,16 @@ buildscript {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
+plugins {
+    id 'com.github.johnrengelman.shadow' version '4.0.4'
+}
+
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'java'
 
 version = "${mod_version}"
 group = "commoble.${modid}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -26,16 +32,18 @@ sourceSets {
 }
 
 configurations {
+	shade
 	apiCompile.extendsFrom(compile)
 }
 
 repositories {
 	maven { url 'https://www.dogforce-games.com/maven/' }
 	maven {  url "https://maven.tterrag.com/" }
+	maven { url "https://cubicinterpolation.net/maven/" }
 }
 
 minecraft {
-    mappings channel: 'snapshot', version: '20200814-mixed-1.16.2'
+    mappings channel: 'snapshot', version: "${mappings_version}"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
     
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
@@ -81,7 +89,14 @@ minecraft {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
+	compile "commoble.databuddy:${databuddy_branch}:${databuddy_version}"
+    shade "commoble.databuddy:${databuddy_branch}:${databuddy_version}"
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
 	implementation sourceSets.api.output
+}
+test {
+	useJUnitPlatform()
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
@@ -104,6 +119,18 @@ jar {
         ])
     }
 }
+
+shadowJar {
+	classifier = ''
+	configurations = [project.configurations.shade]
+	relocate 'commoble.databuddy', "${project.group}.shadow.commoble.databuddy"
+}
+
+reobf {
+    shadowJar { }
+}
+
+tasks.build.dependsOn reobfShadowJar
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
 	classifier = "javadoc"
@@ -137,7 +164,8 @@ artifacts {
 	archives debugJar
 }
 
-jar.finalizedBy('reobfJar') 
+//jar.finalizedBy('reobfJar')
+jar.finalizedBy('reobfShadowJar')
 
 // run "gradlew build publish" to build jars and generate a maven repo for them
 // run "gradlew build" to build the jars without mavening them
