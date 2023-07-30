@@ -7,27 +7,27 @@ import java.util.function.DoubleSupplier;
 import org.apache.commons.lang3.tuple.Pair;
 
 import commoble.exmachina.api.Circuit;
-import commoble.exmachina.api.CircuitComponent;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
+import commoble.exmachina.api.StateComponent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class CircuitImpl implements Circuit
 {	
-	private final IWorld world;
+	private final LevelAccessor level; // why do we need a writable level to read gametime??
 	private final double staticLoad;
 	private final double staticSource;
 	private final List<DoubleSupplier> dynamicLoads;
 	private final List<DoubleSupplier> dynamicSources;
-	private final Map<BlockPos, ? extends Pair<BlockState, ? extends CircuitComponent>> components;
+	private final Map<BlockPos, Pair<BlockState, StateComponent>> components;
 
 	private long lastDynamicUpdateTime = -1L;
 	private boolean needsDynamicUpdate = true;
 	private double current = 0D;
 	
-	public CircuitImpl(IWorld world, double staticLoad, double staticSource, Map<BlockPos, ? extends Pair<BlockState, ? extends CircuitComponent>> components, List<DoubleSupplier> dynamicLoads, List<DoubleSupplier> dynamicSources)
+	public CircuitImpl(LevelAccessor level, double staticLoad, double staticSource, Map<BlockPos, Pair<BlockState, StateComponent>> components, List<DoubleSupplier> dynamicLoads, List<DoubleSupplier> dynamicSources)
 	{
-		this.world = world;
+		this.level = level;
 		this.staticLoad = staticLoad;
 		this.staticSource = staticSource;
 		this.dynamicLoads = dynamicLoads;
@@ -39,17 +39,17 @@ public class CircuitImpl implements Circuit
 	@Override
 	public double getPowerSuppliedTo(BlockPos pos)
 	{
-		Pair<BlockState, ? extends CircuitComponent> pair = this.components.get(pos);
+		var pair = this.components.get(pos);
 		
 		if (pair != null)
 		{
 			double current = this.getCurrent();
 			
 			BlockState state = pair.getLeft();
-			CircuitComponent element = pair.getRight();
+			StateComponent element = pair.getRight();
 			
-			double load = element.getLoad(this.world, state, pos);
-			double source = element.getSource(this.world, state, pos);
+			double load = element.staticLoad() + element.dynamicLoad().getValue(this.level, pos, state);
+			double source = element.staticSource() + element.dynamicSource().getValue(this.level, pos, state);
 			
 			double loadPower = current*current*load; // power supplied to position
 			double sourcePower = current*source; // power drawn from position
@@ -65,7 +65,7 @@ public class CircuitImpl implements Circuit
 	@Override
 	public double getCurrent()
 	{
-		long time = this.world.getWorldInfo().getGameTime();
+		long time = this.level.getLevelData().getGameTime();
 		if (this.needsDynamicUpdate && time > this.lastDynamicUpdateTime)
 		{
 			double totalLoad = this.staticLoad;
@@ -87,7 +87,6 @@ public class CircuitImpl implements Circuit
 		return this.current;
 	}
 
-
 	@Override
 	public void markNeedingDynamicUpdate()
 	{
@@ -96,8 +95,15 @@ public class CircuitImpl implements Circuit
 
 
 	@Override
-	public Map<BlockPos, ? extends Pair<BlockState, ? extends CircuitComponent>> getComponentCache()
+	public Map<BlockPos, Pair<BlockState, StateComponent>> components()
 	{
 		return this.components;
+	}
+
+
+	@Override
+	public boolean isPresent()
+	{
+		return true;
 	}
 }

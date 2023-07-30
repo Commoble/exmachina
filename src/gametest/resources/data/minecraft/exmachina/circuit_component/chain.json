@@ -1,0 +1,16 @@
+{
+	"connector": {
+		"type": "exmachina:union",
+		"values": [
+			{
+				"type": "exmachina:directions",
+				"directions": ["up"]
+			},
+			{
+				"type": "exmachina:directions",
+				"directions": ["down"]
+			}
+		]
+	},
+	"static_load": 1.0
+}

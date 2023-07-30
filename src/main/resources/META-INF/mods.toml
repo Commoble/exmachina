@@ -1,22 +1,12 @@
-# This is an example mods.toml file. It contains the data relating to the loading mods.
-# There are several mandatory fields (#mandatory), and many more that are optional (#optional).
-# The overall format is standard TOML format, v0.5.0.
-# Note that there are a couple of TOML lists in this file.
-# Find more information on toml format here:  https://github.com/toml-lang/toml
-# The name of the mod loader type to load - for regular FML @Mod mods it should be javafml
 modLoader="javafml" #mandatory
-# A version range to match for said mod loader - for regular FML @Mod it will be the forge version
-loaderVersion="[25,)" #mandatory (24 is current forge version)
-# A URL to refer people to when problems occur with this mod
+loaderVersion="[47,)" #mandatory
 issueTrackerURL="https://github.com/Commoble/exmachina/issues" #optional
 license="MIT License"
 # A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]] #mandatory
 # The modid of the mod
 modId="exmachina" #mandatory
-# The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
 version="${file.jarVersion}" #mandatory
- # A display name for the mod
 displayName="Ex Machina" #mandatory
 # A URL to query for updates for this mod. See the JSON update specification <here>
 #updateJSONURL="http://myurl.me/" #optional
@@ -30,7 +20,7 @@ credits="I hear the Minecraft Mod Development discord is the cat's bananas" #opt
 authors="Commoble" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-Ex Machina is a power API for the Forge modloader that uses JSON data to assign power properties to blocks.
+Ex Machina is a power API that uses JSON data to assign power properties to blocks.
 '''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 [[dependencies.exmachina]] #optional
@@ -39,7 +29,7 @@ Ex Machina is a power API for the Forge modloader that uses JSON data to assign 
     # Does this dependency have to exist - if not, ordering below must be specified
     mandatory=true #mandatory
     # The version range of the dependency
-    versionRange="[33,)" #mandatory
+    versionRange="[47.1.0,)" #mandatory
     # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
     ordering="NONE"
     # Side this dependency is applied on - BOTH, CLIENT or SERVER
@@ -48,6 +38,6 @@ Ex Machina is a power API for the Forge modloader that uses JSON data to assign 
 [[dependencies.exmachina]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16.2, 1.17)"
+    versionRange="[1.20.1, 1.21)"
     ordering="NONE"
     side="BOTH"

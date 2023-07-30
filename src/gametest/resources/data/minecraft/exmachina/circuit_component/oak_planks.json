@@ -1,0 +1,8 @@
+{
+	"connector":
+	{
+		"type": "exmachina:directions",
+		"directions": ["south"]
+	},
+	"static_load": 1.0
+}
