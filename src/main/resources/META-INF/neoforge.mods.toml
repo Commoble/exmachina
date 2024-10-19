@@ -1,0 +1,45 @@
+modLoader="javafml" #mandatory
+loaderVersion="[1,)" #mandatory
+issueTrackerURL="https://github.com/Commoble/exmachina/issues" #optional
+license="MIT License"
+# A list of mods - how many allowed here is determined by the individual mod loader
+[[mods]] #mandatory
+# The modid of the mod
+modId="exmachina" #mandatory
+version="${file.jarVersion}" #mandatory
+displayName="Ex Machina Engine" #mandatory
+# A URL to query for updates for this mod. See the JSON update specification <here>
+#updateJSONURL="http://myurl.me/" #optional
+# A URL for the "homepage" for this mod, displayed in the mod UI
+displayURL="https://www.curseforge.com/minecraft/mc-mods/exmachina" #optional
+# A file name (in the root of the mod JAR) containing a logo for display
+logoFile="exmachina_logo_large.png" #optional
+# A text field displayed in the mod UI
+credits="I hear the Minecraft Mod Development discord is the cat's bananas" #optional
+# A text field displayed in the mod UI
+authors="Commoble" #optional
+# The description text for the mod (multi line!) (#mandatory)
+description='''
+Ex Machina Engine is a power API that uses JSON data to assign power properties to blocks.
+'''
+# A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
+[[dependencies.exmachina]] #optional
+    # the modid of the dependency
+    modId="neoforge" #mandatory
+    # Does this dependency have to exist - if not, ordering below must be specified
+    mandatory=true #mandatory
+    # The version range of the dependency
+    versionRange="[21.1.31,)" #mandatory
+    # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
+    ordering="NONE"
+    # Side this dependency is applied on - BOTH, CLIENT or SERVER
+    side="BOTH"
+# Here's another dependency
+[[dependencies.exmachina]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.21, 1.22)"
+    ordering="NONE"
+    side="BOTH"
+[[accessTransformers]]
+	file="META-INF/accesstransformer.cfg"
