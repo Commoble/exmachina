@@ -1,0 +1,15 @@
+{
+	"static_load":
+	{
+		"type": "exmachina:blockstate",
+		"variants":
+		{
+			"lit=false": 0.001,
+			"lit=true": 100
+		}
+	},
+	"connector":
+	{
+		"type": "exmachina:all_directions"
+	}
+}

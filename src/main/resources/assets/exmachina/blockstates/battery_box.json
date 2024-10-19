@@ -1,0 +1,6 @@
+{
+	"variants":
+	{
+		"": {"model": "exmachina:block/battery_box"}
+	}
+}

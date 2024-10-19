@@ -1,0 +1,13 @@
+{
+    "parent": "block/cube",
+    "textures":
+    {
+            "up": "exmachinaessentials:block/placeholder_up",
+            "north": "exmachinaessentials:block/placeholder_north",
+            "down": "exmachinaessentials:block/placeholder_down",
+            "south": "exmachinaessentials:block/placeholder_south",
+            "west":  "exmachinaessentials:block/placeholder_west",
+            "east": "exmachinaessentials:block/placeholder_east",
+            "particle": "exmachinaessentials:block/placeholder_up"
+    }
+}

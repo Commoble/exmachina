@@ -1,0 +1,38 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"textures": {
+		"particle": "block/blast_furnace_top",
+		"top": "block/blast_furnace_top",
+		"grate": "exmachinaessentials:block/steam_turbine_side_overlay",
+		"contacts": "exmachinaessentials:block/steam_turbine_back_overlay",
+		"side": "block/blast_furnace_side",
+		"front": "block/blast_furnace_front_on"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#front"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#side"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#side"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#side"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#top"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#top"}
+			}
+		},
+		{
+			"name": "overlay",
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"east": {"uv": [0, 0, 16, 16], "rotation": 90, "texture": "#grate"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#contacts"},
+				"west": {"uv": [0, 0, 16, 16], "rotation": 270, "texture": "#grate"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#grate"},
+				"down": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#grate"}
+			}
+		}
+	]
+}

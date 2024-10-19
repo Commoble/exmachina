@@ -1,0 +1,10 @@
+{
+	"connector": "exmachina:all_directions",
+	"static_source":
+	{
+		"type": "exmachina:property",
+		"property": "lit",
+		"scale": 10
+	},
+	"static_load": 1
+}

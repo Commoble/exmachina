@@ -1,0 +1,4 @@
+{
+	"static_load": 0.000001,
+	"connector": "exmachina:all_directions"
+}

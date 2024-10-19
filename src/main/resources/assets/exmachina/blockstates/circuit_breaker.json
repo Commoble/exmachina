@@ -1,0 +1,7 @@
+{
+	"variants":
+	{
+		"powered=false": {"model": "exmachina:block/circuit_breaker"},
+		"powered=true": {"model": "exmachina:block/circuit_breaker_on"}
+	}
+}

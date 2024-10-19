@@ -1,0 +1,17 @@
+{
+	"itemGroup.exmachina": "Ex Machina",
+	
+	"block.exmachina.wire_post": "Wire Post",
+	"block.exmachina.solar_panel": "Solar Panel",
+	"block.exmachina.battery_box": "Battery Box",
+	"block.exmachina.steam_turbine": "Steam Turbine",
+	"block.exmachina.circuit_breaker": "Circuit Breaker",
+	"block.exmachina.toaster": "Toaster",
+	
+	"item.exmachina.mondometer": "Mondometer",
+	"item.exmachina.wire_spool": "Wire Spool",
+	
+	"container.exmachina.toaster": "Toaster",
+	
+	"exmachina.mondometer.no_circuit": "No activity detected"
+}

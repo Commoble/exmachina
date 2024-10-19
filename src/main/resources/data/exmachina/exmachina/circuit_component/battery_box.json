@@ -1,0 +1,16 @@
+{
+	"connector": "exmachina:all_directions",
+	"dynamic_load":
+	{
+		"type": "exmachinaessentials:inverting_battery_charger",
+		"charging": 20.0,
+		"discharging": 5,
+		"breakpoint": 0.1
+	},
+	"dynamic_source":
+	{
+		"type": "exmachinaessentials:rise_until_battery_charged",
+		"max": 5,
+		"falloff": 0.1
+	}
+}

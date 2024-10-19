@@ -1,0 +1,25 @@
+{
+	"static_load":
+	{
+		"type": "exmachina:blockstate",
+		"variants":
+		{
+			"powered=false": 0.001,
+			"powered=true": 0.1
+		}
+	},
+	"static_source":
+	{
+		"type": "exmachina:blockstate",
+		"variants":
+		{
+			"powered=false": 0,
+			"powered=true": 10
+		}
+	},
+	"connector":
+	{
+		"type": "exmachina:directions",
+		"values": ["down", "north", "south", "west", "east"]
+	}
+}

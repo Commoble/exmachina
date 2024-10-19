@@ -1,6 +1,0 @@
-{
-	"connector": {
-		"type": "exmachina:all_directions"
-	},
-	"static_source": 2
-}

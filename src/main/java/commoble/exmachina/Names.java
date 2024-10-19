@@ -2,21 +2,20 @@ package commoble.exmachina;
 
 public class Names
 {
-	// registries
-	public static final String CONNECTOR_TYPE = "connector_type";
-	public static final String STATIC_PROPERTY_TYPE = "static_property_type";
-	public static final String DYNAMIC_PROPERTY_TYPE = "dynamic_property_type";
-	public static final String CIRCUIT_COMPONENT = "circuit_component";
+	// blocks
+	public static final String WIRE_POST = "wire_post";
+	public static final String SOLAR_PANEL = "solar_panel";
+	public static final String BATTERY_BOX = "battery_box";
+	public static final String STEAM_TURBINE = "steam_turbine";
+	public static final String TOASTER = "toaster";
 	
-	// misc registrables
-	public static final String NONE = "none";
-	public static final String BLOCKSTATE = "blockstate";
+	// non-block items
+	public static final String WIRE_SPOOL = "wire_spool";
+	public static final String MONDOMETER = "mondometer";
 	
-	// connectors
-	public static final String ALL_DIRECTIONS = "all_directions";
-	public static final String DIRECTIONS = "directions";
-	public static final String UNION = "union";
-	
-	// static properties
-	public static final String CONSTANT = "constant";
+	// capabilities
+	public static final String POSTS_IN_CHUNK = "posts_in_chunk";
+
+	// tags
+	public static final String ELECTRICAL_WIRE_POSTS = "electrical_wire_posts";
 }

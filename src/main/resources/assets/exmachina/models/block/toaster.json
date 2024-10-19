@@ -1,0 +1,7 @@
+{
+	"parent": "exmachina:block/toaster_template",
+	"render_type": "cutout_mipped",
+	"textures": {
+		"front": "exmachina:block/toaster_lever_up"
+	}
+}
