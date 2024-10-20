@@ -7,7 +7,7 @@ license="MIT License"
 # The modid of the mod
 modId="exmachina" #mandatory
 version="${file.jarVersion}" #mandatory
-displayName="Ex Machina Engine" #mandatory
+displayName="Ex Machina" #mandatory
 # A URL to query for updates for this mod. See the JSON update specification <here>
 #updateJSONURL="http://myurl.me/" #optional
 # A URL for the "homepage" for this mod, displayed in the mod UI
@@ -20,7 +20,7 @@ credits="I hear the Minecraft Mod Development discord is the cat's bananas" #opt
 authors="Commoble" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-Ex Machina Engine is a power API that uses JSON data to assign power properties to blocks.
+Ex Machina is a power API that uses JSON data to assign power properties to blocks.
 '''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 [[dependencies.exmachina]] #optional

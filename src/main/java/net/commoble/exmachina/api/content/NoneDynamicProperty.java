@@ -2,11 +2,9 @@ package net.commoble.exmachina.api.content;
 
 import com.mojang.serialization.MapCodec;
 
-import net.commoble.exmachina.api.Connector;
 import net.commoble.exmachina.api.DynamicProperty;
 import net.commoble.exmachina.api.ExMachinaRegistries;
 import net.commoble.exmachina.internal.ExMachina;
-import net.commoble.exmachina.internal.Names;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.LevelReader;
@@ -22,9 +20,13 @@ import net.minecraft.world.level.block.state.BlockState;
  */
 public enum NoneDynamicProperty implements DynamicProperty
 {
+	/** Singleton instance of the NoneDynamicProperty */
 	INSTANCE;
 	
-	public static final ResourceKey<MapCodec<? extends Connector>> KEY = ResourceKey.create(ExMachinaRegistries.CONNECTOR_TYPE, ExMachina.id(Names.NONE));
+	/** exmachina:dynamic_property_type / exmachina:none */
+	public static final ResourceKey<MapCodec<? extends DynamicProperty>> KEY = ResourceKey.create(ExMachinaRegistries.DYNAMIC_PROPERTY_TYPE, ExMachina.id("none"));
+	
+	/** <pre>{"type": "exmachina:none"}</pre> */
 	public static final MapCodec<NoneDynamicProperty> CODEC = MapCodec.unit(INSTANCE); 
 
 	@Override

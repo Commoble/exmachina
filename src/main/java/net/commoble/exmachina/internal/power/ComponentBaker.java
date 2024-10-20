@@ -1,18 +1,19 @@
-package net.commoble.exmachina.internal.circuit;
+package net.commoble.exmachina.internal.power;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.ApiStatus;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.commoble.exmachina.api.BlockComponent;
 import net.commoble.exmachina.api.CircuitComponent;
 import net.commoble.exmachina.api.Connector;
+import net.commoble.exmachina.api.Connector.BlockConnector;
+import net.commoble.exmachina.api.Connector.StateConnector;
 import net.commoble.exmachina.api.ExMachinaRegistries;
 import net.commoble.exmachina.api.StateComponent;
 import net.commoble.exmachina.api.StaticProperty;
-import net.commoble.exmachina.api.Connector.BlockConnector;
-import net.commoble.exmachina.api.Connector.StateConnector;
 import net.commoble.exmachina.api.StaticProperty.BakedStaticProperty;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -21,17 +22,26 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class ComponentBaker
+/**
+ * Cache of baked power graph components
+ */
+@ApiStatus.Internal
+public final class ComponentBaker
 {
+	private ComponentBaker() {}
+	
 	private static final Logger LOGGER = LogManager.getLogger();
 	
 	private static final ComponentBaker INSTANCE = new ComponentBaker();
+	
+	/** {@return the ComponentBaker } */
 	public static ComponentBaker get() { return INSTANCE; }
 	
 	private int generation = 0;
 	private Object2ObjectMap<Block, BlockComponent> bakedBlockComponents = null;
 	private Object2ObjectMap<BlockState, StateComponent> bakedStateComponents = new Object2ObjectOpenHashMap<>();
 	
+	/** Clears the cache */
 	public void clear()
 	{
 		this.generation++;
@@ -39,11 +49,16 @@ public class ComponentBaker
 		this.bakedStateComponents = new Object2ObjectOpenHashMap<>();
 	}
 	
+	/** {@return the current cache generation number} */
 	public int generation()
 	{
 		return this.generation;
 	}
 	
+	/**
+	 * Does some initial caching after datapack registries load
+	 * @param registries RegistryAccess from the level
+	 */
 	public void preBake(RegistryAccess registries)
 	{
 		this.clear();
@@ -59,6 +74,11 @@ public class ComponentBaker
 		return this.bakedBlockComponents;
 	}
 	
+	/**
+	 * {@return StateComponent for a given blockstate}
+	 * @param state BlockState to get component for
+	 * @param registries RegistryAccess from level
+	 */
 	public StateComponent getComponent(BlockState state, RegistryAccess registries)
 	{
 		return this.bakedStateComponents.computeIfAbsent(state, (BlockState s) -> this.bakeStateComponent(s, registries));

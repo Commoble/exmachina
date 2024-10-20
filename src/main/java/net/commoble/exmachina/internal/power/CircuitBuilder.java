@@ -1,4 +1,4 @@
-package net.commoble.exmachina.internal.circuit;
+package net.commoble.exmachina.internal.power;
 
 import java.util.ArrayList;
 import java.util.Deque;
@@ -12,6 +12,7 @@ import java.util.function.DoubleSupplier;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.ApiStatus;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableMap;
@@ -26,13 +27,22 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class CircuitBuilder
+/** circuit builder */
+@ApiStatus.Internal
+public final class CircuitBuilder
 {
-	public static Circuit attemptToBuildCircuitFrom(LevelAccessor world, BlockPos pos)
+	private CircuitBuilder() {}
+	
+	/**
+	 * {@return Circuit at the worldposition}
+	 * @param level ServerLevel to build the circuit in
+	 * @param pos BlockPos to build the circuit at
+	 */
+	public static Circuit attemptToBuildCircuitFrom(LevelAccessor level, BlockPos pos)
 	{
 		ComponentBaker circuitBaker = ComponentBaker.get();
-		RegistryAccess registries = world.registryAccess();
-		BlockState state = world.getBlockState(pos);
+		RegistryAccess registries = level.registryAccess();
+		BlockState state = level.getBlockState(pos);
 		StateComponent element = circuitBaker.getComponent(state, registries);
 		if (!element.isPresent())
 		{
@@ -48,7 +58,7 @@ public class CircuitBuilder
 
 			// traverse all blocks connectable to this starting block and assemble the partial circuit
 			// avoid recursive graph solving so we don't cause stack overflows with large networks
-			int maxSize = ExMachina.COMMON_CONFIG.maxCircuitSize().get();
+			int maxSize = ExMachina.COMMON_CONFIG.maxPowerGraphSize().get();
 			
 			while (!uncheckedConnectedElements.isEmpty() && partialCircuit.size() < maxSize)
 			{
@@ -57,18 +67,18 @@ public class CircuitBuilder
 				BlockPos nextPos = nextContext.pos;
 
 				// get all the positions that nextPos points to
-				Set<BlockPos> possibleConnections = nextContext.element.connector().connectedPositions(world, nextPos);
+				Set<BlockPos> possibleConnections = nextContext.element.connector().connectedPositions(level, nextPos);
 				
 				for (BlockPos possibleConnectedPos : possibleConnections)
 				{
 					// don't look for connections to positions we've already looked at
 					if (!partialCircuit.containsKey(possibleConnectedPos))
 					{
-						BlockState connectedState = world.getBlockState(possibleConnectedPos);
+						BlockState connectedState = level.getBlockState(possibleConnectedPos);
 						StateComponent connectedElement = circuitBaker.getComponent(connectedState, registries);
 						if (connectedElement.isPresent())
 						{
-							if (connectedElement.connector().connectedPositions(world, possibleConnectedPos).contains(nextPos))
+							if (connectedElement.connector().connectedPositions(level, possibleConnectedPos).contains(nextPos))
 							{
 								// the two positions connect to each other
 								// nextPos has been established as being part of the circuit
@@ -84,11 +94,11 @@ public class CircuitBuilder
 			}
 			
 			// we've fully traversed the mutual connections, use the network map to build a circuit object
-			return CircuitBuilder.buildCircuit(world, partialCircuit);
+			return CircuitBuilder.buildCircuit(level, partialCircuit);
 		}
 	}
 	
-	public static Circuit buildCircuit(LevelAccessor world, Map<BlockPos, Pair<BlockState, StateComponent>> components)
+	private static Circuit buildCircuit(LevelAccessor world, Map<BlockPos, Pair<BlockState, StateComponent>> components)
 	{
 		double totalStaticLoad = 0D;
 		double totalStaticSource = 0D;

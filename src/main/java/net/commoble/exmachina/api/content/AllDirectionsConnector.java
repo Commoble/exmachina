@@ -8,7 +8,6 @@ import com.mojang.serialization.MapCodec;
 import net.commoble.exmachina.api.Connector;
 import net.commoble.exmachina.api.ExMachinaRegistries;
 import net.commoble.exmachina.internal.ExMachina;
-import net.commoble.exmachina.internal.Names;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.LevelReader;
@@ -25,9 +24,13 @@ import net.minecraft.world.level.block.state.BlockState;
  */
 public enum AllDirectionsConnector implements Connector
 {
+	/** Singleton instance of AllDirectionsConnector */
 	INSTANCE;
 	
-	public static final ResourceKey<MapCodec<? extends Connector>> KEY = ResourceKey.create(ExMachinaRegistries.CONNECTOR_TYPE, ExMachina.id(Names.ALL_DIRECTIONS));
+	/** exmachina:connector_type / exmachina:all_directions */
+	public static final ResourceKey<MapCodec<? extends Connector>> KEY = ResourceKey.create(ExMachinaRegistries.CONNECTOR_TYPE, ExMachina.id("all_directions"));
+	
+	/** <pre>{"type": "exmachina:all_directions"}</pre> */
 	public static final MapCodec<AllDirectionsConnector> CODEC = MapCodec.unit(INSTANCE);
 
 	@Override
@@ -36,12 +39,12 @@ public enum AllDirectionsConnector implements Connector
 		return DataResult.success(AllDirectionsConnector::forState);
 	}
 	
-	public static StateConnector forState(BlockState state)
+	private static StateConnector forState(BlockState state)
 	{
 		return AllDirectionsConnector::connections;
 	}
 	
-	public static Set<BlockPos> connections(LevelReader level, BlockPos pos)
+	private static Set<BlockPos> connections(LevelReader level, BlockPos pos)
 	{
 		return Set.of(
 			pos.below(),

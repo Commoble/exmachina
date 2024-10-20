@@ -14,8 +14,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
 
-public class StateReader
+/** Utility for reading a blockstate predicate in blockstate-file format */
+public final class StateReader
 {
+	private StateReader() {}
 	private static final Splitter SPLITTER_COMMA = Splitter.on(',');
 	private static final Splitter EQUALS_SPLITTER = Splitter.on('=').limit(2);
 

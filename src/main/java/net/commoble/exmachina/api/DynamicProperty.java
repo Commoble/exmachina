@@ -28,13 +28,14 @@ import net.minecraft.world.level.block.state.BlockState;
  */
 public interface DynamicProperty
 {
+	/** Master dispatch codec for DynamicProperty(s); subcodecs can be registered to {@link ExMachinaRegistries#DYNAMIC_PROPERTY_TYPE} */
 	public static final Codec<DynamicProperty> CODEC = CodecHelper.dispatch(ExMachinaRegistries.DYNAMIC_PROPERTY_TYPE, DynamicProperty::codec);
 	
 	/**
+	 * {@return double value of this property given the provided context.}
 	 * @param level LevelReader to read level data with.
-	 * @param pos
-	 * @param state
-	 * @return double value of this property given the provided context.
+	 * @param pos BlockPos where the value is being read at
+	 * @param state BlockState at the position where the value is being read at
 	 */
 	public double getValue(LevelReader level, BlockPos pos, BlockState state);
 	

@@ -11,7 +11,6 @@ import com.mojang.serialization.MapCodec;
 import net.commoble.exmachina.api.Connector;
 import net.commoble.exmachina.api.ExMachinaRegistries;
 import net.commoble.exmachina.internal.ExMachina;
-import net.commoble.exmachina.internal.Names;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
@@ -26,10 +25,21 @@ import net.minecraft.world.level.block.Block;
 	"directions": ["north", "south", "east", "west"] // list of Directions
 }
 </pre>
+ * @param directions set of Directions which the given block can connect to
  */
 public record DirectionsConnector(EnumSet<Direction> directions) implements Connector
 {
-	public static final ResourceKey<MapCodec<? extends Connector>> KEY = ResourceKey.create(ExMachinaRegistries.CONNECTOR_TYPE, ExMachina.id(Names.DIRECTIONS));
+	/** exmachina:connector_type / exmachina:directions **/
+	public static final ResourceKey<MapCodec<? extends Connector>> KEY = ResourceKey.create(ExMachinaRegistries.CONNECTOR_TYPE, ExMachina.id("directions"));
+	
+	/**
+<pre>
+{
+	"type": "exmachina:directions",
+	"directions": ["north", "south", "east", "west"] // list of Directions
+}
+</pre>
+	 */
 	public static final MapCodec<DirectionsConnector> CODEC = Direction.CODEC.listOf()
 		.fieldOf("directions")
 		.xmap(list -> new DirectionsConnector(EnumSet.copyOf(list)), conn -> List.copyOf(conn.directions()));
@@ -40,7 +50,7 @@ public record DirectionsConnector(EnumSet<Direction> directions) implements Conn
 		return DataResult.success(state -> this::connect);
 	}
 	
-	public Set<BlockPos> connect(LevelReader level, BlockPos pos)
+	private Set<BlockPos> connect(LevelReader level, BlockPos pos)
 	{
 		Set<BlockPos> set = new HashSet<>();
 		for (Direction dir : this.directions())

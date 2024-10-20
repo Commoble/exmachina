@@ -1,4 +1,4 @@
-package net.commoble.exmachina.internal.circuit;
+package net.commoble.exmachina.internal.power;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.jetbrains.annotations.ApiStatus;
 
 import net.commoble.exmachina.api.Circuit;
 import net.commoble.exmachina.api.CircuitManager;
@@ -17,14 +19,23 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
 
+/**
+ * Transient cache of power graph circuits for a given ServerLevel
+ */
+@ApiStatus.Internal
 public class LevelCircuitManager extends SavedData implements CircuitManager
 {
-	public static final String ID = "exmachina/circuit_manager";
+	private static final String ID = "exmachina/circuit_manager";
 	
 	private Map<BlockPos, Circuit> circuitMap = new HashMap<>();
 	private final ServerLevel level;
 	private int lastKnownGeneration = 0;
 	
+	/**
+	 * {@return LevelCircuitManager for a given ServerLevel}
+	 * @param level ServerLevel to get the LevelCircuitManager for
+	 */
+	@ApiStatus.Internal
 	public static LevelCircuitManager getOrCreate(ServerLevel level)
 	{
 		return level.getDataStorage().computeIfAbsent(
@@ -34,7 +45,7 @@ public class LevelCircuitManager extends SavedData implements CircuitManager
 			ID);
 	}
 	
-	public LevelCircuitManager(ServerLevel level)
+	private LevelCircuitManager(ServerLevel level)
 	{
 		this.level = level;
 	}

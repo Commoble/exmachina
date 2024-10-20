@@ -28,6 +28,9 @@ import net.minecraft.world.level.block.state.BlockState;
  */
 public interface StaticProperty
 {
+	/**
+	 * Master dispatch codec for StaticProperty(s).
+	 */
 	public static final Codec<StaticProperty> CODEC = Codec.either(
 			Codec.DOUBLE.xmap(ConstantProperty::of, ConstantProperty::value),
 			CodecHelper.dispatch(ExMachinaRegistries.STATIC_PROPERTY_TYPE, StaticProperty::codec))
@@ -36,8 +39,8 @@ public interface StaticProperty
 			p -> p instanceof ConstantProperty c ? Either.left(c) : Either.right(p));
 	
 	/**
+	 * {@return DataResult success holding a state-to-double function if block is valid, error result otherwise}
 	 * @param block Block this StaticProperty is associated with.
-	 * @return DataResult success holding a state-to-double function if block is valid, error result otherwise
 	 */
 	public abstract DataResult<BakedStaticProperty> bake(Block block);
 	
@@ -58,12 +61,20 @@ public interface StaticProperty
 	 * {@return Codec registered to {@link ExMachinaRegistries#STATIC_PROPERTY_TYPE}.}
 	 */
 	public abstract MapCodec<? extends StaticProperty> codec();
-	
+
+	/**
+	 * StaticProperty cached for a particular Block
+	 */
 	@FunctionalInterface
 	public static interface BakedStaticProperty
 	{
+		/** BakedStaticProperty instance used for blocks which do not have power graph components or is otherwise invalid */
 		public static final BakedStaticProperty EMPTY = BakedStaticProperty::zero;
 		
+		/**
+		 * {@return double value for a given blockstate of the associated Block}
+		 * @param state BlockState to get a value for
+		 */
 		public abstract double getValue(BlockState state);
 		
 		private static double zero(BlockState state)
@@ -71,6 +82,9 @@ public interface StaticProperty
 			return 0D;
 		}
 		
+		/**
+		 * {@return true if this is a real BakedStaticProperty (not empty/invalid)}
+		 */
 		default boolean isPresent()
 		{
 			return this != BakedStaticProperty.EMPTY;

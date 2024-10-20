@@ -14,7 +14,6 @@ import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import net.commoble.exmachina.api.ExMachinaRegistries;
 import net.commoble.exmachina.api.StaticProperty;
 import net.commoble.exmachina.internal.ExMachina;
-import net.commoble.exmachina.internal.Names;
 import net.commoble.exmachina.internal.util.StateReader;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.block.Block;
@@ -36,10 +35,26 @@ import net.minecraft.world.level.block.state.StateDefinition;
 }
 </pre>
  * Not all states are required to be specified (unspecified states default to 0), but a state cannot be specified by more than one variant.
+ * @param variants Map of blockstate predicate string to double value for the blockstate(s)
  */
 public record BlockStateProperty(Map<String, Double> variants) implements StaticProperty
 {
-	public static final ResourceKey<MapCodec<? extends StaticProperty>> KEY = ResourceKey.create(ExMachinaRegistries.STATIC_PROPERTY_TYPE, ExMachina.id(Names.BLOCKSTATE));
+	/** exmachina:static_property_type / exmachina:blockstate */
+	public static final ResourceKey<MapCodec<? extends StaticProperty>> KEY = ResourceKey.create(ExMachinaRegistries.STATIC_PROPERTY_TYPE, ExMachina.id("blockstate"));
+	
+	/**
+	 * e.g. for a furnace block:
+<pre>
+{
+	"type": "exmachina:blockstate",
+	"variants": {
+		"lit=false": 0,
+		"lit=true,facing=north": 1,
+		"lit=true,facing=west": 2
+	}
+}
+</pre>
+	 */
 	public static final MapCodec<BlockStateProperty> CODEC = Codec.unboundedMap(Codec.STRING, Codec.DOUBLE)
 		.fieldOf("variants")
 		.xmap(BlockStateProperty::new, BlockStateProperty::variants);

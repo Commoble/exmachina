@@ -13,8 +13,10 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 /**
  * Helper for creating configs and defining complex objects in configs 
  */
-public class ConfigHelper
+public final class ConfigHelper
 {
+	private ConfigHelper() {}
+	
 	static final Logger LOGGER = LogManager.getLogger();
 	
 	/**

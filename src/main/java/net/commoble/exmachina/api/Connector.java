@@ -28,6 +28,15 @@ import net.minecraft.world.level.block.state.BlockState;
  */
 public interface Connector
 {
+	/**
+	 * Master dispatch codec for Connectors
+<pre>
+{
+	"type": "modid:registered_type_id",
+	// the rest of the subtype fields
+}
+</pre>
+	*/
 	public static Codec<Connector> CODEC = CodecHelper.dispatch(ExMachinaRegistries.CONNECTOR_TYPE, Connector::codec);
 
 	/**
@@ -54,32 +63,46 @@ public interface Connector
 		return true;
 	}
 
+	/**
+	 * Connector cached and validated for its block
+	 */
 	@FunctionalInterface
 	public interface BlockConnector
 	{
+		/** empty/invalid BlockConnector instance representing blocks which do not have an assigned Connector or are otherwise invalid */
 		public static final BlockConnector EMPTY = state -> StateConnector.EMPTY;
 		
+		/**
+		 * {@return a StateConnector for a given blockstate of this block, which is cached}
+		 * @param state BlockState of this BlockConnector's block
+		 */
 		public abstract StateConnector getStateConnector(BlockState state);
 		
+		/** {@return true if this BlockConnector is not invalid/empty} */
 		default boolean isPresent()
 		{
 			return this != EMPTY;
 		}
 	}
 	
+	/**
+	 * Cached connector for a given BlockState which defines power graph connectivity
+	 */
 	@FunctionalInterface
 	public interface StateConnector
 	{
+		/** Empty/invalid StateConnector for blocks which do not have an assigned Connector or are otherwise invalid */
 		public static final StateConnector EMPTY = StateConnector::noneOf;
 		
 		/**
 		 * Retrieves the set of positions a block at the given position can connect to.
 		 * @param level Level of the given block
 		 * @param pos BlockPos of the given block
-		 * @return Set<BlockPos> of the positions that block can connect to.
+		 * @return Set of the positions that block can connect to.
 		 */
 		public abstract Set<BlockPos> connectedPositions(LevelReader level, BlockPos pos);
 		
+		/** {@return true if this is a real StateConnector (not invalid/empty)} */
 		default boolean isPresent()
 		{
 			return this != EMPTY;

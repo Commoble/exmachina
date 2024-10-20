@@ -1,4 +1,4 @@
-package net.commoble.exmachina.internal.circuit;
+package net.commoble.exmachina.internal.power;
 
 import java.util.Map;
 
@@ -9,8 +9,12 @@ import net.commoble.exmachina.api.StateComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
+/**
+ * Represents a power graph circuit without nodes or power
+ */
 public enum EmptyCircuit implements Circuit
 {
+	/** Singleton instance of the EmptyCircuit */
 	INSTANCE;
 
 	@Override

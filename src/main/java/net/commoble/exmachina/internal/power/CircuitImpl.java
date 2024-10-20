@@ -1,4 +1,4 @@
-package net.commoble.exmachina.internal.circuit;
+package net.commoble.exmachina.internal.power;
 
 import java.util.List;
 import java.util.Map;
@@ -12,6 +12,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 
+/**
+ * Internal implementation of Circuit API for power graphs
+ */
 public class CircuitImpl implements Circuit
 {	
 	private final LevelAccessor level; // why do we need a writable level to read gametime??
@@ -25,6 +28,15 @@ public class CircuitImpl implements Circuit
 	private boolean needsDynamicUpdate = true;
 	private double current = 0D;
 	
+	/**
+	 * constructs a CircuitImpl with the given permanent properties
+	 * @param level ServerLevel which holds this circuit
+	 * @param staticLoad total static resistance of this circuit
+	 * @param staticSource total static voltage of this circuit
+	 * @param components component cache
+	 * @param dynamicLoads dynamic resistance providers of this circuit
+	 * @param dynamicSources dynamic voltage providers of this circuit
+	 */
 	public CircuitImpl(LevelAccessor level, double staticLoad, double staticSource, Map<BlockPos, Pair<BlockState, StateComponent>> components, List<DoubleSupplier> dynamicLoads, List<DoubleSupplier> dynamicSources)
 	{
 		this.level = level;
@@ -34,7 +46,6 @@ public class CircuitImpl implements Circuit
 		this.dynamicSources = dynamicSources;
 		this.components = components;
 	}
-	
 	
 	@Override
 	public double getPowerSuppliedTo(BlockPos pos)

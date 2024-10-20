@@ -16,7 +16,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.commoble.exmachina.api.Connector;
 import net.commoble.exmachina.api.ExMachinaRegistries;
 import net.commoble.exmachina.internal.ExMachina;
-import net.commoble.exmachina.internal.Names;
 import net.commoble.exmachina.internal.util.StateReader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -41,10 +40,27 @@ import net.minecraft.world.level.block.state.StateDefinition;
 }
 </pre>
  * Not all states are required to be specified (unspecified states default to empty connectors), but a state cannot be specified by more than one variant.
+ * @param variants Map of blockstate predicate string to direction(s) for the blockstate(s)
  */
 public record BlockStateConnector(Map<String, EnumSet<Direction>> variants) implements Connector
 {
-	public static final ResourceKey<MapCodec<? extends Connector>> KEY = ResourceKey.create(ExMachinaRegistries.CONNECTOR_TYPE, ExMachina.id(Names.BLOCKSTATE));
+	/** exmachina:connector_type / exmachina:blockstate */
+	public static final ResourceKey<MapCodec<? extends Connector>> KEY = ResourceKey.create(ExMachinaRegistries.CONNECTOR_TYPE, ExMachina.id("blockstate"));
+	
+	/**
+ * e.g. for a furnace block that only connects on one side:
+<pre>
+{
+	"type": "exmachina:blockstate",
+	"variants": {
+		"facing=north": ["north", "up"],
+		"facing=south": ["south", "up"],
+		"facing=west": ["west", "up"],
+		"facing=east": ["east", "up"]
+	}
+}
+</pre>
+	*/
 	public static final MapCodec<BlockStateConnector> CODEC = Codec.unboundedMap(
 			Codec.STRING,
 			Direction.CODEC.listOf().xmap(EnumSet::copyOf, List::copyOf))

@@ -1,10 +1,13 @@
 package net.commoble.exmachina.api;
 
-import net.commoble.exmachina.internal.circuit.LevelCircuitManager;
+import net.commoble.exmachina.internal.power.LevelCircuitManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 
+/**
+ * API for handling power graphs
+ */
 public interface CircuitManager
 {
 	/**
@@ -30,8 +33,8 @@ public interface CircuitManager
 	 * Notifies the circuit manager that a block at this position has updated.
 	 * Normal blockstate updates are handled by internal processes and mods generally
 	 * shouldn't need to call this for those.
-	 * @param newState
-	 * @param pos
+	 * @param newState BlockState which is now at the given position
+	 * @param pos BlockPos where the update occurred
 	 */
 	public void onBlockUpdate(BlockState newState, BlockPos pos);
 	
