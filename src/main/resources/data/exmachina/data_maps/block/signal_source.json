@@ -1,7 +1,7 @@
 {
 	"values": {
 		"#exmachina:wirable/cube": {
-			"type": "exmachina::cube"
+			"type": "exmachina:cube"
 		},
 		"#exmachina:wirable/floor": {
 			"type": "exmachina:floor"
