@@ -48,7 +48,7 @@ public enum CubeSource implements SignalSource
 	public Map<Channel, ToIntFunction<LevelReader>> getSupplierEndpoints(BlockGetter level, BlockPos supplierPos, BlockState supplierState, Direction supplierSide, Face connectedFace)
 	{
 		BlockPos offsetFromNeighbor = supplierPos.subtract(connectedFace.pos());
-		@Nullable Direction directionFromNeighbor = Direction.fromDelta(offsetFromNeighbor.getX(), offsetFromNeighbor.getY(), offsetFromNeighbor.getZ()); 
+		@Nullable Direction directionFromNeighbor = Direction.getNearest(offsetFromNeighbor, null); 
 		return directionFromNeighbor == null
 			? Map.of()
 			: Map.of(Channel.redstone(), reader -> reader.getSignal(supplierPos, directionFromNeighbor));

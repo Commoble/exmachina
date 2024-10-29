@@ -47,9 +47,9 @@ public record WireIgnoringSignalGetter(LevelReader delegate, Function<BlockPos, 
 	}
 
 	@Override
-	public int getMinBuildHeight()
+	public int getMinY()
 	{
-		return delegate.getMinBuildHeight();
+		return delegate.getMinY();
 	}
 
 	@Override

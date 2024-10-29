@@ -110,7 +110,7 @@ public enum DefaultSource implements SignalSource
 		// we allow wires to connect to vanilla power emitters by default if the block is redstone-connectable and has a connectable voxelshape
 		BlockPos wirePos = connectedFace.pos();
 		BlockPos offsetFromNeighbor = supplierPos.subtract(wirePos);
-		@Nullable Direction directionFromNeighbor = Direction.fromDelta(offsetFromNeighbor.getX(), offsetFromNeighbor.getY(), offsetFromNeighbor.getZ()); 
+		@Nullable Direction directionFromNeighbor = Direction.getNearest(offsetFromNeighbor, null); 
 		if (!supplierState.canRedstoneConnectTo(level, wirePos, directionFromNeighbor))
 			return Map.of();
 		Direction directionToWire = directionFromNeighbor.getOpposite();

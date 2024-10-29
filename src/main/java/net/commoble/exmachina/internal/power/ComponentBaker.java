@@ -88,7 +88,7 @@ public final class ComponentBaker
 	{
 		Object2ObjectMap<Block, BlockComponent> map = new Object2ObjectOpenHashMap<>();
 		
-		var components = registries.registryOrThrow(ExMachinaRegistries.CIRCUIT_COMPONENT);
+		var components = registries.lookupOrThrow(ExMachinaRegistries.CIRCUIT_COMPONENT);
 		for (var entry : components.entrySet())
 		{
 			ResourceLocation blockId = entry.getKey().location();
@@ -98,7 +98,7 @@ public final class ComponentBaker
 			if (!circuitComponent.connector().isPresent())
 				continue;
 			
-			Block block = BuiltInRegistries.BLOCK.get(blockId);
+			Block block = BuiltInRegistries.BLOCK.getValue(blockId);
 			// make sure block exists (and isn't air, air can never have components)
 			if (block == Blocks.AIR)
 			{

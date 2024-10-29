@@ -58,7 +58,7 @@ public record FloorSource(int offset) implements SignalSource
 			return Map.of();
 
 		BlockPos offsetFromNeighbor = supplierPos.subtract(connectedFace.pos());
-		@Nullable Direction directionFromNeighbor = Direction.fromDelta(offsetFromNeighbor.getX(), offsetFromNeighbor.getY(), offsetFromNeighbor.getZ()); 
+		@Nullable Direction directionFromNeighbor = Direction.getNearest(offsetFromNeighbor, null); 
 		return directionFromNeighbor == null
 			? Map.of()
 			: Map.of(Channel.redstone(), reader -> reader.getSignal(supplierPos, directionFromNeighbor) + this.offset);

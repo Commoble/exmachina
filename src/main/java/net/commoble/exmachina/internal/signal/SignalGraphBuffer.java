@@ -1,6 +1,5 @@
 package net.commoble.exmachina.internal.signal;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,12 +21,13 @@ import net.commoble.exmachina.api.TransmissionNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.ExperimentalRedstoneUtils;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.level.saveddata.SavedData;
 
 /**
@@ -158,10 +158,11 @@ public final class SignalGraphBuffer extends SavedData
 			if (!SignalGraph.isBlockInAnyGraph(neighborPos, graphs))
 			{
 				Block nodeBlock = level.getBlockState(nodeBlockPos).getBlock();
-				level.neighborChanged(neighborPos, nodeBlock, nodeBlockPos);
+				Orientation orientation = ExperimentalRedstoneUtils.initialOrientation(level, directionToNeighbor, null);
+				level.neighborChanged(neighborPos, nodeBlock, orientation);
 				if (signalStrength == SignalStrength.STRONG)
 				{
-					level.updateNeighborsAtExceptFromFacing(neighborPos, nodeBlock, directionToNeighbor.getOpposite());
+					level.updateNeighborsAtExceptFromFacing(neighborPos, nodeBlock, directionToNeighbor.getOpposite(), orientation);
 				}
 			}
 		});
@@ -174,11 +175,8 @@ public final class SignalGraphBuffer extends SavedData
 	}
 
 	@Override
-	public void save(File file, Provider registries)
+	public boolean isDirty()
 	{
-		// no
+		return false; // never save to disk
 	}
-	
-	
-	
 }

@@ -58,7 +58,7 @@ public record WallFloorCeilingSource(boolean invertHorizontalFacing) implements 
 				|| attachFace == AttachFace.CEILING && wireSide == Direction.UP)
 			{
 				BlockPos offsetFromNeighbor = supplierPos.subtract(connectedFace.pos());
-				@Nullable Direction directionFromNeighbor = Direction.fromDelta(offsetFromNeighbor.getX(), offsetFromNeighbor.getY(), offsetFromNeighbor.getZ()); 
+				@Nullable Direction directionFromNeighbor = Direction.getNearest(offsetFromNeighbor, null); 
 				return directionFromNeighbor == null
 					? Map.of()
 					: Map.of(Channel.redstone(), reader -> reader.getSignal(supplierPos, directionFromNeighbor));
@@ -77,7 +77,7 @@ public record WallFloorCeilingSource(boolean invertHorizontalFacing) implements 
 			return Map.of();
 		
 		BlockPos offsetFromNeighbor = supplierPos.subtract(connectedFace.pos());
-		@Nullable Direction directionFromNeighbor = Direction.fromDelta(offsetFromNeighbor.getX(), offsetFromNeighbor.getY(), offsetFromNeighbor.getZ()); 
+		@Nullable Direction directionFromNeighbor = Direction.getNearest(offsetFromNeighbor, null); 
 		return directionFromNeighbor == null
 			? Map.of()
 			: Map.of(Channel.redstone(), reader -> reader.getSignal(supplierPos, directionFromNeighbor));

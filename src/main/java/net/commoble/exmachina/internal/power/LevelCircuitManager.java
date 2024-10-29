@@ -1,6 +1,5 @@
 package net.commoble.exmachina.internal.power;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -167,10 +166,8 @@ public class LevelCircuitManager extends SavedData implements CircuitManager
 	}
 
 	@Override
-	public void save(File file, HolderLookup.Provider registries)
+	public boolean isDirty()
 	{
-		// noop
+		return false; // never save file
 	}
-	
-	
 }
