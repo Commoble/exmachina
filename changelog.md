@@ -1,3 +1,9 @@
+# 1.21.3-0.4.0.1
+* Fix warning in logs re: missing accesstransformer
+
+# 1.21.3-0.4.0.0
+* Port to 1.21.3
+
 # 1.21.1-0.3.0.1
 * Fixed typo in default signal_source datamap
 
