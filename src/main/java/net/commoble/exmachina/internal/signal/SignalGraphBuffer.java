@@ -50,7 +50,7 @@ public final class SignalGraphBuffer extends SavedData
 
 	/**
 	 * {@return SignalGraphBuffer for the overworld}
-	 * @param MinecraftServer server to get the buffer for
+	 * @param server MinecraftServer to get the buffer for
 	 */
 	@ApiStatus.Internal
 	public static SignalGraphBuffer get(MinecraftServer server)
@@ -60,6 +60,7 @@ public final class SignalGraphBuffer extends SavedData
 
 	/**
 	 * Enqueues a blockpos to run a signal graph update at at the end of the tick
+	 * @param levelKey ResourceKey of the level to enqueue an update at
 	 * @param pos BlockPos to enqueue a signal graph update at
 	 */
 	@ApiStatus.Internal
@@ -70,7 +71,7 @@ public final class SignalGraphBuffer extends SavedData
 
 	/**
 	 * Invoked at the end of each level tick to run enqueued signal graph updates
-	 * @param level ServerLevel being ticked
+	 * @param server MinecraftServer being ticked
 	 */
 	@ApiStatus.Internal
 	public void tick(MinecraftServer server)

@@ -221,6 +221,7 @@ public record SignalGraph(Map<NodePos, TransmissionNode> nodesInGraph, Map<Serve
 
 	/**
 	 * {@return true if any of the provided graphs contain a transmission node at the given blockpos}
+	 * @param serverLevel ServerLevel to check position in
 	 * @param pos BlockPos to check whether any graph is containing
 	 * @param graphs SignalGraphs to check for the containment of the BlockPos
 	 */

@@ -17,6 +17,7 @@ import net.minecraft.world.level.Level;
 </pre>
  * @param pos BlockPos where the Face is
  * @param attachmentSide Internal side of that BlockPos relative to the center
+ * @param levelKey ResourceKey of the level where the face is
  */
 public record Face(BlockPos pos, Direction attachmentSide, ResourceKey<Level> levelKey)
 {
