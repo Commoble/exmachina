@@ -23,7 +23,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.redstone.ExperimentalRedstoneUtils;
@@ -43,16 +46,16 @@ public final class SignalGraphBuffer extends SavedData
 	
 	private static final SavedData.Factory<SignalGraphBuffer> FACTORY = new SavedData.Factory<>(SignalGraphBuffer::new, (tag,registries) -> new SignalGraphBuffer());
 	
-	private Set<BlockPos> positions = new HashSet<>();
+	private Map<ResourceKey<Level>, Set<BlockPos>> positions = new HashMap<>();
 
 	/**
-	 * {@return SignalGraphBuffer for a given ServerLevel}
-	 * @param level ServerLevel to get the SignalGraphBuffer for
+	 * {@return SignalGraphBuffer for the overworld}
+	 * @param MinecraftServer server to get the buffer for
 	 */
 	@ApiStatus.Internal
-	public static SignalGraphBuffer get(ServerLevel level)
+	public static SignalGraphBuffer get(MinecraftServer server)
 	{
-		return level.getDataStorage().computeIfAbsent(FACTORY, ID);
+		return server.overworld().getDataStorage().computeIfAbsent(FACTORY, ID);
 	}
 
 	/**
@@ -60,9 +63,9 @@ public final class SignalGraphBuffer extends SavedData
 	 * @param pos BlockPos to enqueue a signal graph update at
 	 */
 	@ApiStatus.Internal
-	public void enqueue(BlockPos pos)
+	public void enqueue(ResourceKey<Level> levelKey, BlockPos pos)
 	{
-		this.positions.add(pos);
+		this.positions.computeIfAbsent(levelKey, level -> new HashSet<>()).add(pos);
 	}
 
 	/**
@@ -70,17 +73,17 @@ public final class SignalGraphBuffer extends SavedData
 	 * @param level ServerLevel being ticked
 	 */
 	@ApiStatus.Internal
-	public void tick(ServerLevel level)
+	public void tick(MinecraftServer server)
 	{
 		if (this.positions.isEmpty())
 			return;
 
-		Set<BlockPos> originPositions = this.positions;
-		this.positions = new HashSet<>();
+		Map<ResourceKey<Level>, Set<BlockPos>> originPositionsByLevel = this.positions;
+		this.positions = new HashMap<>();
 		
 		// construct graph from each origin node
 		List<SignalGraph> graphs = new ArrayList<>();
-		Map<BlockPos, StateWirer> knownWirers = new HashMap<>();
+		Map<ServerLevel, Map<BlockPos, StateWirer>> knownWirers = new HashMap<>();
 		Map<NodePos, TransmissionNode> originNodes = new HashMap<>();
 		
 		// if there's any receivers at the origin node(s)
@@ -88,37 +91,52 @@ public final class SignalGraphBuffer extends SavedData
 		// then we should invoke them with power=0 after graphing everything else out
 		Map<PosReceiver, Set<Receiver>> unusedReceivers = new HashMap<>();
 		
-		for (BlockPos originPos : originPositions)
+		for (var entry : originPositionsByLevel.entrySet())
 		{
-			// collect all of the nodes in this block
-			BlockState originState = level.getBlockState(originPos);
-			Block originBlock = originState.getBlock();
-			@SuppressWarnings("deprecation")
-			SignalTransmitter originTransmitter = BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_TRANSMITTER, originBlock.builtInRegistryHolder().key());
-			@SuppressWarnings("deprecation")
-			SignalReceiver originReceiver = BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_RECEIVER, originBlock.builtInRegistryHolder().key());
-			if (originTransmitter != null)
+			var levelKey = entry.getKey();
+			ServerLevel originLevel = server.getLevel(levelKey);
+			if (originLevel == null)
 			{
-				for (Direction face : Direction.values()) {
-					originTransmitter.getTransmissionNodes(level, originPos, originState, face).forEach((channel,node) -> {
-						originNodes.put(new NodePos(new Face(originPos, face), channel), node);
-					});
-				}
+				continue;
 			}
-			if (originReceiver != null)
+			var originPositions = entry.getValue();
+			for (BlockPos originPos : originPositions)
 			{
-				PosReceiver posReceiver = new PosReceiver(originPos, originReceiver);
-				for (Channel channel : Channel.ALL)
+				// collect all of the nodes in this block
+				BlockState originState = originLevel.getBlockState(originPos);
+				Block originBlock = originState.getBlock();
+				@SuppressWarnings("deprecation")
+				SignalTransmitter originTransmitter = BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_TRANSMITTER, originBlock.builtInRegistryHolder().key());
+				@SuppressWarnings("deprecation")
+				SignalReceiver originReceiver = BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_RECEIVER, originBlock.builtInRegistryHolder().key());
+				if (originTransmitter != null)
 				{
-					for (Receiver receiver : originReceiver.getAllReceivers(level, originPos, originState, channel))
-					{
-						 unusedReceivers.computeIfAbsent(posReceiver, foo -> new HashSet<>()).add(receiver);
+					for (Direction face : Direction.values()) {
+						originTransmitter.getTransmissionNodes(originLevel, originPos, originState, face).forEach((channel,node) -> {
+							originNodes.put(new NodePos(new Face(originPos, face, originLevel.dimension()), channel), node);
+						});
 					}
 				}
+				if (originReceiver != null)
+				{
+					PosReceiver posReceiver = new PosReceiver(originLevel.dimension(), originPos, originReceiver);
+					for (Channel channel : Channel.ALL)
+					{
+						for (Receiver receiver : originReceiver.getAllReceivers(originLevel, originPos, originState, channel))
+						{
+							 unusedReceivers.computeIfAbsent(posReceiver, foo -> new HashSet<>()).add(receiver);
+						}
+					}
+				}
+				
 			}
-			
 		}
 		originNodes.forEach((nodePos, node) -> {
+			ServerLevel originLevel = server.getLevel(nodePos.face().levelKey());
+			if (originLevel == null)
+			{
+				return;
+			}
 			// as we construct graphs, ignore origin nodes that exist in existing graphs
 			for (SignalGraph priorGraph : graphs)
 			{
@@ -128,7 +146,7 @@ public final class SignalGraphBuffer extends SavedData
 				}
 			}
 			
-			SignalGraph graph = SignalGraph.fromOriginNode(level, nodePos, node, knownWirers, unusedReceivers);
+			SignalGraph graph = SignalGraph.fromOriginNode(originLevel, nodePos, node, knownWirers, unusedReceivers);
 			graphs.add(graph);
 		});
 		
@@ -142,27 +160,37 @@ public final class SignalGraphBuffer extends SavedData
 		Map<Face, SignalStrength> nodesUpdatingNeighbors = new HashMap<>();
 		for (SignalGraph graph : graphs)
 		{
-			graph.updateListeners(level).forEach((face,signalStrength) -> nodesUpdatingNeighbors.merge(face, signalStrength, SignalStrength::max));
+			graph.updateListeners(server).forEach((face,signalStrength) -> nodesUpdatingNeighbors.merge(face, signalStrength, SignalStrength::max));
 		}
 		
 		// give power 0 to receivers that were marked for update but never became part of a graph
 		unusedReceivers.forEach((receiversAtPos, receiversOnChannels) -> {
-			receiversAtPos.receiver().resetUnusedReceivers(level, receiversAtPos.pos(), receiversOnChannels);
+			Level targetLevel = server.getLevel(receiversAtPos.levelKey());
+			if (targetLevel == null)
+			{
+				return;
+			}
+			receiversAtPos.receiver().resetUnusedReceivers(targetLevel, receiversAtPos.pos(), receiversOnChannels);
 		});
 		
 		// invoke block updates on blocks which are adjacent to the graph but have no transmission nodes within it
 		nodesUpdatingNeighbors.forEach((updatedNodeFace, signalStrength) -> {
+			ServerLevel targetLevel = server.getLevel(updatedNodeFace.levelKey());
+			if (targetLevel == null)
+			{
+				return;
+			}
 			BlockPos nodeBlockPos = updatedNodeFace.pos();
 			Direction directionToNeighbor = updatedNodeFace.attachmentSide();
 			BlockPos neighborPos = nodeBlockPos.relative(directionToNeighbor);
-			if (!SignalGraph.isBlockInAnyGraph(neighborPos, graphs))
+			if (!SignalGraph.isBlockInAnyGraph(targetLevel, neighborPos, graphs))
 			{
-				Block nodeBlock = level.getBlockState(nodeBlockPos).getBlock();
-				Orientation orientation = ExperimentalRedstoneUtils.initialOrientation(level, directionToNeighbor, null);
-				level.neighborChanged(neighborPos, nodeBlock, orientation);
+				Block nodeBlock = targetLevel.getBlockState(nodeBlockPos).getBlock();
+				Orientation orientation = ExperimentalRedstoneUtils.initialOrientation(targetLevel, directionToNeighbor, null);
+				targetLevel.neighborChanged(neighborPos, nodeBlock, orientation);
 				if (signalStrength == SignalStrength.STRONG)
 				{
-					level.updateNeighborsAtExceptFromFacing(neighborPos, nodeBlock, directionToNeighbor.getOpposite(), orientation);
+					targetLevel.updateNeighborsAtExceptFromFacing(neighborPos, nodeBlock, directionToNeighbor.getOpposite(), orientation);
 				}
 			}
 		});

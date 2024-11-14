@@ -51,7 +51,7 @@ import net.neoforged.neoforge.event.VanillaGameEvent;
 import net.neoforged.neoforge.event.level.BlockEvent.NeighborNotifyEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
@@ -127,7 +127,7 @@ public class ExMachina
 		gameBus.addListener(this::onServerStopping);
 		gameBus.addListener(this::onNeighborNotify);
 		gameBus.addListener(this::onVanillaGameEvent);
-		gameBus.addListener(this::onEndOfLevelTickEvent);
+		gameBus.addListener(this::onEndOfServerTickEvent);
 	}
 	
 	private void onRegisterDataPackRegistries(DataPackRegistryEvent.NewRegistry event)
@@ -174,14 +174,13 @@ public class ExMachina
 		
 		if (level instanceof ServerLevel serverLevel && event.getVanillaEvent().is(SignalGraphUpdateGameEvent.KEY))
 		{
-			SignalGraphBuffer.get(serverLevel).enqueue(BlockPos.containing(event.getEventPosition()));
+			SignalGraphBuffer.get(serverLevel.getServer()).enqueue(serverLevel.dimension(), BlockPos.containing(event.getEventPosition()));
 		}
 	}
 	
-	private void onEndOfLevelTickEvent(LevelTickEvent.Post event)
+	private void onEndOfServerTickEvent(ServerTickEvent.Post event)
 	{
-		if (event.getLevel() instanceof ServerLevel serverLevel)
-			SignalGraphBuffer.get(serverLevel).tick(serverLevel);
+		SignalGraphBuffer.get(event.getServer()).tick(event.getServer());
 	}
 	
 	/**

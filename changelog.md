@@ -1,3 +1,9 @@
+# 1.21.3-0.5.0.0
+* Signal graphs can now cross dimensions.
+* API change:
+  * Face now requires a level key on construction, denoting that the Face exists in that level
+  * Signal transmitters can now connect to nodes in other dimensions by providing connectable nodes with faces in other dimensions
+
 # 1.21.3-0.4.0.1
 * Fix warning in logs re: missing accesstransformer
 
