@@ -9,13 +9,15 @@ import com.mojang.serialization.MapCodec;
 
 import net.commoble.exmachina.api.Channel;
 import net.commoble.exmachina.api.ExMachinaRegistries;
-import net.commoble.exmachina.api.Face;
+import net.commoble.exmachina.api.Node;
+import net.commoble.exmachina.api.NodeShape;
 import net.commoble.exmachina.api.SignalSource;
 import net.commoble.exmachina.internal.ExMachina;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -52,15 +54,16 @@ public record FloorSource(int offset) implements SignalSource
 	}
 
 	@Override
-	public Map<Channel, ToIntFunction<LevelReader>> getSupplierEndpoints(BlockGetter level, BlockPos supplierPos, BlockState supplierState, Direction supplierSide, Face connectedFace)
+	public Map<Channel, ToIntFunction<LevelReader>> getSupplierEndpoints(ResourceKey<Level> supplierLevelKey, BlockGetter supplierLevel, BlockPos supplierPos,
+		BlockState supplierState, NodeShape preferredSupplierShape, Node connectingNode)
 	{
-		if (connectedFace.attachmentSide() != Direction.DOWN)
+		BlockPos offsetFromNeighbor = supplierPos.subtract(connectingNode.pos());
+		@Nullable Direction directionFromNeighbor = Direction.getNearest(offsetFromNeighbor, null);
+		if (directionFromNeighbor == null)
 			return Map.of();
-
-		BlockPos offsetFromNeighbor = supplierPos.subtract(connectedFace.pos());
-		@Nullable Direction directionFromNeighbor = Direction.getNearest(offsetFromNeighbor, null); 
-		return directionFromNeighbor == null
-			? Map.of()
-			: Map.of(Channel.redstone(), reader -> reader.getSignal(supplierPos, directionFromNeighbor) + this.offset);
+		
+		return NodeShape.ofSide(Direction.DOWN).isValidFor(connectingNode.shape())
+			? Map.of(Channel.redstone(), reader -> reader.getSignal(supplierPos, directionFromNeighbor) + this.offset)
+			: Map.of();
 	}
 }

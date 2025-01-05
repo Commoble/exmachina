@@ -10,13 +10,15 @@ import com.mojang.serialization.MapCodec;
 
 import net.commoble.exmachina.api.Channel;
 import net.commoble.exmachina.api.ExMachinaRegistries;
-import net.commoble.exmachina.api.Face;
+import net.commoble.exmachina.api.Node;
+import net.commoble.exmachina.api.NodeShape;
 import net.commoble.exmachina.api.SignalSource;
 import net.commoble.exmachina.internal.ExMachina;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.FaceAttachedHorizontalDirectionalBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -48,23 +50,42 @@ public record WallFloorCeilingSource(boolean invertHorizontalFacing) implements 
 	}
 
 	@Override
-	public Map<Channel, ToIntFunction<LevelReader>> getSupplierEndpoints(BlockGetter level, BlockPos supplierPos, BlockState supplierState, Direction supplierSide, Face connectedFace)
+	public Map<Channel, ToIntFunction<LevelReader>> getSupplierEndpoints(ResourceKey<Level> levelKey, BlockGetter level, BlockPos supplierPos, BlockState supplierState, NodeShape preferredSupplierShape, Node connectingNode)
 	{
-		Direction wireSide = connectedFace.attachmentSide();
+		// it would be nice if we could just say "if the nodeshapes are compatible, allow the connection"
+		// then stuff could remotely grab the power of levers n' things
+		// but, we need to check the power output of a specific side of the supplier
+		// so we should probably require that the connector is adjacent
+		
+		if (connectingNode.levelKey() != levelKey)
+		{
+			return Map.of();
+		}
+		BlockPos connectingPos = connectingNode.pos();
+		@Nullable Direction directionToSupplier = Direction.getNearest(connectingPos.subtract(supplierPos), null);
+		Map<Channel, ToIntFunction<LevelReader>> validMap = Map.of(Channel.redstone(), reader -> reader.getSignal(supplierPos, directionToSupplier));
+		if (directionToSupplier == null || !supplierPos.relative(directionToSupplier).equals(connectingPos))
+		{
+			return Map.of();
+		}
+		// okay, block is adjacent, and we have the power query direction
+		// so now we just need to check if the nodeshapes are compatible
+		// so we need to figure out which side the lever is attached to
 		if (supplierState.hasProperty(FaceAttachedHorizontalDirectionalBlock.FACE))
 		{
 			AttachFace attachFace = supplierState.getValue(FaceAttachedHorizontalDirectionalBlock.FACE);
-			if (attachFace == AttachFace.FLOOR && wireSide == Direction.DOWN
-				|| attachFace == AttachFace.CEILING && wireSide == Direction.UP)
+			if (attachFace == AttachFace.FLOOR)
 			{
-				BlockPos offsetFromNeighbor = supplierPos.subtract(connectedFace.pos());
-				@Nullable Direction directionFromNeighbor = Direction.getNearest(offsetFromNeighbor, null); 
-				return directionFromNeighbor == null
-					? Map.of()
-					: Map.of(Channel.redstone(), reader -> reader.getSignal(supplierPos, directionFromNeighbor));
+				return NodeShape.ofSide(Direction.DOWN).isValidFor(preferredSupplierShape)
+					? validMap
+					: Map.of();
 			}
-			if (attachFace != AttachFace.WALL)
-				return Map.of();
+			else if (attachFace == AttachFace.CEILING)
+			{
+				return NodeShape.ofSide(Direction.UP).isValidFor(preferredSupplierShape)
+					? validMap
+					: Map.of();
+			}
 		}
 		if (!supplierState.hasProperty(HorizontalDirectionalBlock.FACING))
 			return Map.of();
@@ -73,13 +94,8 @@ public record WallFloorCeilingSource(boolean invertHorizontalFacing) implements 
 		if (invertHorizontalFacing)
 			facing = facing.getOpposite();
 		
-		if (connectedFace.attachmentSide() != facing)
-			return Map.of();
-		
-		BlockPos offsetFromNeighbor = supplierPos.subtract(connectedFace.pos());
-		@Nullable Direction directionFromNeighbor = Direction.getNearest(offsetFromNeighbor, null); 
-		return directionFromNeighbor == null
-			? Map.of()
-			: Map.of(Channel.redstone(), reader -> reader.getSignal(supplierPos, directionFromNeighbor));
+		return NodeShape.ofSide(facing).isValidFor(preferredSupplierShape)
+			? validMap
+			: Map.of();
 	}
 }

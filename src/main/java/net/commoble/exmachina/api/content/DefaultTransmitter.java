@@ -1,6 +1,7 @@
 package net.commoble.exmachina.api.content;
 
-import java.util.Map;
+import java.util.Collection;
+import java.util.List;
 
 import com.mojang.serialization.MapCodec;
 
@@ -10,9 +11,9 @@ import net.commoble.exmachina.api.SignalTransmitter;
 import net.commoble.exmachina.api.TransmissionNode;
 import net.commoble.exmachina.internal.ExMachina;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
@@ -40,9 +41,10 @@ public enum DefaultTransmitter implements SignalTransmitter
 	{
 		return CODEC;
 	}
+	
 	@Override
-	public Map<Channel, TransmissionNode> getTransmissionNodes(BlockGetter level, BlockPos pos, BlockState state, Direction face)
+	public Collection<TransmissionNode> getTransmissionNodes(ResourceKey<Level> levelKey, BlockGetter level, BlockPos pos, BlockState state, Channel channel)
 	{
-		return Map.of();
+		return List.of();
 	}
 }

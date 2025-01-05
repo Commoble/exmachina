@@ -1,19 +1,22 @@
 package net.commoble.exmachina.internal.signal;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.jetbrains.annotations.ApiStatus;
 
 import net.commoble.exmachina.api.Channel;
 import net.commoble.exmachina.api.ExMachinaDataMaps;
-import net.commoble.exmachina.api.Face;
+import net.commoble.exmachina.api.Node;
 import net.commoble.exmachina.api.Receiver;
 import net.commoble.exmachina.api.SignalReceiver;
+import net.commoble.exmachina.api.SignalSource;
 import net.commoble.exmachina.api.SignalStrength;
 import net.commoble.exmachina.api.SignalTransmitter;
 import net.commoble.exmachina.api.StateWirer;
@@ -66,7 +69,11 @@ public final class SignalGraphBuffer extends SavedData
 	@ApiStatus.Internal
 	public void enqueue(ResourceKey<Level> levelKey, BlockPos pos)
 	{
-		this.positions.computeIfAbsent(levelKey, level -> new HashSet<>()).add(pos);
+		var levelPositions = this.positions.computeIfAbsent(levelKey, level -> new HashSet<>());
+		levelPositions.add(pos);
+		for (Direction dir : Direction.values()) {
+			levelPositions.add(pos.relative(dir));
+		}
 	}
 
 	/**
@@ -85,12 +92,15 @@ public final class SignalGraphBuffer extends SavedData
 		// construct graph from each origin node
 		List<SignalGraph> graphs = new ArrayList<>();
 		Map<ServerLevel, Map<BlockPos, StateWirer>> knownWirers = new HashMap<>();
-		Map<NodePos, TransmissionNode> originNodes = new HashMap<>();
+		Function<ServerLevel, Function<BlockPos, StateWirer>> wirerLookup = targetLevel -> targetPos -> knownWirers
+			.computeIfAbsent(targetLevel, key -> new HashMap<>())
+			.computeIfAbsent(targetPos, pos -> StateWirer.getOrDefault(targetLevel, pos));
+		Map<NodeOnChannel, TransmissionNode> originNodes = new HashMap<>();
 		
 		// if there's any receivers at the origin node(s)
 		// which are NOT tied to a graph
 		// then we should invoke them with power=0 after graphing everything else out
-		Map<PosReceiver, Set<Receiver>> unusedReceivers = new HashMap<>();
+		Map<ReceiverPos, Map<Receiver, Collection<Node>>> unusedReceivers = new HashMap<>();
 		
 		for (var entry : originPositionsByLevel.entrySet())
 		{
@@ -112,28 +122,28 @@ public final class SignalGraphBuffer extends SavedData
 				SignalReceiver originReceiver = BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_RECEIVER, originBlock.builtInRegistryHolder().key());
 				if (originTransmitter != null)
 				{
-					for (Direction face : Direction.values()) {
-						originTransmitter.getTransmissionNodes(originLevel, originPos, originState, face).forEach((channel,node) -> {
-							originNodes.put(new NodePos(new Face(originPos, face, originLevel.dimension()), channel), node);
+					for (Channel channel : Channel.ALL)
+					{
+						originTransmitter.getTransmissionNodes(levelKey, originLevel, originPos, originState, channel).forEach(node -> {
+							originNodes.put(new NodeOnChannel(new Node(originLevel.dimension(), originPos, node.shape()), channel), node);
 						});
 					}
 				}
 				if (originReceiver != null)
 				{
-					PosReceiver posReceiver = new PosReceiver(originLevel.dimension(), originPos, originReceiver);
 					for (Channel channel : Channel.ALL)
 					{
-						for (Receiver receiver : originReceiver.getAllReceivers(originLevel, originPos, originState, channel))
-						{
-							 unusedReceivers.computeIfAbsent(posReceiver, foo -> new HashSet<>()).add(receiver);
-						}
+						ReceiverPos posReceiver = new ReceiverPos(levelKey, originPos, channel, originReceiver);
+						originReceiver.getAllReceivers(levelKey, originLevel, originPos, originState, channel).forEach((receiver, connectableNodes) -> {
+							 unusedReceivers.computeIfAbsent(posReceiver, foo -> new HashMap<>()).put(receiver, connectableNodes);
+						});
 					}
 				}
 				
 			}
 		}
-		originNodes.forEach((nodePos, node) -> {
-			ServerLevel originLevel = server.getLevel(nodePos.face().levelKey());
+		originNodes.forEach((nodeOnChannel, node) -> {
+			ServerLevel originLevel = server.getLevel(nodeOnChannel.node().levelKey());
 			if (originLevel == null)
 			{
 				return;
@@ -141,13 +151,13 @@ public final class SignalGraphBuffer extends SavedData
 			// as we construct graphs, ignore origin nodes that exist in existing graphs
 			for (SignalGraph priorGraph : graphs)
 			{
-				if (priorGraph.hasTransmissionNode(nodePos))
+				if (priorGraph.hasTransmissionNode(nodeOnChannel))
 				{
 					return;
 				}
 			}
 			
-			SignalGraph graph = SignalGraph.fromOriginNode(originLevel, nodePos, node, knownWirers, unusedReceivers);
+			SignalGraph graph = SignalGraph.fromOriginNode(originLevel, nodeOnChannel, node, knownWirers, unusedReceivers);
 			graphs.add(graph);
 		});
 		
@@ -158,42 +168,89 @@ public final class SignalGraphBuffer extends SavedData
 		// how do neighbor updates work?
 		// each time we proc a listener on a transition node at nodepos, it gives us a set of directions to proc neighbor updates in
 		// we store these as a face (nodePos+direction)
-		Map<Face, SignalStrength> nodesUpdatingNeighbors = new HashMap<>();
+		Map<ResourceKey<Level>, Map<BlockPos, Map<Direction, SignalStrength>>> nodesUpdatingNeighbors = new HashMap<>();
 		for (SignalGraph graph : graphs)
 		{
-			graph.updateListeners(server).forEach((face,signalStrength) -> nodesUpdatingNeighbors.merge(face, signalStrength, SignalStrength::max));
+			graph.updateListeners(server).forEach((levelKey,byPos) -> {
+				var toUpdateByPos = nodesUpdatingNeighbors.computeIfAbsent(levelKey, $ -> new HashMap<>());
+				byPos.forEach((pos, byDirection) -> {
+					var toUpdateByDirection = toUpdateByPos.computeIfAbsent(pos, $ -> new HashMap<>());
+					byDirection.forEach((direction, signalStrength) -> toUpdateByDirection.merge(direction, signalStrength, SignalStrength::max));
+				});
+			});
 		}
 		
 		// give power 0 to receivers that were marked for update but never became part of a graph
-		unusedReceivers.forEach((receiversAtPos, receiversOnChannels) -> {
-			Level targetLevel = server.getLevel(receiversAtPos.levelKey());
+		unusedReceivers.forEach((receiverPos, receiversAtPos) -> {
+			ServerLevel targetLevel = server.getLevel(receiverPos.levelKey());
 			if (targetLevel == null)
 			{
 				return;
 			}
-			receiversAtPos.receiver().resetUnusedReceivers(targetLevel, receiversAtPos.pos(), receiversOnChannels);
+			
+			// check if there are sources which can directly supply power to the receiver
+			Collection<Receiver> actualUnusedReceivers = new HashSet<>();
+			receiversAtPos.forEach((receiver, connectableNodes) -> {
+				int power = 0;
+				for (Node preferredSourceNode : connectableNodes)
+				{
+					var targetSourceLevelKey = preferredSourceNode.levelKey();
+					ServerLevel targetSourceLevel = server.getLevel(targetSourceLevelKey);
+					if (targetSourceLevel == null)
+					{
+						continue;
+					}
+					BlockPos targetSourcePos = preferredSourceNode.pos();
+					StateWirer targetWirer = wirerLookup
+						.apply(targetSourceLevel)
+						.apply(targetSourcePos);
+					BlockState targetSourceState = targetWirer.state();
+					SignalSource targetSource = targetWirer.source();
+					Node receiverNode = new Node(receiverPos.levelKey(), receiverPos.pos(), receiver.nodeShape());
+					var suppliers = targetSource.getSupplierEndpoints(targetSourceLevelKey, targetSourceLevel, targetSourcePos, targetSourceState, preferredSourceNode.shape(), receiverNode);
+					for (Channel sourceChannel : receiverPos.channel().getConnectableChannels())
+					{
+						var supplier = suppliers.get(sourceChannel);
+						if (supplier != null)
+						{
+							power = Math.max(power, supplier.applyAsInt(targetSourceLevel));
+						}
+					}
+				}
+				if (power > 0)
+				{
+					receiver.accept(targetLevel, power);
+				}
+				else
+				{
+					actualUnusedReceivers.add(receiver);
+				}
+			});
+			
+			// for the rest, reset them to 0
+			receiverPos.receiver().resetUnusedReceivers(targetLevel.dimension(), targetLevel, receiverPos.pos(), actualUnusedReceivers);
 		});
 		
 		// invoke block updates on blocks which are adjacent to the graph but have no transmission nodes within it
-		nodesUpdatingNeighbors.forEach((updatedNodeFace, signalStrength) -> {
-			ServerLevel targetLevel = server.getLevel(updatedNodeFace.levelKey());
+		nodesUpdatingNeighbors.forEach((levelKey, posToDirections) -> {
+			ServerLevel targetLevel = server.getLevel(levelKey);
 			if (targetLevel == null)
-			{
 				return;
-			}
-			BlockPos nodeBlockPos = updatedNodeFace.pos();
-			Direction directionToNeighbor = updatedNodeFace.attachmentSide();
-			BlockPos neighborPos = nodeBlockPos.relative(directionToNeighbor);
-			if (!SignalGraph.isBlockInAnyGraph(targetLevel, neighborPos, graphs))
-			{
-				Block nodeBlock = targetLevel.getBlockState(nodeBlockPos).getBlock();
-				Orientation orientation = ExperimentalRedstoneUtils.initialOrientation(targetLevel, directionToNeighbor, null);
-				targetLevel.neighborChanged(neighborPos, nodeBlock, orientation);
-				if (signalStrength == SignalStrength.STRONG)
-				{
-					targetLevel.updateNeighborsAtExceptFromFacing(neighborPos, nodeBlock, directionToNeighbor.getOpposite(), orientation);
-				}
-			}
+			posToDirections.forEach((nodeBlockPos, directionToSignalStrength) -> {
+				directionToSignalStrength.forEach((directionToNeighbor, signalStrength) -> {
+					BlockPos neighborPos = nodeBlockPos.relative(directionToNeighbor);
+					if (!SignalGraph.isBlockInAnyGraph(targetLevel, neighborPos, graphs))
+					{
+						Block nodeBlock = targetLevel.getBlockState(nodeBlockPos).getBlock();
+						Orientation orientation = ExperimentalRedstoneUtils.initialOrientation(targetLevel, directionToNeighbor, null);
+						targetLevel.neighborChanged(neighborPos, nodeBlock, orientation);
+						if (signalStrength == SignalStrength.STRONG)
+						{
+							targetLevel.updateNeighborsAtExceptFromFacing(neighborPos, nodeBlock, directionToNeighbor.getOpposite(), orientation);
+						}
+					}
+				});
+			});
 		});
 	}
 

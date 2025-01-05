@@ -1,14 +1,15 @@
 package net.commoble.exmachina.api;
 
-import java.util.Map;
+import java.util.Collection;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 
 import net.commoble.exmachina.internal.util.CodecHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 
@@ -46,11 +47,12 @@ public interface SignalTransmitter
 	
 	/**
 	 * Defines the TransmissionNode at a given pos/face/channel
-	 * @param level BlockGetter where the wire graph is
+	 * @param levelKey ResourceKey of the blockgetter
+	 * @param level BlockGetter where the transmitter is
 	 * @param pos BlockPos where this SignalTransmitter is
 	 * @param state BlockState of this SignalTransmitter's block
-	 * @param face internal face of this blockpos, e.g. down -> the bottom of pos
+	 * @param channel Channel to get nodes for
 	 * @return Map describing the TransmissionNode on a given channel for the given context
 	 */
-	public abstract Map<Channel, TransmissionNode> getTransmissionNodes(BlockGetter level, BlockPos pos, BlockState state, Direction face);
+	public abstract Collection<TransmissionNode> getTransmissionNodes(ResourceKey<Level> levelKey, BlockGetter level, BlockPos pos, BlockState state, Channel channel);
 }

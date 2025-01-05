@@ -7,13 +7,14 @@ import com.mojang.serialization.MapCodec;
 
 import net.commoble.exmachina.api.Channel;
 import net.commoble.exmachina.api.ExMachinaRegistries;
-import net.commoble.exmachina.api.Face;
+import net.commoble.exmachina.api.Node;
+import net.commoble.exmachina.api.NodeShape;
 import net.commoble.exmachina.api.SignalSource;
 import net.commoble.exmachina.internal.ExMachina;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -43,8 +44,8 @@ public enum NoneSource implements SignalSource
 	}
 
 	@Override
-	public Map<Channel, ToIntFunction<LevelReader>> getSupplierEndpoints(BlockGetter level, BlockPos supplierPos, BlockState supplierState, Direction supplierSide,
-		Face connectedFace)
+	public Map<Channel, ToIntFunction<LevelReader>> getSupplierEndpoints(ResourceKey<Level> supplierLevelKey, BlockGetter supplierLevel, BlockPos supplierPos,
+		BlockState supplierState, NodeShape preferredSupplierShape, Node connectingNode)
 	{
 		return Map.of();
 	}

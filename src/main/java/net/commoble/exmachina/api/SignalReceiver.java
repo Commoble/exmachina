@@ -1,5 +1,6 @@
 package net.commoble.exmachina.api;
 import java.util.Collection;
+import java.util.Map;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -8,8 +9,9 @@ import com.mojang.serialization.MapCodec;
 
 import net.commoble.exmachina.internal.util.CodecHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -43,37 +45,40 @@ public interface SignalReceiver
 	
 	/**
 	 * Provides Receiver functions to the grapher at a given position
-	 * @param level Level where the signal graph exists
+	 * @param levelKey ResourceKey of the level where the receiver is
+	 * @param level BlockGetter where the receiver is
 	 * @param receiverPos BlockPos where this receiver's block exists
 	 * @param receiverState BlockState of this receiver's block
-	 * @param receiverSide Direction of the face of the receiverpos where this receiver exists, e.g. down -> the bottom of receiverPos
-	 * @param connectedFace Face (pos+direction) of the graph node which is attempting to connect to this receiver
+	 * @param preferredReceiverShape NodeShape the connecting node is trying to connect to
+	 * @param connectedNode Node which is attempting to connect to this receiver (and may be in a different dimension)
 	 * @param channel Channel this receiver is attempting to be reached on
 	 * @return Receiver function to invoke after the signal graph updates (or null if no receiver node exists for the given context)
 	 */
-	public abstract @Nullable Receiver getReceiverEndpoint(BlockGetter level, BlockPos receiverPos, BlockState receiverState, Direction receiverSide, Face connectedFace, Channel channel);
+	public abstract @Nullable Receiver getReceiverEndpoint(ResourceKey<Level> levelKey, BlockGetter level, BlockPos receiverPos, BlockState receiverState, NodeShape preferredReceiverShape, Node connectedNode, Channel channel);
 	
 	/**
 	 * Retrieves all Receiver instances returnable by {@link getReceiverEndpoint}
-	 * @param level Level where the signal graph exists
+	 * @param levelKey ResourceKey of the level where the receiver is
+	 * @param level BlockGetter where the receiver is
 	 * @param receiverPos BlockPos where this receiver's block exists
 	 * @param receiverState BlockState of this receiver's block
 	 * @param channel Channel this receiver is attempting to be reached on
-	 * @return Collection of all receiver functions that can conceivably be returned by {@link getReceiverEndpoint}
+	 * @return Map of all receiver functions that can conceivably be returned by {@link getReceiverEndpoint} mapped to nodes which they can connect to
 	 */
-	public abstract Collection<Receiver> getAllReceivers(BlockGetter level, BlockPos receiverPos, BlockState receiverState, Channel channel);
+	public abstract Map<Receiver, Collection<Node>> getAllReceivers(ResourceKey<Level> levelKey, BlockGetter level, BlockPos receiverPos, BlockState receiverState, Channel channel);
 	
 	/**
 	 * This method is invoked on a SignalReceiver when a graph update occurs where a SignalReceiver block is
 	 * but not all of its receivers were connected to a graph.
 	 * 
-	 * @param level Level where the signal graph exists
+	 * @param levelKey ResourceKey of the level where the receiver is
+	 * @param level LevelAccessor where the receiver is
 	 * @param pos BlockPos where this receiver's block exists
 	 * @param receivers Collection of Receiver instances that are providable by the block at the given position,
 	 * but were not part of any graph after a graph update occurs. This usually indicates that the receivers should be
 	 * reset to signal power 0.
 	 */
-	public default void resetUnusedReceivers(LevelAccessor level, BlockPos pos, Collection<Receiver> receivers)
+	public default void resetUnusedReceivers(ResourceKey<Level> levelKey, LevelAccessor level, BlockPos pos, Collection<Receiver> receivers)
 	{
 		for (Receiver receiver : receivers)
 		{

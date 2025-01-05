@@ -8,8 +8,9 @@ import com.mojang.serialization.MapCodec;
 
 import net.commoble.exmachina.internal.util.CodecHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -42,12 +43,13 @@ public interface SignalSource
 	
 	/**
 	 * Describes how much redstone signal power is provided on each channel relevant to this SignalSource for the given context
-	 * @param level Level where the signal graph exists
+	 * @param supplierLevelKey ResourceKey of the level where the supplier exists
+	 * @param supplierLevel BlockGetter where the supplier exists
 	 * @param supplierPos BlockPos of this SignalSource's block
 	 * @param supplierState BlockState of this SignalSource's block
-	 * @param supplierSide Direction internal to this SignalSource's position (e.g. down -> the bottom of the supplierPos)
-	 * @param connectedFace Face (BlockPos + Direction) of the node attempting to connect to this SignalSource
+	 * @param preferredSupplierShape NodeShape which the connecting node can form a compatible connection to
+	 * @param connectingNode Node attempting to connect to this SignalSource (may be in a different dimension than this source)
 	 * @return Map of Channel to LevelReader-> int function which provides signal power in range [0,15] on the given channel(s)
 	 */
-	public abstract Map<Channel, ToIntFunction<LevelReader>> getSupplierEndpoints(BlockGetter level, BlockPos supplierPos, BlockState supplierState, Direction supplierSide, Face connectedFace);
+	public abstract Map<Channel, ToIntFunction<LevelReader>> getSupplierEndpoints(ResourceKey<Level> supplierLevelKey, BlockGetter supplierLevel, BlockPos supplierPos, BlockState supplierState, NodeShape preferredSupplierShape, Node connectingNode);
 }

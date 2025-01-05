@@ -1,7 +1,7 @@
 package net.commoble.exmachina.api.content;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -9,14 +9,15 @@ import com.mojang.serialization.MapCodec;
 
 import net.commoble.exmachina.api.Channel;
 import net.commoble.exmachina.api.ExMachinaRegistries;
-import net.commoble.exmachina.api.Face;
+import net.commoble.exmachina.api.Node;
+import net.commoble.exmachina.api.NodeShape;
 import net.commoble.exmachina.api.Receiver;
 import net.commoble.exmachina.api.SignalReceiver;
 import net.commoble.exmachina.internal.ExMachina;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
@@ -45,13 +46,13 @@ public enum DefaultReceiver implements SignalReceiver
 		return CODEC;
 	}
 	@Override
-	public @Nullable Receiver getReceiverEndpoint(BlockGetter level, BlockPos receiverPos, BlockState receiverState, Direction receiverSide, Face connectedFace, Channel channel)
+	public @Nullable Receiver getReceiverEndpoint(ResourceKey<Level> levelKey, BlockGetter level, BlockPos receiverPos, BlockState receiverState, NodeShape preferredReceiverShape, Node connectedNode, Channel channel)
 	{
 		return null;
 	}
 	@Override
-	public Collection<Receiver> getAllReceivers(BlockGetter level, BlockPos receiverPos, BlockState receiverState, Channel channel)
+	public Map<Receiver, Collection<Node>> getAllReceivers(ResourceKey<Level> levelKey, BlockGetter level, BlockPos receiverPos, BlockState receiverState, Channel channel)
 	{
-		return List.of();
+		return Map.of();
 	}
 }
