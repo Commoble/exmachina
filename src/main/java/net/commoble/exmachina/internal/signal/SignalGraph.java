@@ -1,25 +1,20 @@
 package net.commoble.exmachina.internal.signal;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
 
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
 
 import net.commoble.exmachina.api.Channel;
-import net.commoble.exmachina.api.Node;
-import net.commoble.exmachina.api.NodeShape;
-import net.commoble.exmachina.api.Receiver;
+import net.commoble.exmachina.api.SignalGraphKey;
 import net.commoble.exmachina.api.SignalStrength;
-import net.commoble.exmachina.api.SignalTransmitter;
+import net.commoble.exmachina.api.SignalComponent;
 import net.commoble.exmachina.api.StateWirer;
 import net.commoble.exmachina.api.TransmissionNode;
 import net.commoble.exmachina.internal.ExMachina;
@@ -42,36 +37,35 @@ import net.minecraft.world.level.block.state.BlockState;
  * 
  * @param nodesInGraph TransmissionNodes in this graph
  * @param blocksInGraph Set of BlockPos where signal transmitter nodes exist
- * @param receiverNodes List of Receiver listeners to notify of power updates after the graph update occurs
+ * @param nodesUpdatingSelf Set of BlockPos within the graph which receive neighbor updates after a graph update
  * @param power The highest level of redstone power provided to this graph
  */
 @ApiStatus.Internal
-public record SignalGraph(Map<NodeOnChannel, TransmissionNode> nodesInGraph, Map<ServerLevel, Set<BlockPos>> blocksInGraph, Map<ServerLevel, List<Receiver>> receiverNodes, int power)
+public record SignalGraph(Map<SignalGraphKey, TransmissionNode> nodesInGraph, Map<ServerLevel, Set<BlockPos>> blocksInGraph, Map<ServerLevel, Set<BlockPos>> nodesUpdatingSelf, int power)
 {
 	/**
 	 * Creates a SignalGraph at a given origin context
 	 * @param level ServerLevel where the signal graph is being created
-	 * @param originNodeOnChannel NodePos (blockpos + direction + channel) of the origin node
+	 * @param originKey SignalGraphKey (shape + blockpos + direction + channel) of the origin node
 	 * @param originNode TransmissionNode at the origin nodepos
 	 * @param knownWirers StateWirer lookup cache
-	 * @param unusedReceivers Receiver listeners which were at requested graph update positions but have not been included in any signal graph yet during this graph update
 	 * @return SignalGraph created from the origin context
 	 */
 	@ApiStatus.Internal
-	public static SignalGraph fromOriginNode(ServerLevel level, NodeOnChannel originNodeOnChannel, TransmissionNode originNode, Map<ServerLevel, Map<BlockPos, StateWirer>> knownWirers, Map<ReceiverPos, Map<Receiver, Collection<Node>>> unusedReceivers)
+	public static SignalGraph fromOriginNode(ServerLevel level, SignalGraphKey originKey, TransmissionNode originNode, Map<ServerLevel, Map<BlockPos, StateWirer>> knownWirers)
 	{
 		// build graph
 		MinecraftServer server = level.getServer();
-		Map<NodeOnChannel, TransmissionNode> nodesInGraph = new HashMap<>();
+		Map<SignalGraphKey, TransmissionNode> nodesInGraph = new HashMap<>();
 		Map<ServerLevel, Set<BlockPos>> blocksInGraph = new HashMap<>();
+		Map<ServerLevel, Set<BlockPos>> nodesUpdatingSelf = new HashMap<>();
 		Queue<NodeAtPos> uncheckedNodesInGraph = new LinkedList<>();
-		Map<ServerLevel, List<Receiver>> receiverNodes = new HashMap<>();
 		Function<ServerLevel, Function<BlockPos, StateWirer>> wirerLookup = targetLevel -> targetPos -> knownWirers
 			.computeIfAbsent(targetLevel, key -> new HashMap<>())
 			.computeIfAbsent(targetPos, pos -> StateWirer.getOrDefault(targetLevel, pos));
-		nodesInGraph.put(originNodeOnChannel, originNode);
-		blocksInGraph.computeIfAbsent(level, l -> new HashSet<>()).add(originNodeOnChannel.node().pos());
-		uncheckedNodesInGraph.add(new NodeAtPos(originNodeOnChannel, originNode));
+		nodesInGraph.put(originKey, originNode);
+		blocksInGraph.computeIfAbsent(level, l -> new HashSet<>()).add(originKey.pos());
+		uncheckedNodesInGraph.add(new NodeAtPos(originKey, originNode));
 		int maxSize = ExMachina.COMMON_CONFIG.maxSignalGraphSize().getAsInt();
 		
 		int highestPowerFound = 0;
@@ -79,14 +73,29 @@ public record SignalGraph(Map<NodeOnChannel, TransmissionNode> nodesInGraph, Map
 		// iterate over the list of nodes we have added to the graph
 		// "next" node: in the graph but not processed neighbors yet
 		whileLoop:
-		while (uncheckedNodesInGraph.poll() instanceof NodeAtPos(NodeOnChannel(Node nextFace, Channel nextChannel), TransmissionNode nextTransmissionNode))
+		while (uncheckedNodesInGraph.poll() instanceof NodeAtPos(SignalGraphKey nextFace, TransmissionNode nextTransmissionNode))
 		{
+			ResourceKey<Level> nextLevelKey = nextFace.levelKey();
+			ServerLevel nextLevel = server.getLevel(nextLevelKey);
+			if (nextLevel == null)
+			{
+				continue;
+			}
+			BlockPos nextPos = nextFace.pos();
+			StateWirer wirer = wirerLookup.apply(nextLevel).apply(nextPos);
+			if (wirer.component().updateSelfFromNeighborsAfterGraphUpdate(nextLevel, wirer.state(), nextPos))
+			{
+				nodesUpdatingSelf.computeIfAbsent(nextLevel, $ -> new HashSet<>()).add(nextPos);
+			}
+			
+			Channel nextChannel = nextFace.channel();
+			
 			// process next node's neighbors
 			// "target" node: a node which next node can conceivably connect to, and may form a mutual connection, in which case it should be in the graph
 			for (Channel targetChannel : nextChannel.getConnectableChannels())
 			{
 				// look for target nodes
-				for (Node preferredTargetNode : nextTransmissionNode.connectableNodes())
+				for (SignalGraphKey preferredTargetNode : nextTransmissionNode.connectableNodes())
 				{
 					ResourceKey<Level> targetLevelKey = preferredTargetNode.levelKey();
 					ServerLevel targetLevel = server.getLevel(targetLevelKey);
@@ -95,17 +104,17 @@ public record SignalGraph(Map<NodeOnChannel, TransmissionNode> nodesInGraph, Map
 						continue;
 					}
 					var localWirerLookup = wirerLookup.apply(targetLevel);
+					
 					// get all the transmission nodes from the target and see if any are compatible
 					BlockPos targetPos = preferredTargetNode.pos();
 					StateWirer targetStateWirer = localWirerLookup.apply(targetPos);
 					BlockState targetState = targetStateWirer.state();
-					SignalTransmitter targetTransmitter = targetStateWirer.transmitter();
+					SignalComponent targetTransmitter = targetStateWirer.component();
 					for (TransmissionNode targetTransmissionNode : targetTransmitter.getTransmissionNodes(targetLevelKey, targetLevel, targetPos, targetState, targetChannel))
 					{
-						Node targetNode = new Node(targetLevelKey, targetPos, targetTransmissionNode.shape());
-						NodeOnChannel targetNodeOnChannel = new NodeOnChannel(targetNode, targetChannel);
+						SignalGraphKey targetNode = new SignalGraphKey(targetLevelKey, targetPos, targetTransmissionNode.shape(), targetChannel);
 						// skip target if it's already in the graph
-						if (nodesInGraph.containsKey(targetNodeOnChannel))
+						if (nodesInGraph.containsKey(targetNode))
 							continue;
 						
 						// target node exists and is not currently in the graph; can it connect back?
@@ -115,50 +124,22 @@ public record SignalGraph(Map<NodeOnChannel, TransmissionNode> nodesInGraph, Map
 						// e.g. a preferred sideside is compatible with a targeted cube, but not vice-versa
 						if (targetNode.isValidFor(preferredTargetNode))
 						{
-							for (Node nodePreferredByTarget : targetTransmissionNode.connectableNodes())
+							for (SignalGraphKey nodePreferredByTarget : targetTransmissionNode.connectableNodes())
 							{
 								if (nextFace.isValidFor(nodePreferredByTarget))
 								{
 									// yes! we have a match and can connect
-									nodesInGraph.put(targetNodeOnChannel, targetTransmissionNode);
+									nodesInGraph.put(targetNode, targetTransmissionNode);
 									blocksInGraph.computeIfAbsent(targetLevel, l -> new HashSet<>()).add(targetPos);
-									uncheckedNodesInGraph.add(new NodeAtPos(targetNodeOnChannel, targetTransmissionNode));
+									uncheckedNodesInGraph.add(new NodeAtPos(targetNode, targetTransmissionNode));
+									int targetPower = targetTransmissionNode.source().applyAsInt(targetLevel);
+									if (targetPower > highestPowerFound)
+									{
+										highestPowerFound = targetPower;
+									}
 									if (nodesInGraph.size() >= maxSize)
 										break whileLoop;
 									
-								}
-							}
-						}
-					}
-					
-					// check receiver nodes, we need to remember the listeners
-					NodeShape preferredTargetShape = preferredTargetNode.shape();
-					@Nullable Receiver targetReceiver = targetStateWirer.receiver().getReceiverEndpoint(targetLevelKey, targetLevel, targetPos, targetState, preferredTargetShape, nextFace, targetChannel);
-					if (targetReceiver != null)
-					{
-						receiverNodes.computeIfAbsent(targetLevel, l -> new ArrayList<>()).add(targetReceiver);
-						ReceiverPos receiverPos = new ReceiverPos(targetLevelKey, targetPos, targetChannel, targetStateWirer.receiver());
-						@Nullable Map<Receiver, Collection<Node>> receiversAtPos = unusedReceivers.get(receiverPos);
-						if (receiversAtPos != null)
-						{
-							receiversAtPos.remove(targetReceiver);
-						}
-					}
-					
-					// check supplier nodes too
-					if (highestPowerFound < 15)
-					{
-						powerLoop:
-						for (var channelPower : targetStateWirer.source().getSupplierEndpoints(targetLevelKey, targetLevel, targetPos, targetState, preferredTargetShape, nextFace).entrySet())
-						{
-							if (channelPower.getKey() == targetChannel)
-							{
-								int suppliedPower = channelPower.getValue().applyAsInt(targetLevel);
-								if (suppliedPower > highestPowerFound)
-								{
-									highestPowerFound = suppliedPower;
-									if (highestPowerFound >= 15)
-										break powerLoop;
 								}
 							}
 						}
@@ -188,9 +169,8 @@ public record SignalGraph(Map<NodeOnChannel, TransmissionNode> nodesInGraph, Map
 			powerReaderLoop:
 			for (var entry : nodesInGraph.entrySet())
 			{
-				NodeOnChannel nodeOnChannel = entry.getKey();
+				SignalGraphKey node = entry.getKey();
 				TransmissionNode transmissionNode = entry.getValue();
-				Node node = nodeOnChannel.node();
 				var levelKey = node.levelKey();
 				ServerLevel nodeLevel = server.getLevel(levelKey);
 				if (nodeLevel == null)
@@ -219,17 +199,17 @@ public record SignalGraph(Map<NodeOnChannel, TransmissionNode> nodesInGraph, Map
 			power = highestPowerFound;
 		}
 		
-		return new SignalGraph(nodesInGraph, blocksInGraph, receiverNodes, power);
+		return new SignalGraph(nodesInGraph, blocksInGraph, nodesUpdatingSelf, power);
 	}
 	
 	/**
-	 * {@return whether this graph has a node at the given NodePos}
-	 * @param nodePos NodePos to check whether this graph contains
+	 * {@return whether this graph has a node at the given SignalGraphKey}
+	 * @param key SignalGraphKey to check whether this graph contains they key
 	 */
 	@ApiStatus.Internal
-	public boolean hasTransmissionNode(NodeOnChannel nodePos)
+	public boolean hasKey(SignalGraphKey key)
 	{
-		return nodesInGraph().containsKey(nodePos);
+		return nodesInGraph().containsKey(key);
 	}
 
 	/**
@@ -251,7 +231,7 @@ public record SignalGraph(Map<NodeOnChannel, TransmissionNode> nodesInGraph, Map
 	}
 
 	/**
-	 * Updates all SignalTransmitter and SignalReceiver listeners and determines which positions adjacent to the graph should receive neighbor updates.
+	 * Updates all SignalComponent listeners and determines which positions adjacent to the graph should receive neighbor updates.
 	 * After all listeners in all graphs update, neighbor updates on blocks which are adjacent to but not within any signal graph occur.
 	 * @param server MinecraftServer where this signal graph is
 	 * @return Map of node Faces whose neighbors should be updated, e.g. (pos+west) = the block to the west of pos should receive a neighbor update
@@ -263,8 +243,7 @@ public record SignalGraph(Map<NodeOnChannel, TransmissionNode> nodesInGraph, Map
 		
 		for (var entry : this.nodesInGraph.entrySet())
 		{
-			NodeOnChannel nodeOnChannel = entry.getKey();
-			Node node = nodeOnChannel.node();
+			SignalGraphKey node = entry.getKey();
 			BlockPos nodeBlockPos = node.pos();
 			ResourceKey<Level> levelKey = node.levelKey();
 			ServerLevel serverLevel = server.getLevel(levelKey);
@@ -280,19 +259,10 @@ public record SignalGraph(Map<NodeOnChannel, TransmissionNode> nodesInGraph, Map
 			});
 		}
 		
-		for (var entry : this.receiverNodes.entrySet())
-		{
-			ServerLevel serverLevel = entry.getKey();
-			for (Receiver receiver : entry.getValue())
-			{
-				receiver.accept(serverLevel, this.power);
-			}
-		}
-		
 		return neighborUpdatingNodes;
 	}
 	
-	private static record NodeAtPos(NodeOnChannel pos, TransmissionNode node)
+	private static record NodeAtPos(SignalGraphKey pos, TransmissionNode node)
 	{
 
 	}

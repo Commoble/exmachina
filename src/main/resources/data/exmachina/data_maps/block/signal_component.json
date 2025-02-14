@@ -1,18 +1,22 @@
 {
 	"values": {
 		"#exmachina:wirable/cube": {
-			"type": "exmachina:cube"
+			"type": "exmachina:cube",
+			"receives_power": true
 		},
 		"#exmachina:wirable/floor": {
-			"type": "exmachina:floor"
+			"type": "exmachina:floor",
+			"receives_power": true
 		},
 		"#exmachina:wirable/inverted_wall_floor_ceiling": {
 			"type": "exmachina:wall_floor_ceiling",
-			"invert_horizontal_facing": true
+			"invert_horizontal_facing": true,
+			"receives_power": true
 		},
 		"redstone_wire": {
 			"type": "exmachina:floor",
-			"offset": -1
+			"offset": -1,
+			"receives_power": true
 		}
 	}
 }

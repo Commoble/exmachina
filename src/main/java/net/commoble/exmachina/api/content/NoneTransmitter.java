@@ -7,7 +7,7 @@ import com.mojang.serialization.MapCodec;
 
 import net.commoble.exmachina.api.Channel;
 import net.commoble.exmachina.api.ExMachinaRegistries;
-import net.commoble.exmachina.api.SignalTransmitter;
+import net.commoble.exmachina.api.SignalComponent;
 import net.commoble.exmachina.api.TransmissionNode;
 import net.commoble.exmachina.internal.ExMachina;
 import net.minecraft.core.BlockPos;
@@ -17,34 +17,33 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Default SignalTransmitter used for blocks that have none assigned to them. No-ops.
+ * SignalComponent which provides no power and connects to no graph.
  * 
 <pre>
 {
-	"type": "exmachina:default"
+	"type": "exmachina:none"
 }
 </pre>
  */
-public enum DefaultTransmitter implements SignalTransmitter
+public enum NoneTransmitter implements SignalComponent
 {
-	/** Singleton instance of the DefaultTransmitter */
+	/** Singleton instance of NoneSource */
 	INSTANCE;
+	
+	/** exmachina:signal_transmitter_type / exmachina:none */
+	public static final ResourceKey<MapCodec<? extends SignalComponent>> KEY = ResourceKey.create(ExMachinaRegistries.SIGNAL_COMPONENT_TYPE, ExMachina.id("none"));
+	/** <pre>{"type": "exmachina:none"}</pre> */
+	public static final MapCodec<NoneTransmitter> CODEC = MapCodec.unit(INSTANCE);
 
-	/** exmachina/signal_transmitter_type / exmachina:default */ 
-	public static final ResourceKey<MapCodec<? extends SignalTransmitter>> KEY = ResourceKey.create(ExMachinaRegistries.SIGNAL_TRANSMITTER_TYPE, ExMachina.id("default"));
-	
-	/** <pre>{"type": "exmachina:default"}</pre> */
-	public static final MapCodec<DefaultTransmitter> CODEC = MapCodec.unit(INSTANCE);
-	
 	@Override
-	public MapCodec<? extends SignalTransmitter> codec()
+	public MapCodec<? extends SignalComponent> codec()
 	{
 		return CODEC;
 	}
-	
+
 	@Override
 	public Collection<TransmissionNode> getTransmissionNodes(ResourceKey<Level> levelKey, BlockGetter level, BlockPos pos, BlockState state, Channel channel)
 	{
 		return List.of();
-	}
+	}	
 }

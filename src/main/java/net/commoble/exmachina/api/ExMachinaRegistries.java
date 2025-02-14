@@ -28,22 +28,12 @@ public final class ExMachinaRegistries
 	 * Registry key of the static Registry for DynamicProperty MapCodecs. Dynamic Properties are used for providing dynamic voltage/resistance to the power graph (e.g. from blockentity data)
 	 */
 	public static final ResourceKey<Registry<MapCodec<? extends DynamicProperty>>> DYNAMIC_PROPERTY_TYPE = ResourceKey.createRegistryKey(ExMachina.id("dynamic_property_type"));
-	
+
 	/**
-	 * Registry key of the static Registry for SignalSource MapCodecs. SignalSources are signal graph components assigned to blocks via datamap which can provide power to the signal graph when adjacent to it.
+	 * Registry key of the static Registry for SignalComponent MapCodecs. SignalComponent are signal graph components assigned to blocks via datamap which form the unique internal nodes of the graph.
 	 */
-	public static final ResourceKey<Registry<MapCodec<? extends SignalSource>>> SIGNAL_SOURCE_TYPE = ResourceKey.createRegistryKey(ExMachina.id("signal_source_type"));
-	
-	/**
-	 * Registry key of the static Registry for SignalTransmitter MapCodecs. SignalTransmitters are signal graph components assigned to blocks via datamap which form the unique internal nodes of the graph.
-	 */
-	public static final ResourceKey<Registry<MapCodec<? extends SignalTransmitter>>> SIGNAL_TRANSMITTER_TYPE = ResourceKey.createRegistryKey(ExMachina.id("signal_transmitter_type"));
-	
-	/**
-	 * Registry key of the static Registry for SignalReceiver MapCodecs. SignalReceivers are signal graph components assigned to blocks via datamap which can listen to graph updates in adjacent graphs.
-	 */
-	public static final ResourceKey<Registry<MapCodec<? extends SignalReceiver>>> SIGNAL_RECEIVER_TYPE = ResourceKey.createRegistryKey(ExMachina.id("signal_receiver_type"));
-	
+	public static final ResourceKey<Registry<MapCodec<? extends SignalComponent>>> SIGNAL_COMPONENT_TYPE = ResourceKey.createRegistryKey(ExMachina.id("signal_component_type"));
+
 	// dynamic registries
 	/**
 	 * Registry key of the datapack Registry for CircuitComponents. CircuitComponents form nodes of the power graph and are assigned to blocks which share an id with them.

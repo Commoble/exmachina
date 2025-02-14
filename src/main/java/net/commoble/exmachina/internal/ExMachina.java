@@ -12,24 +12,20 @@ import net.commoble.exmachina.api.ExMachinaDataMaps;
 import net.commoble.exmachina.api.ExMachinaRegistries;
 import net.commoble.exmachina.api.ExMachinaTags;
 import net.commoble.exmachina.api.SignalGraphUpdateGameEvent;
-import net.commoble.exmachina.api.SignalReceiver;
-import net.commoble.exmachina.api.SignalSource;
-import net.commoble.exmachina.api.SignalTransmitter;
+import net.commoble.exmachina.api.SignalComponent;
 import net.commoble.exmachina.api.StaticProperty;
 import net.commoble.exmachina.api.content.AllDirectionsConnector;
 import net.commoble.exmachina.api.content.BlockStateConnector;
 import net.commoble.exmachina.api.content.BlockStateProperty;
 import net.commoble.exmachina.api.content.ConstantProperty;
-import net.commoble.exmachina.api.content.CubeSource;
-import net.commoble.exmachina.api.content.DefaultReceiver;
-import net.commoble.exmachina.api.content.DefaultSource;
-import net.commoble.exmachina.api.content.DefaultTransmitter;
+import net.commoble.exmachina.api.content.CubeSignalComponent;
+import net.commoble.exmachina.api.content.DefaultSignalComponent;
 import net.commoble.exmachina.api.content.DirectionsConnector;
-import net.commoble.exmachina.api.content.FloorSource;
+import net.commoble.exmachina.api.content.FloorSignalComponent;
 import net.commoble.exmachina.api.content.NoneDynamicProperty;
-import net.commoble.exmachina.api.content.NoneSource;
+import net.commoble.exmachina.api.content.NoneTransmitter;
 import net.commoble.exmachina.api.content.UnionConnector;
-import net.commoble.exmachina.api.content.WallFloorCeilingSource;
+import net.commoble.exmachina.api.content.WallFloorCeilingSignalComponent;
 import net.commoble.exmachina.internal.power.ComponentBaker;
 import net.commoble.exmachina.internal.signal.SignalGraphBuffer;
 import net.commoble.exmachina.internal.util.ConfigHelper;
@@ -88,18 +84,14 @@ public class ExMachina
 		var connectors = newRegistry(ExMachinaRegistries.CONNECTOR_TYPE);
 		var staticProperties = newRegistry(ExMachinaRegistries.STATIC_PROPERTY_TYPE);
 		var dynamicProperties = newRegistry(ExMachinaRegistries.DYNAMIC_PROPERTY_TYPE);
-		var sources = newRegistry(ExMachinaRegistries.SIGNAL_SOURCE_TYPE);
-		var transmitters =  newRegistry(ExMachinaRegistries.SIGNAL_TRANSMITTER_TYPE);
-		var receivers =  newRegistry(ExMachinaRegistries.SIGNAL_RECEIVER_TYPE);
+		var transmitters =  newRegistry(ExMachinaRegistries.SIGNAL_COMPONENT_TYPE);
 		var gameEvents = defreg(Registries.GAME_EVENT);
 		
 		BiConsumer<ResourceKey<MapCodec<? extends Connector>>, MapCodec<? extends Connector>> registerConnector = (key,codec) -> connectors.register(key.location().getPath(), () -> codec);
 		BiConsumer<ResourceKey<MapCodec<? extends StaticProperty>>, MapCodec<? extends StaticProperty>> registerStaticProperty = (key,codec) -> staticProperties.register(key.location().getPath(), () -> codec);
 		BiConsumer<ResourceKey<MapCodec<? extends DynamicProperty>>, MapCodec<? extends DynamicProperty>> registerDynamicProperty = (key,codec) -> dynamicProperties.register(key.location().getPath(), () -> codec);
 		
-		BiConsumer<ResourceKey<MapCodec<? extends SignalSource>>, MapCodec<? extends SignalSource>> registerSource = (key,codec) -> sources.register(key.location().getPath(), () -> codec);
-		BiConsumer<ResourceKey<MapCodec<? extends SignalTransmitter>>, MapCodec<? extends SignalTransmitter>> registerTransmitter = (key,codec) -> transmitters.register(key.location().getPath(), () -> codec);
-		BiConsumer<ResourceKey<MapCodec<? extends SignalReceiver>>, MapCodec<? extends SignalReceiver>> registerReceiver = (key,codec) -> receivers.register(key.location().getPath(), () -> codec);
+		BiConsumer<ResourceKey<MapCodec<? extends SignalComponent>>, MapCodec<? extends SignalComponent>> registerTransmitter = (key,codec) -> transmitters.register(key.location().getPath(), () -> codec);
 		
 		registerConnector.accept(AllDirectionsConnector.KEY, AllDirectionsConnector.CODEC);
 		registerConnector.accept(DirectionsConnector.KEY, DirectionsConnector.CODEC);
@@ -108,13 +100,11 @@ public class ExMachina
 		registerStaticProperty.accept(ConstantProperty.KEY, ConstantProperty.CODEC);
 		registerStaticProperty.accept(BlockStateProperty.KEY, BlockStateProperty.CODEC);
 		registerDynamicProperty.accept(NoneDynamicProperty.KEY, NoneDynamicProperty.CODEC);
-		registerSource.accept(NoneSource.KEY, NoneSource.CODEC);
-		registerSource.accept(DefaultSource.KEY, DefaultSource.CODEC);
-		registerSource.accept(CubeSource.KEY, CubeSource.CODEC);
-		registerSource.accept(FloorSource.KEY, FloorSource.CODEC);
-		registerSource.accept(WallFloorCeilingSource.KEY, WallFloorCeilingSource.CODEC);
-		registerTransmitter.accept(DefaultTransmitter.KEY, DefaultTransmitter.CODEC);
-		registerReceiver.accept(DefaultReceiver.KEY, DefaultReceiver.CODEC);
+		registerTransmitter.accept(NoneTransmitter.KEY, NoneTransmitter.CODEC);
+		registerTransmitter.accept(DefaultSignalComponent.KEY, DefaultSignalComponent.CODEC);
+		registerTransmitter.accept(CubeSignalComponent.KEY, CubeSignalComponent.CODEC);
+		registerTransmitter.accept(FloorSignalComponent.KEY, FloorSignalComponent.CODEC);
+		registerTransmitter.accept(WallFloorCeilingSignalComponent.KEY, WallFloorCeilingSignalComponent.CODEC);
 		
 		gameEvents.register(SignalGraphUpdateGameEvent.KEY.location().getPath(), () -> new GameEvent(0));
 		
@@ -137,9 +127,7 @@ public class ExMachina
 	
 	private void onRegisterDataMapTypes(RegisterDataMapTypesEvent event)
 	{
-		event.register(ExMachinaDataMaps.SIGNAL_SOURCE);
 		event.register(ExMachinaDataMaps.SIGNAL_TRANSMITTER);
-		event.register(ExMachinaDataMaps.SIGNAL_RECEIVER);
 	}
 	
 	private void onServerStarting(ServerStartingEvent event)

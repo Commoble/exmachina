@@ -1,17 +1,19 @@
 package net.commoble.exmachina.api.content;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-import java.util.function.ToIntFunction;
-
-import org.jetbrains.annotations.Nullable;
+import java.util.Set;
 
 import com.mojang.serialization.MapCodec;
 
 import net.commoble.exmachina.api.Channel;
 import net.commoble.exmachina.api.ExMachinaRegistries;
-import net.commoble.exmachina.api.Node;
 import net.commoble.exmachina.api.NodeShape;
-import net.commoble.exmachina.api.SignalSource;
+import net.commoble.exmachina.api.SignalGraphKey;
+import net.commoble.exmachina.api.SignalComponent;
+import net.commoble.exmachina.api.TransmissionNode;
 import net.commoble.exmachina.internal.ExMachina;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,7 +29,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.extensions.IBlockStateExtension;
 
 /**
- * Default SignalSource used for blocks that have no source assigned to them.
+ * Default SignalComponent used for blocks that have no source assigned to them.
  * Permits a given Face in the block to connect to a graph if: if the block's support shape touches the outer side of the blockpos cube
  * <ul>
  * <li>{@link IBlockStateExtension#canRedstoneConnectTo} is true for this block</li>
@@ -62,16 +64,16 @@ import net.neoforged.neoforge.common.extensions.IBlockStateExtension;
 }
 </pre>
  */
-public enum DefaultSource implements SignalSource
+public enum DefaultSignalComponent implements SignalComponent
 {
 	/** Singleton instance of DefaultSource */
 	INSTANCE;
 	
 	/** exmachina:signal_source_type / exmachina:default */
-	public static final ResourceKey<MapCodec<? extends SignalSource>> KEY = ResourceKey.create(ExMachinaRegistries.SIGNAL_SOURCE_TYPE, ExMachina.id("default"));
+	public static final ResourceKey<MapCodec<? extends SignalComponent>> KEY = ResourceKey.create(ExMachinaRegistries.SIGNAL_COMPONENT_TYPE, ExMachina.id("default"));
 	
 	/** <pre>{"type": "exmachina:default"}</pre> */
-	public static final MapCodec<DefaultSource> CODEC = MapCodec.unit(INSTANCE);
+	public static final MapCodec<DefaultSignalComponent> CODEC = MapCodec.unit(INSTANCE);
 
 
 	/**
@@ -101,47 +103,53 @@ public enum DefaultSource implements SignalSource
 	private static final VoxelShape[] SMALL_NODE_SHAPES = makeNodeShapes(1,2);
 
 	@Override
-	public MapCodec<? extends SignalSource> codec()
+	public MapCodec<? extends SignalComponent> codec()
 	{
 		return CODEC;
-	}
+	}	
 
 	@Override
-	public Map<Channel, ToIntFunction<LevelReader>> getSupplierEndpoints(ResourceKey<Level> supplierLevelKey, BlockGetter supplierLevel, BlockPos supplierPos,
-		BlockState supplierState, NodeShape preferredSupplierShape, Node connectingNode)
+	public Collection<TransmissionNode> getTransmissionNodes(ResourceKey<Level> levelKey, BlockGetter level, BlockPos pos, BlockState state, Channel channel)
 	{
-		// we allow wires to connect to vanilla power emitters by default if the block is redstone-connectable and has a connectable voxelshape
-		BlockPos wirePos = connectingNode.pos();
-		BlockPos offsetFromNeighbor = supplierPos.subtract(wirePos);
-		@Nullable Direction directionFromNeighbor = Direction.getNearest(offsetFromNeighbor, null); 
-		if (!supplierState.canRedstoneConnectTo(supplierLevel, wirePos, directionFromNeighbor))
-			return Map.of();
-		Direction directionToWire = directionFromNeighbor.getOpposite();
-		boolean canNodeConnectToSupplier = switch(connectingNode.shape())
+		List<TransmissionNode> nodes = new ArrayList<>();
+		if (channel != Channel.redstone())
+			return nodes;
+		
+		for (Direction directionToNeighbor : Direction.values())
 		{
-			case NodeShape.Cube cube -> true;
-			case NodeShape.Side side -> {
-				VoxelShape wireTestShape = SMALL_NODE_SHAPES[side.directionToNeighbor().ordinal()];
-				VoxelShape neighborShape = supplierState.getBlockSupportShape(supplierLevel, supplierPos);
-				VoxelShape projectedNeighborShape = neighborShape.getFaceShape(directionToWire);
-				yield Shapes.joinIsNotEmpty(projectedNeighborShape, wireTestShape, BooleanOp.ONLY_SECOND);
+			Direction directionFromNeighbor = directionToNeighbor.getOpposite();
+			if (!state.canRedstoneConnectTo(level, pos, directionFromNeighbor))
+				continue;
+			BlockPos neighborPos = pos.relative(directionToNeighbor);
+			for (Direction faceSide : Direction.values())
+			{
+				if (faceSide == directionToNeighbor || faceSide == directionFromNeighbor)
+					continue;
+
+				VoxelShape wireTestShape = SMALL_NODE_SHAPES[faceSide.ordinal()];
+				VoxelShape transmitterShape = state.getBlockSupportShape(level, pos);
+				VoxelShape projectedShape = transmitterShape.getFaceShape(directionToNeighbor);
+				boolean canConnect = Shapes.joinIsNotEmpty(projectedShape, wireTestShape, BooleanOp.ONLY_SECOND);
+				if (canConnect)
+				{
+					nodes.add(new TransmissionNode(
+						NodeShape.ofSideSide(faceSide, directionToNeighbor),
+						reader -> reader.getSignal(pos, directionFromNeighbor),
+						Set.of(),
+						Set.of(new SignalGraphKey(levelKey, neighborPos, NodeShape.ofSideSide(faceSide, directionFromNeighbor), Channel.redstone())),
+						(levelAccess, power) -> Map.of()
+					));
+				}
 			}
-			case NodeShape.SideSide sideSide -> {
-				if (sideSide.secondaryDirection() != directionFromNeighbor)
-					yield false;
-				VoxelShape wireTestShape = SMALL_NODE_SHAPES[sideSide.directionToNeighbor().ordinal()];
-				VoxelShape neighborShape = supplierState.getBlockSupportShape(supplierLevel, supplierPos);
-				VoxelShape projectedNeighborShape = neighborShape.getFaceShape(directionToWire);
-				yield Shapes.joinIsNotEmpty(projectedNeighborShape, wireTestShape, BooleanOp.ONLY_SECOND);
-			}
-		};
-		// if the projected neighbor shape entirely overlaps the line shape,
-		// then the neighbor shape can be connected to by the wire
-		// we can test this by doing an ONLY_SECOND comparison on the shapes
-		// if this returns true, then there are places where the second shape is not overlapped by the first
-		// so if this returns false, then we can proceed
-		return canNodeConnectToSupplier
-			? Map.of()
-			: Map.of(Channel.redstone(), reader -> reader.getSignal(supplierPos, directionFromNeighbor));
+		}
+		
+		return nodes;
 	}
+
+	// needed because this can include delayed output blocks such as repeaters
+	@Override
+	public boolean updateSelfFromNeighborsAfterGraphUpdate(LevelReader level, BlockState state, BlockPos pos)
+	{
+		return true;
+	}	
 }

@@ -1,3 +1,13 @@
+# 1.21.3-0.7.0.0
+* Combined SignalSource/Transmitter/Receiver into a single SignalComponent class
+* SignalComponents now must provide a collection of TransmissionNodes for a given context, which provide
+  * A NodeShape, which must be unique for the level+pos+channel in context (multiple TransmissionNodes with different NodeShapes can exist for that context)
+  * A function which provides power to the graph on the given channel (can provide 0 if no power provided)
+  * A set of directions to read vanilla power from
+  * A set of graph keys the node is allowed to connect to
+  * A listener callback which can perform internal side-effects of graph updates and provide a list of directions to update neighbors in
+* A SignalComponent can also declare whether the associated block can receive neighbor updates from a graph update (defaults to false)
+
 # 1.21.3-0.6.0.1
 * Enqueuing a position to the signal graph now automatically enqueues its six neighbors as well (to ensure receivers are shut off correctly)
 

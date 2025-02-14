@@ -2,9 +2,7 @@ package net.commoble.exmachina.api;
 
 import java.util.Objects;
 
-import net.commoble.exmachina.api.content.DefaultReceiver;
-import net.commoble.exmachina.api.content.DefaultSource;
-import net.commoble.exmachina.api.content.DefaultTransmitter;
+import net.commoble.exmachina.api.content.DefaultSignalComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.BlockGetter;
@@ -12,13 +10,11 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Signal Source+Transmitter+Receiver bound together from a given position
+ * SignalComponent bound with its providing BlockState at some position
  * @param state BlockState associated with the signal components
- * @param source SignalSource of the blockstate
- * @param transmitter SignalTransmitter of the blockstate
- * @param receiver SignalReceiver of the blockstate
+ * @param component SignalComponent of the blockstate
  */
-public record StateWirer(BlockState state, SignalSource source, SignalTransmitter transmitter, SignalReceiver receiver)
+public record StateWirer(BlockState state, SignalComponent component)
 {
 	/**
 	 * {@return StateWirer using default wiring components if the given block has none assigned}
@@ -29,16 +25,10 @@ public record StateWirer(BlockState state, SignalSource source, SignalTransmitte
 	public static StateWirer getOrDefault(BlockGetter blockGetter, BlockPos pos)
 	{
 		BlockState state = blockGetter.getBlockState(pos);
-		SignalSource source = Objects.requireNonNullElse(
-			BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_SOURCE, state.getBlock().builtInRegistryHolder().getKey()),
-			DefaultSource.INSTANCE);
-		SignalTransmitter transmitter = Objects.requireNonNullElse(
+		SignalComponent transmitter = Objects.requireNonNullElse(
 			BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_TRANSMITTER, state.getBlock().builtInRegistryHolder().getKey()),
-			DefaultTransmitter.INSTANCE);
-		SignalReceiver receiver = Objects.requireNonNullElse(
-			BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_RECEIVER, state.getBlock().builtInRegistryHolder().getKey()),
-			DefaultReceiver.INSTANCE);
-		return new StateWirer(state, source, transmitter, receiver);
+			DefaultSignalComponent.INSTANCE);
+		return new StateWirer(state, transmitter);
 	}
 	
 	/**
