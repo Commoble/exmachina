@@ -106,7 +106,7 @@ public final class SignalGraphBuffer extends SavedData
 				BlockState originState = originLevel.getBlockState(originPos);
 				Block originBlock = originState.getBlock();
 				@SuppressWarnings("deprecation")
-				SignalComponent originTransmitter = BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_TRANSMITTER, originBlock.builtInRegistryHolder().key());
+				SignalComponent originTransmitter = BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_COMPONENT, originBlock.builtInRegistryHolder().key());
 				if (originTransmitter != null)
 				{
 					for (Channel channel : Channel.ALL)

@@ -127,7 +127,7 @@ public class ExMachina
 	
 	private void onRegisterDataMapTypes(RegisterDataMapTypesEvent event)
 	{
-		event.register(ExMachinaDataMaps.SIGNAL_TRANSMITTER);
+		event.register(ExMachinaDataMaps.SIGNAL_COMPONENT);
 	}
 	
 	private void onServerStarting(ServerStartingEvent event)

@@ -12,8 +12,8 @@ public final class ExMachinaDataMaps
 {
 	private ExMachinaDataMaps() {}
 	/**
-	 * DataMapType for the exmachina:signal_transmitter block data map used by the signal graph
+	 * DataMapType for the exmachina:signal_component block data map used by the signal graph
 	 */
-	public static final DataMapType<Block, SignalComponent> SIGNAL_TRANSMITTER = DataMapType.builder(ExMachina.id("signal_transmitter"), Registries.BLOCK, SignalComponent.CODEC).build();
+	public static final DataMapType<Block, SignalComponent> SIGNAL_COMPONENT = DataMapType.builder(ExMachina.id("signal_component"), Registries.BLOCK, SignalComponent.CODEC).build();
 
 }

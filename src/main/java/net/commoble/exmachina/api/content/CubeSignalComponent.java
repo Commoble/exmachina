@@ -37,7 +37,7 @@ import net.minecraft.world.level.block.state.BlockState;
  */
 public record CubeSignalComponent(boolean receivesPower) implements SignalComponent
 {	
-	/** exmachina:signal_transmitter_type / exmachina:cube */
+	/** exmachina:signal_component_type / exmachina:cube */
 	public static final ResourceKey<MapCodec<? extends SignalComponent>> KEY = ResourceKey.create(ExMachinaRegistries.SIGNAL_COMPONENT_TYPE, ExMachina.id("cube"));
 	
 	/**

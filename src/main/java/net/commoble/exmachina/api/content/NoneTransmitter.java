@@ -30,7 +30,7 @@ public enum NoneTransmitter implements SignalComponent
 	/** Singleton instance of NoneSource */
 	INSTANCE;
 	
-	/** exmachina:signal_transmitter_type / exmachina:none */
+	/** exmachina:signal_component_type / exmachina:none */
 	public static final ResourceKey<MapCodec<? extends SignalComponent>> KEY = ResourceKey.create(ExMachinaRegistries.SIGNAL_COMPONENT_TYPE, ExMachina.id("none"));
 	/** <pre>{"type": "exmachina:none"}</pre> */
 	public static final MapCodec<NoneTransmitter> CODEC = MapCodec.unit(INSTANCE);
