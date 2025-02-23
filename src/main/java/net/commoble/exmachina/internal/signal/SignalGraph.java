@@ -68,7 +68,7 @@ public record SignalGraph(Map<SignalGraphKey, TransmissionNode> nodesInGraph, Ma
 		uncheckedNodesInGraph.add(new NodeAtPos(originKey, originNode));
 		int maxSize = ExMachina.COMMON_CONFIG.maxSignalGraphSize().getAsInt();
 		
-		int highestPowerFound = 0;
+		int highestPowerFound = originNode.source().applyAsInt(level);
 		
 		// iterate over the list of nodes we have added to the graph
 		// "next" node: in the graph but not processed neighbors yet

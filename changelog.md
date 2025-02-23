@@ -1,3 +1,6 @@
+# 1.21.3-0.8.0.2
+* Fix origin nodes' source power being ignored in signal graphs
+
 # 1.21.3-0.8.0.1
 * Fix default signal component providing the set of nodes that shouldn't connect instead of the set of nodes that should
 
