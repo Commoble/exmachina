@@ -129,7 +129,7 @@ public enum DefaultSignalComponent implements SignalComponent
 				VoxelShape wireTestShape = SMALL_NODE_SHAPES[faceSide.ordinal()];
 				VoxelShape transmitterShape = state.getBlockSupportShape(level, pos);
 				VoxelShape projectedShape = transmitterShape.getFaceShape(directionToNeighbor);
-				boolean canConnect = Shapes.joinIsNotEmpty(projectedShape, wireTestShape, BooleanOp.ONLY_SECOND);
+				boolean canConnect = !Shapes.joinIsNotEmpty(projectedShape, wireTestShape, BooleanOp.ONLY_SECOND);
 				if (canConnect)
 				{
 					nodes.add(new TransmissionNode(
