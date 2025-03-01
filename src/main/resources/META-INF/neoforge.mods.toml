@@ -38,6 +38,6 @@ Ex Machina is a power API that uses JSON data to assign power properties to bloc
 [[dependencies.exmachina]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.21.3, 1.22)"
+    versionRange="[1.21.4, 1.22)"
     ordering="NONE"
     side="BOTH"

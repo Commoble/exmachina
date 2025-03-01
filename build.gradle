@@ -43,8 +43,8 @@ runs {
         modSources.add project.sourceSets.gametest
     }
 
-    data {
-        programArguments.addAll '--mod', "exmachina", '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+    clientData {
+        arguments.addAll '--mod', "exmachina", '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
         modSources.add project.sourceSets.datagen
     }
 }
