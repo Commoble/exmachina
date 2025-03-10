@@ -11,12 +11,14 @@ import net.minecraft.world.level.gameevent.GameEvent;
  * The signal graph update event is used to inform the signal grapher that a graph update should occur.
  * Only the position of this game event is used, blockstate/entity are ignored and should be assumed to be null.
  */
-public final class SignalGraphUpdateGameEvent
+public final class ExMachinaGameEvents
 {
-	private SignalGraphUpdateGameEvent() {}
+	private ExMachinaGameEvents() {}
 	
 	/** minecraft:game_event / exmachina:signal_graph_update */
-	public static final ResourceKey<GameEvent> KEY = ResourceKey.create(Registries.GAME_EVENT, ExMachina.id("signal_graph_update"));
+	public static final ResourceKey<GameEvent> SIGNAL_GRAPH_UPDATE_KEY = ResourceKey.create(Registries.GAME_EVENT, ExMachina.id("signal_graph_update"));
+	/** minecraft:game_event / exmachina:mechanical_graph_update */
+	public static final ResourceKey<GameEvent> MECHANICAL_GRAPH_UPDATE_KEY = ResourceKey.create(Registries.GAME_EVENT, ExMachina.id("mechanical_graph_update"));
 
 	/**
 	 * Schedules a graph update to occur. Graph updates will occur at the end of the tick.
@@ -27,6 +29,11 @@ public final class SignalGraphUpdateGameEvent
 	 */
 	public static void scheduleSignalGraphUpdate(LevelAccessor level, BlockPos pos)
 	{
-		level.gameEvent(KEY, pos, GameEvent.Context.of(null, null));
+		level.gameEvent(SIGNAL_GRAPH_UPDATE_KEY, pos, GameEvent.Context.of(null, null));
+	}
+	
+	public static void scheduleMechanicalGraphUpdate(LevelAccessor level, BlockPos pos)
+	{
+		level.gameEvent(MECHANICAL_GRAPH_UPDATE_KEY, pos, GameEvent.Context.of(null, null));
 	}
 }

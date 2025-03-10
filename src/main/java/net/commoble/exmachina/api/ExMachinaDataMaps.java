@@ -16,4 +16,9 @@ public final class ExMachinaDataMaps
 	 */
 	public static final DataMapType<Block, SignalComponent> SIGNAL_COMPONENT = DataMapType.builder(ExMachina.id("signal_component"), Registries.BLOCK, SignalComponent.CODEC).build();
 
+	/**
+	 * DataMapType for the exmachina:mechanical_component block data map used by the mechanical graph
+	 */
+	public static final DataMapType<Block, MechanicalComponent> MECHANICAL_COMPONENT = DataMapType.builder(ExMachina.id("mechanical_component"), Registries.BLOCK, MechanicalComponent.CODEC).build();
+
 }

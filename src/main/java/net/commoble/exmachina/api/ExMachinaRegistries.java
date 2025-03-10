@@ -33,6 +33,11 @@ public final class ExMachinaRegistries
 	 * Registry key of the static Registry for SignalComponent MapCodecs. SignalComponent are signal graph components assigned to blocks via datamap which form the unique internal nodes of the graph.
 	 */
 	public static final ResourceKey<Registry<MapCodec<? extends SignalComponent>>> SIGNAL_COMPONENT_TYPE = ResourceKey.createRegistryKey(ExMachina.id("signal_component_type"));
+	
+	/**
+	 * Registry key of the static registry for MechanicalComponent MapCodecs. MechanicalComponents are mechanical graph components assigned to blocks via datamap which form the unique internal nodes of the graph.
+	 */
+	public static final ResourceKey<Registry<MapCodec<? extends MechanicalComponent>>> MECHANICAL_COMPONENT_TYPE = ResourceKey.createRegistryKey(ExMachina.id("mechanical_component_type"));
 
 	// dynamic registries
 	/**

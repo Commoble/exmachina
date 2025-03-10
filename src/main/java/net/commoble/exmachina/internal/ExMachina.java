@@ -11,7 +11,7 @@ import net.commoble.exmachina.api.DynamicProperty;
 import net.commoble.exmachina.api.ExMachinaDataMaps;
 import net.commoble.exmachina.api.ExMachinaRegistries;
 import net.commoble.exmachina.api.ExMachinaTags;
-import net.commoble.exmachina.api.SignalGraphUpdateGameEvent;
+import net.commoble.exmachina.api.ExMachinaGameEvents;
 import net.commoble.exmachina.api.SignalComponent;
 import net.commoble.exmachina.api.StaticProperty;
 import net.commoble.exmachina.api.content.AllDirectionsConnector;
@@ -26,6 +26,7 @@ import net.commoble.exmachina.api.content.NoneDynamicProperty;
 import net.commoble.exmachina.api.content.NoneTransmitter;
 import net.commoble.exmachina.api.content.UnionConnector;
 import net.commoble.exmachina.api.content.WallFloorCeilingSignalComponent;
+import net.commoble.exmachina.internal.mechanical.MechanicalGraphBuffer;
 import net.commoble.exmachina.internal.power.ComponentBaker;
 import net.commoble.exmachina.internal.signal.SignalGraphBuffer;
 import net.commoble.exmachina.internal.util.ConfigHelper;
@@ -34,6 +35,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
@@ -59,7 +61,7 @@ import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
  * <li>{@link ExMachinaRegistries}, which has registry keys for Ex Machina's registries</li>
  * <li>{@link ExMachinaTags}, which has Ex Machina's tag keys</li>
  * <li>{@link ExMachinaDataMaps}, which has Ex Machina's data map types</li>
- * <li>{@link SignalGraphUpdateGameEvent#scheduleSignalGraphUpdate} to invoke a signal graph update</li>
+ * <li>{@link ExMachinaGameEvents#scheduleSignalGraphUpdate} to invoke a signal graph update</li>
  * <li>The net.commoble.exmachina.api package, which has api interfaces and records
  * <li>The net.commoble.exmachina.api.content package, which has the classes of Ex Machina's registered objects and their resource keys</li>
  * </ul>
@@ -106,7 +108,7 @@ public class ExMachina
 		registerTransmitter.accept(FloorSignalComponent.KEY, FloorSignalComponent.CODEC);
 		registerTransmitter.accept(WallFloorCeilingSignalComponent.KEY, WallFloorCeilingSignalComponent.CODEC);
 		
-		gameEvents.register(SignalGraphUpdateGameEvent.KEY.location().getPath(), () -> new GameEvent(0));
+		gameEvents.register(ExMachinaGameEvents.SIGNAL_GRAPH_UPDATE_KEY.location().getPath(), () -> new GameEvent(0));
 		
 		// subscribe the rest of the mod event listeners
 		modBus.addListener(this::onRegisterDataPackRegistries);
@@ -128,6 +130,7 @@ public class ExMachina
 	private void onRegisterDataMapTypes(RegisterDataMapTypesEvent event)
 	{
 		event.register(ExMachinaDataMaps.SIGNAL_COMPONENT);
+		event.register(ExMachinaDataMaps.MECHANICAL_COMPONENT);
 	}
 	
 	private void onServerStarting(ServerStartingEvent event)
@@ -160,15 +163,25 @@ public class ExMachina
 		// if the blockstate changed, the event's given state is the new blockstate
 		LevelAccessor level = event.getLevel();
 		
-		if (level instanceof ServerLevel serverLevel && event.getVanillaEvent().is(SignalGraphUpdateGameEvent.KEY))
+		if (level instanceof ServerLevel serverLevel)
 		{
-			SignalGraphBuffer.get(serverLevel.getServer()).enqueue(serverLevel.dimension(), BlockPos.containing(event.getEventPosition()));
+			var holder = event.getVanillaEvent();
+			if (holder.is(ExMachinaGameEvents.SIGNAL_GRAPH_UPDATE_KEY))
+			{
+				SignalGraphBuffer.get(serverLevel.getServer()).enqueue(serverLevel.dimension(), BlockPos.containing(event.getEventPosition()));				
+			}
+			else if (holder.is(ExMachinaGameEvents.MECHANICAL_GRAPH_UPDATE_KEY))
+			{
+				MechanicalGraphBuffer.get(serverLevel.getServer()).enqueue(serverLevel.dimension(), BlockPos.containing(event.getEventPosition()));
+			}
 		}
 	}
 	
 	private void onEndOfServerTickEvent(ServerTickEvent.Post event)
 	{
-		SignalGraphBuffer.get(event.getServer()).tick(event.getServer());
+		MinecraftServer server = event.getServer();
+		MechanicalGraphBuffer.get(server).tick(server);
+		SignalGraphBuffer.get(server).tick(server);
 	}
 	
 	/**

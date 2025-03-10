@@ -21,12 +21,11 @@ public record StateWirer(BlockState state, SignalComponent component)
 	 * @param blockGetter BlockGetter where a signal graph is
 	 * @param pos BlockPos to get the wiring components from
 	 */
-	@SuppressWarnings("deprecation")
 	public static StateWirer getOrDefault(BlockGetter blockGetter, BlockPos pos)
 	{
 		BlockState state = blockGetter.getBlockState(pos);
 		SignalComponent transmitter = Objects.requireNonNullElse(
-			BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_COMPONENT, state.getBlock().builtInRegistryHolder().getKey()),
+			BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_COMPONENT, state.getBlockHolder().getKey()),
 			DefaultSignalComponent.INSTANCE);
 		return new StateWirer(state, transmitter);
 	}

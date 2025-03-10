@@ -3,6 +3,7 @@ package net.commoble.exmachina.internal.signal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -57,7 +58,7 @@ public record SignalGraph(Map<SignalGraphKey, TransmissionNode> nodesInGraph, Ma
 		// build graph
 		MinecraftServer server = level.getServer();
 		Map<SignalGraphKey, TransmissionNode> nodesInGraph = new HashMap<>();
-		Map<ServerLevel, Set<BlockPos>> blocksInGraph = new HashMap<>();
+		Map<ServerLevel, Set<BlockPos>> blocksInGraph = new IdentityHashMap<>();
 		Map<ServerLevel, Set<BlockPos>> nodesUpdatingSelf = new HashMap<>();
 		Queue<NodeAtPos> uncheckedNodesInGraph = new LinkedList<>();
 		Function<ServerLevel, Function<BlockPos, StateWirer>> wirerLookup = targetLevel -> targetPos -> knownWirers

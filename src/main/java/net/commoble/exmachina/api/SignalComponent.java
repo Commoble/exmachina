@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
  * <li>Can connect to further graph nodes</li>
  * <li>Can be notified of signal power updates</li>
  * <li>Can read redstone power from non-graph blocks adjacent to the graph</li>
- * <li>Exists at a unique node (BlockPos + Direction + NodeShape + Channel) in any graph</li>
+ * <li>Exists at a unique node (level + BlockPos + NodeShape + Channel) in any graph</li>
  * </ul>
  * 
  * <p>SignalComponents can be assigned to blocks via the exmachina:signal_component block datamap:</p>

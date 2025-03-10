@@ -3,7 +3,7 @@ package net.commoble.exmachina.api;
 import net.minecraft.core.Direction;
 
 /**
- * Representation of the volume or connectibility of a signal graph node
+ * Representation of the volume or connectibility of a graph node
  */
 public sealed interface NodeShape permits NodeShape.Cube, NodeShape.Side, NodeShape.SideSide
 {
