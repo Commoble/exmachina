@@ -84,6 +84,11 @@ public sealed interface NodeShape permits NodeShape.Cube, NodeShape.Side, NodeSh
 		/** the Cube */
 		CUBE;
 		
+		/**
+		 * <pre>
+		 * "shape": "cube"
+		 * </pre>
+		 */
 		public static final Codec<Cube> CODEC = Codec.STRING.comapFlatMap(
 			s -> s.equals("cube") ? DataResult.success(CUBE) : DataResult.error(() -> "string shape must be \"cube\" or a direction such as \"north\""),
 			cube -> "cube");
@@ -101,6 +106,11 @@ public sealed interface NodeShape permits NodeShape.Cube, NodeShape.Side, NodeSh
 	 */
 	public static record Side(Direction face) implements NodeShape
 	{
+		/**
+		 * <pre>
+		 * "shape": "north"
+		 * </pre>
+		 */
 		public static final Codec<Side> CODEC = Direction.CODEC.xmap(Side::new, Side::face);
 
 		@Override
@@ -123,6 +133,11 @@ public sealed interface NodeShape permits NodeShape.Cube, NodeShape.Side, NodeSh
 	 */
 	public static record SideSide(Direction face, Direction side) implements NodeShape
 	{
+		/**
+		 * <pre>
+		 * "shape": {"face": "north", "side": "up"}
+		 * </pre>
+		 */
 		public static final Codec<SideSide> CODEC = RecordCodecBuilder.create(builder -> builder.group(
 					Direction.CODEC.fieldOf("face").forGetter(SideSide::face),
 					Direction.CODEC.fieldOf("side").forGetter(SideSide::side)

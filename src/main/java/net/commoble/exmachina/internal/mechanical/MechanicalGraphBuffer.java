@@ -25,6 +25,10 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 
+/**
+ * Buffer in which mechanical graph updates in serverlevels are enqueued.
+ * All enqueued updates run at the end of each server tick. 
+ */
 public final class MechanicalGraphBuffer extends SavedData
 {
 	private static final String ID = "exmachina/mechanicalgraphbuffer";

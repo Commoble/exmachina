@@ -291,6 +291,10 @@ public record MechanicalGraph(Map<GearGroup,Map<LevelAccessor,List<KeyedNode>>> 
 		double gearDivisor,
 		double squareDivisor)
 	{
+		/**
+		 * {@return GearRatio using the given fraction}
+		 * @param ratio Fraction of teeth counts
+		 */
 		public static GearRatio of(Fraction ratio)
 		{
 			double gearMultiplier = ratio.doubleValue();

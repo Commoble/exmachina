@@ -41,7 +41,7 @@ import net.minecraft.world.level.block.state.properties.Property;
  * 
  * @param save If true, mechanical updates will be stored in a {@link MechanicalNodeStates} data attachment. Defaults false.
  * Automatic syncing is currently not supported, but blockentities which wish to manually sync this can invoke {@link Level#sendBlockUpdated} from {@link BlockEntity#setChanged()}.
- * @param cases List of ApplyWhen cases
+ * @param multipart List of ApplyWhen cases
  */
 public record MultipartMechanicalComponent(boolean save, List<ApplyWhen> multipart) implements MechanicalComponent
 {
@@ -122,6 +122,7 @@ public record MultipartMechanicalComponent(boolean save, List<ApplyWhen> multipa
 	}
 	/**
 	 * Datagen helper; Creates and returns a MultipartMechanicalComponent for whom cases can be defined.
+	 * @param save If true, mechanical updates will be stored in a {@link MechanicalNodeStates} data attachment. Defaults false.
 	 * @return a mutable MultipartMechanicalComponent
 	 */
 	public static MultipartMechanicalComponent builder(boolean save)

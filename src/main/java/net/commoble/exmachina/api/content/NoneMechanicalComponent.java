@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.Block;
  */
 public enum NoneMechanicalComponent implements MechanicalComponent
 {
+	/** the instance **/
 	INSTANCE;
 	
 	/** exmachina:mechanical_component_type / exmachina:none */

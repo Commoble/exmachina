@@ -25,6 +25,7 @@ public final class CodecHelper
 {
 	private CodecHelper() {}
 	
+	/** StreamCodec for BlockStates **/
 	public static final StreamCodec<ByteBuf, BlockState> BLOCKSTATE_STREAM_CODEC = ByteBufCodecs.idMapper(Block.BLOCK_STATE_REGISTRY);
 	
 	/**
@@ -46,13 +47,13 @@ public final class CodecHelper
 	}
 	
 	/**
-	 * Creates a codec which encodes a Map as a list of pairs, averting unboundedMap's requirement that key codecs are string-serializable
+	 * Creates a codec which encodes a Map as a list of pairs, averting unboundedMap's requirement that key codecs are string-serializable.
+	 * Maps/lists created are mutable.
 	 * @param <K> Type of the map keys
 	 * @param <V> Type of the map values
 	 * @param keyCodec Key serializer
 	 * @param valueCodec Value serializer
 	 * @return Codec which encodes a Map as a list of pairs
-	 * @implNote Maps/Lists created are mutable.
 	 */
 	public static <K,V> Codec<Map<K,V>> pairListMap(Codec<K> keyCodec, Codec<V> valueCodec)
 	{

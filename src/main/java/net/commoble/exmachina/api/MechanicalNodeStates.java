@@ -15,8 +15,10 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
  * Data attachment intended to be used for blockentities which use the exmachina:blockstate mechanical component or similar components
  * which automatically save mechanical state into arbitrary blockentities instead of having the blockentity implement saving manually.
  */
-public class MechanicalNodeStates
+public final class MechanicalNodeStates
 {
+	private MechanicalNodeStates(){}
+	
 	/** neoforge:attachment_type / exmachina:mechanical_node_states **/
 	public static final ResourceKey<AttachmentType<?>> KEY = ResourceKey.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, ExMachina.id("mechanical_node_states"));
 	/** Holder for mechanical node states **/

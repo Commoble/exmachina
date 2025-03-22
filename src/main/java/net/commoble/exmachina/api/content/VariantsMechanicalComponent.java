@@ -97,6 +97,7 @@ public record VariantsMechanicalComponent(
 	
 	/**
 	 * Datagen helper to add a variant matching a single property's value
+	 * @param <T> Type of the blockstate property's values, e.g. Direction
 	 * @param property Property of this block's blockstates, e.g. BlockStateProperties.FACING
 	 * @param value A value of that property, e.g. Direction.NORTH
 	 * @param rawNodes RawNodes to assign to blockstates having that property value (can be none to assign no nodes)
@@ -110,17 +111,17 @@ public record VariantsMechanicalComponent(
 	/**
 	 * Datagen helper to add a variant matching multiple properties' values
 	 * @param builderConsumer Consumer of the form
-	 * {@snippet:
+	 * <pre>
 	 * builder -> builder
 	 * 	.add(BlockStateProperties.DIRECTION, Direction.NORTH)
 	 * 	.add(BlockStateProperties.LIT, true)	 
-	 * }
+	 * </pre>
 	 * @param rawNodes zero or more RawNodes to assign to states having all property values specified by the variant
 	 * @return this
 	 */
 	public VariantsMechanicalComponent addMultiPropertyVariant(Consumer<VariantBuilder> builderConsumer, RawNode... rawNodes)
 	{
-		VariantBuilder variantBuilder = new VariantBuilder(new ArrayList<>());
+		VariantBuilder variantBuilder = new VariantBuilder();
 		builderConsumer.accept(variantBuilder);
 		this.addVariant(variantBuilder.propertyValues, rawNodes);
 		return this;
@@ -237,13 +238,19 @@ public record VariantsMechanicalComponent(
 
 	/**
 	 * Datagen helper for building a variant matching multiple properties' values
-	 * @param propertyValues List of PropertyValues for this variant
-	 * @param component VariantsMechanicalComponent to return when done building
 	 */
-	public static record VariantBuilder(List<PropertyValue<?>> propertyValues)
+	public static class VariantBuilder
 	{
+		private List<PropertyValue<?>> propertyValues = new ArrayList<>();
+		
+		private VariantBuilder()
+		{
+			
+		}
+		
 		/**
 		 * Add a required property-value to this variant
+		 * @param <T> Type of the blockstate property, e.g. Direction
 		 * @param property Property of this block's blockstates, e.g. BlockStateProperties.FACING
 		 * @param value A value of that property, e.g. Direction.NORTH
 		 * @return this

@@ -17,10 +17,10 @@ import net.minecraft.core.Direction;
  * Torque is signed using a right-hand rule, where the fingers of the hand point in the direction of rotation;
  * if the right thumb points toward the positive end of the axis of rotation (up/south/east), torque is positive;
  * if the right thumb points toward the negative end of the axis (down/north/west), torque is negative
- * @param positiveCounterTorque double value of passive torque (e.g. from friction) to subtract when total active torque > 0 (right-hand's thumb is pointing toward positive end of axis)
- * @param negativeCounterTorque double value of passive torque to add when total active torque < 0 (right thumb points toward negative axis)
+ * @param positiveCounterTorque double value of passive torque (e.g. from friction) to subtract when total active torque greater than 0 (right-hand's thumb is pointing toward positive end of axis)
+ * @param negativeCounterTorque double value of passive torque to add when total active torque less than 0 (right thumb points toward negative axis)
  * @param inertia double value of inertia of this node (in kg-meters^2)
- * @connections List of RawConnection objects indicating adjacent nodes this node can connect to, if those targets are present
+ * @param connections List of RawConnection objects indicating adjacent nodes this node can connect to, if those targets are present
  */ 
 public record RawNode(
 	NodeShape shape,
@@ -35,8 +35,8 @@ public record RawNode(
 	 * {
 	 *   "shape": e.g. "cube", "north", {"face": "north", "side": "down"},
 	 *   "torque": 100, // a positive torque indicates right-hand thumb points in + direction
-	 *   "positive_counter_torque": 10, // must be positive, subtracted from torque when total active torque > 0
-	 *   "negative_counter_torque": 10, // must be positive, added to torque when total active torque < 0
+	 *   "positive_counter_torque": 10, // must be positive, subtracted from torque when total active torque is positive
+	 *   "negative_counter_torque": 10, // must be positive, added to torque when total active torque is negative
 	 *   "inertia": 0.01, // must be positive
 	 *   "connections": [
 	 *   	// see RawConnection definition

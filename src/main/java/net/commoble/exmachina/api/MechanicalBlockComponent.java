@@ -24,7 +24,7 @@ public interface MechanicalBlockComponent
 	public abstract MechanicalStateComponent bake(BlockState state, RegistryAccess registries);
 	
 	/**
-	 * {@return true if this is a "real" component, false if this is the EMPTY component (e.g. because validation failed)
+	 * {@return true if this is a "real" component, false if this is the EMPTY component (e.g. because validation failed)}
 	 */
 	public default boolean isPresent()
 	{
