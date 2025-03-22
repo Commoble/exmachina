@@ -74,7 +74,7 @@ public final class SignalGraphBuffer extends SavedData
 	}
 
 	/**
-	 * Invoked at the end of each level tick to run enqueued signal graph updates
+	 * Invoked at the end of each server tick to run enqueued signal graph updates
 	 * @param server MinecraftServer being ticked
 	 */
 	@ApiStatus.Internal

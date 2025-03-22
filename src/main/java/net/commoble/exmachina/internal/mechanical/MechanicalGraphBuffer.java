@@ -6,26 +6,23 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.math.Fraction;
 import org.jetbrains.annotations.ApiStatus;
 
-import net.commoble.exmachina.api.ExMachinaDataMaps;
-import net.commoble.exmachina.api.MechanicalComponent;
 import net.commoble.exmachina.api.MechanicalGraphKey;
 import net.commoble.exmachina.api.MechanicalNode;
 import net.commoble.exmachina.internal.mechanical.MechanicalGraph.GearRatio;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
 
 public final class MechanicalGraphBuffer extends SavedData
@@ -66,6 +63,10 @@ public final class MechanicalGraphBuffer extends SavedData
 		}
 	}
 	
+	/**
+	 * Invoked at the end of each server tick to proc mechanical graph updates
+	 * @param server MinecraftServer being ticked
+	 */
 	@ApiStatus.Internal
 	public void tick(MinecraftServer server)
 	{
@@ -77,7 +78,10 @@ public final class MechanicalGraphBuffer extends SavedData
 		
 		// construct graph from each origin node
 		List<MechanicalGraph> graphs = new ArrayList<>();
-		Map<ServerLevel, Map<BlockPos, MechanicalBlockState>> knownComponents = new HashMap<>();
+		Map<BlockGetter, Map<BlockPos, MechanicalBlockState>> knownComponents = new HashMap<>();
+		Function<BlockGetter, Function<BlockPos, MechanicalBlockState>> componentLookup = targetLevel -> targetPos -> knownComponents
+			.computeIfAbsent(targetLevel, key -> new HashMap<>())
+			.computeIfAbsent(targetPos, pos -> MechanicalBlockState.getOrDefault(targetLevel, pos, server.registryAccess()));
 		Map<MechanicalGraphKey, MechanicalNode> originNodes = new HashMap<>();
 		Set<MechanicalGraphKey> existingKeysInGraphs = new HashSet<>();
 		Map<Fraction, GearRatio> gearCache = new HashMap<>();
@@ -92,14 +96,12 @@ public final class MechanicalGraphBuffer extends SavedData
 			for (BlockPos originPos : originPositions)
 			{
 				// collect all nodes in block
-				BlockState originState = originLevel.getBlockState(originPos);
-				MechanicalComponent originComponent = BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.MECHANICAL_COMPONENT, originState.getBlockHolder().getKey());
-				if (originComponent != null)
+				MechanicalBlockState originState = knownComponents
+					.computeIfAbsent(originLevel, $ -> new HashMap<>())
+					.computeIfAbsent(originPos, p -> MechanicalBlockState.getOrDefault(originLevel, p, server.registryAccess())); 
+				for (MechanicalNode node : originState.component().getNodes(levelKey, originLevel, originPos))
 				{
-					for (MechanicalNode node : originComponent.getNodes(levelKey, originLevel, originPos, originState))
-					{
-						originNodes.put(new MechanicalGraphKey(originLevel.dimension(), originPos, node.shape()), node);
-					}
+					originNodes.put(new MechanicalGraphKey(originLevel.dimension(), originPos, node.shape()), node);
 				}
 			}
 		}
@@ -110,7 +112,7 @@ public final class MechanicalGraphBuffer extends SavedData
 			// ignore origin nodes that have already been found in other graphs
 			if (existingKeysInGraphs.contains(key))
 				return;
-			MechanicalGraph graph = MechanicalGraph.fromOriginNode(originLevel, key, node, knownComponents, gearCache);
+			MechanicalGraph graph = MechanicalGraph.fromOriginNode(originLevel, key, node, server::getLevel, componentLookup, gearCache);
 			graphs.add(graph);
 			existingKeysInGraphs.addAll(graph.nodesInGraph().keySet());
 		});

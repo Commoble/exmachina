@@ -1,19 +1,15 @@
 package net.commoble.exmachina.api.content;
 
-import java.util.Collection;
-import java.util.List;
-
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 
 import net.commoble.exmachina.api.ExMachinaRegistries;
+import net.commoble.exmachina.api.MechanicalBlockComponent;
 import net.commoble.exmachina.api.MechanicalComponent;
-import net.commoble.exmachina.api.MechanicalNode;
 import net.commoble.exmachina.internal.ExMachina;
-import net.minecraft.core.BlockPos;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Block;
 
 /**
  * MechanicalComponent which provides no power and connects to no graph.
@@ -41,9 +37,8 @@ public enum NoneMechanicalComponent implements MechanicalComponent
 	}
 
 	@Override
-	public Collection<MechanicalNode> getNodes(ResourceKey<Level> levelKey, BlockGetter level, BlockPos pos, BlockState state)
+	public DataResult<MechanicalBlockComponent> bake(Block block, RegistryAccess registries)
 	{
-		return List.of();
+		return DataResult.success(MechanicalBlockComponent.EMPTY);
 	}
-
 }

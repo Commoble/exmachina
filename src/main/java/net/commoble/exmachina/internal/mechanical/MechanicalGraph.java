@@ -12,32 +12,44 @@ import java.util.function.Function;
 import org.apache.commons.lang3.math.Fraction;
 import org.jetbrains.annotations.ApiStatus;
 
-import net.commoble.exmachina.api.MechanicalComponent;
+import net.commoble.exmachina.api.MechanicalConnection;
 import net.commoble.exmachina.api.MechanicalGraphKey;
 import net.commoble.exmachina.api.MechanicalNode;
-import net.commoble.exmachina.api.MechanicalUpdate;
+import net.commoble.exmachina.api.MechanicalState;
+import net.commoble.exmachina.api.MechanicalStateComponent;
 import net.commoble.exmachina.api.Parity;
 import net.commoble.exmachina.internal.ExMachina;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.LevelAccessor;
 
+/**
+ * Represents a mechanical graph of connected nodes
+ * @param groupedNodes The graph's nodes grouped by parity and gear ratio and level
+ * @param nodesInGraph all the nodes in the graph
+ * @param baseVelocity double value of the angular velocity of the origin node of the graph (in signed radians per second, positive value indicates thumb points to positive end of the axis of rotation)
+ */
 @ApiStatus.Internal
-public record MechanicalGraph(Map<GearGroup,Map<ServerLevel,List<KeyedNode>>> groupedNodes, Map<MechanicalGraphKey,KeyedNode> nodesInGraph, double baseVelocity)
+public record MechanicalGraph(Map<GearGroup,Map<LevelAccessor,List<KeyedNode>>> groupedNodes, Map<MechanicalGraphKey,KeyedNode> nodesInGraph, double baseVelocity)
 {
+	/**
+	 * Constructs a MechanicalGraph from a given origin
+	 * @param level LevelAccessor of the origin node
+	 * @param originKey MechanicalGraphKey describing the origin node's position
+	 * @param originNode MechanicalNode describing the properties of the origin node
+	 * @param levelLookup Function to determine the level of a node based on the node key's level key
+	 * @param componentLookup Function to perform cache lookups for mechanical components by position
+	 * @param gearCache Map of cached gear values
+	 * @return MechanicalGraph constructed from the given origin
+	 */
 	@ApiStatus.Internal
-	public static MechanicalGraph fromOriginNode(ServerLevel level, MechanicalGraphKey originKey, MechanicalNode originNode, Map<ServerLevel, Map<BlockPos, MechanicalBlockState>> knownComponents, Map<Fraction,GearRatio> gearCache)
+	public static MechanicalGraph fromOriginNode(LevelAccessor level, MechanicalGraphKey originKey, MechanicalNode originNode, Function<ResourceKey<Level>,LevelAccessor> levelLookup, Function<BlockGetter, Function<BlockPos, MechanicalBlockState>> componentLookup, Map<Fraction,GearRatio> gearCache)
 	{
-		MinecraftServer server = level.getServer();
-		Map<GearGroup,Map<ServerLevel,List<KeyedNode>>> groupedNodes = new HashMap<>();
+		Map<GearGroup,Map<LevelAccessor,List<KeyedNode>>> groupedNodes = new HashMap<>();
 		Map<MechanicalGraphKey, KeyedNode> nodesInGraph = new HashMap<>();
 		Queue<KeyedNode> uncheckedNodesInGraph = new LinkedList<>();
-		Function<ServerLevel, Function<BlockPos, MechanicalBlockState>> componentLookup = targetLevel -> targetPos -> knownComponents
-			.computeIfAbsent(targetLevel, key -> new HashMap<>())
-			.computeIfAbsent(targetPos, pos -> MechanicalBlockState.getOrDefault(level, pos));
 		KeyedNode keyedOriginNode = KeyedNode.of(originKey, originNode, Parity.POSITIVE, Fraction.ONE, gearCache);
 		nodesInGraph.put(originKey, keyedOriginNode);
 		groupedNodes.computeIfAbsent(new GearGroup(Fraction.ONE, Parity.POSITIVE), group -> new IdentityHashMap<>())
@@ -55,24 +67,28 @@ public record MechanicalGraph(Map<GearGroup,Map<ServerLevel,List<KeyedNode>>> gr
 			GearRatio trackedGearRatio))
 		{
 			ResourceKey<Level> nextLevelKey = nextKey.levelKey();
-			ServerLevel nextLevel = server.getLevel(nextLevelKey);
+			LevelAccessor nextLevel = levelLookup.apply(nextLevelKey);
 			if (nextLevel == null)
 				continue;
 			
 			for (var entry : nextNode.connectableNodes().entrySet())
 			{
 				MechanicalGraphKey preferredTargetKey = entry.getKey();
-				Parity outgoingConnectionParity = entry.getValue();
 				ResourceKey<Level> targetLevelKey = preferredTargetKey.levelKey();
-				ServerLevel targetLevel = server.getLevel(targetLevelKey);
+				LevelAccessor targetLevel = targetLevelKey == nextLevelKey
+					? nextLevel
+					: levelLookup.apply(targetLevelKey);
 				if (targetLevel == null)
 					continue;
+				
+				MechanicalConnection outgoingConnection = entry.getValue();
+				Parity outgoingConnectionParity = outgoingConnection.parity();
+				int outgoingConnectionTeeth = outgoingConnection.teeth();
 				var localComponentLookup = componentLookup.apply(targetLevel);
 				BlockPos targetPos = preferredTargetKey.pos();
 				MechanicalBlockState targetStateComponent = localComponentLookup.apply(targetPos);
-				BlockState targetState = targetStateComponent.state();
-				MechanicalComponent targetComponent = targetStateComponent.component();
-				for (MechanicalNode targetNode : targetComponent.getNodes(targetLevelKey, targetLevel, targetPos, targetState))
+				MechanicalStateComponent targetComponent = targetStateComponent.component();
+				for (MechanicalNode targetNode : targetComponent.getNodes(targetLevelKey, targetLevel, targetPos))
 				{
 					MechanicalGraphKey targetKey = new MechanicalGraphKey(targetLevelKey, targetPos, targetNode.shape());
 					KeyedNode existingNode = nodesInGraph.get(targetKey);
@@ -86,7 +102,9 @@ public record MechanicalGraph(Map<GearGroup,Map<ServerLevel,List<KeyedNode>>> gr
 						for (var nodePreferredByTargetEntry : targetNode.connectableNodes().entrySet())
 						{
 							MechanicalGraphKey keyPreferredByTarget = nodePreferredByTargetEntry.getKey();
-							Parity incomingConnectionParity = nodePreferredByTargetEntry.getValue();
+							MechanicalConnection incomingConnection = nodePreferredByTargetEntry.getValue();
+							Parity incomingConnectionParity = incomingConnection.parity();
+							int incomingConnectionTeeth = incomingConnection.teeth();
 							Parity connectionParity = outgoingConnectionParity == incomingConnectionParity ? outgoingConnectionParity : Parity.ZERO;
 							Parity newTrackedParity = connectionParity.multiply(trackedParity);
 							// how to calculate gear ratio
@@ -95,9 +113,9 @@ public record MechanicalGraph(Map<GearGroup,Map<ServerLevel,List<KeyedNode>>> gr
 							// well, what do we want
 							// if go from small gear to big gear with 2x teeth, we double the torque, halve the speed
 							// it's conceptually easy to think of the gear ratio as "number of teeth relative to the origin node"
-							GearRatio targetGearRatio = targetNode.teeth() < 1 || nextNode.teeth() < 1
+							GearRatio targetGearRatio = incomingConnectionTeeth < 1 || outgoingConnectionTeeth < 1
 								? trackedGearRatio
-								: gearCache.computeIfAbsent(Fraction.getReducedFraction(targetNode.teeth(), nextNode.teeth()), GearRatio::of);
+								: gearCache.computeIfAbsent(Fraction.getFraction(incomingConnectionTeeth, outgoingConnectionTeeth).multiplyBy(trackedGearRatio.ratio), GearRatio::of);
 							if (nextKey.isValidFor(keyPreferredByTarget))
 							{
 								// skip target if it's already in graph
@@ -109,7 +127,7 @@ public record MechanicalGraph(Map<GearGroup,Map<ServerLevel,List<KeyedNode>>> gr
 									// how do we know if gear ratio is violated?
 									
 									if (newTrackedParity != existingNode.trackedParity
-										|| !existingNode.gearRatio.equals(targetGearRatio))
+										|| !existingNode.gearRatio.ratio.equals(targetGearRatio.ratio))
 									{
 										zeroed = true;
 									}
@@ -185,7 +203,7 @@ public record MechanicalGraph(Map<GearGroup,Map<ServerLevel,List<KeyedNode>>> gr
 					totalGearshiftedTorque = positiveTorque
 						? Math.max(0, totalGearshiftedTorque - counterTorque)
 						: Math.min(0, totalGearshiftedTorque + counterTorque);
-					if (totalGearshiftedTorque <= 0)
+					if (totalGearshiftedTorque == 0)
 					{
 						zeroed = true;	
 					}
@@ -209,6 +227,10 @@ public record MechanicalGraph(Map<GearGroup,Map<ServerLevel,List<KeyedNode>>> gr
 		
 	}
 	
+	/**
+	 * Informs all mechanical update listeners of their new power and velocity values
+	 * @param gearCache Map of cached gear values
+	 */
 	public void updateListeners(Map<Fraction,GearRatio> gearCache)
 	{
 		// finally, calculate speed+power at each node and invoke listeners
@@ -217,15 +239,15 @@ public record MechanicalGraph(Map<GearGroup,Map<ServerLevel,List<KeyedNode>>> gr
 			GearGroup group = entry.getKey();
 			GearRatio gearRatio = gearCache.computeIfAbsent(group.gearFraction, GearRatio::of);
 			double localVelocity = baseVelocity * gearRatio.gearDivisor * group.parity.value();
-			Map<ServerLevel,List<KeyedNode>> levelNodes = entry.getValue();
+			Map<LevelAccessor,List<KeyedNode>> levelNodes = entry.getValue();
 			for (var levelNodeEntry : levelNodes.entrySet())
 			{
-				ServerLevel serverLevel = levelNodeEntry.getKey();
+				LevelAccessor level = levelNodeEntry.getKey();
 				for (KeyedNode keyedNode : levelNodeEntry.getValue())
 				{
 					MechanicalNode node = keyedNode.node;
 					double localPower = localVelocity * localVelocity * node.inertia();
-					node.graphListener().accept(serverLevel, new MechanicalUpdate(localPower,localVelocity));
+					node.graphListener().accept(level, new MechanicalState(localPower,localVelocity));
 				}
 			}
 		}
@@ -252,6 +274,15 @@ public record MechanicalGraph(Map<GearGroup,Map<ServerLevel,List<KeyedNode>>> gr
 		
 	}
 	
+	/**
+	 * Cached values for a gear fraction
+	 * @param ratio Fraction (simplified) of a gearshift representing relative teeth counts (e.g. 2/1)
+	 * @param inverseRatio Fraction of the teeth counts, inverted (e.g. 1/2)
+	 * @param gearMultiplier double value of the ratio
+	 * @param squareMultiplier double value of ratio*ratio
+	 * @param gearDivisor double value of inverseRatio
+	 * @param squareDivisor double value of inverseRatio * inverseRatio
+	 */
 	public static record GearRatio(
 		Fraction ratio,
 		Fraction inverseRatio,
@@ -262,7 +293,6 @@ public record MechanicalGraph(Map<GearGroup,Map<ServerLevel,List<KeyedNode>>> gr
 	{
 		public static GearRatio of(Fraction ratio)
 		{
-
 			double gearMultiplier = ratio.doubleValue();
 			Fraction inverseRatio = ratio.invert();
 			double gearDivisor = inverseRatio.doubleValue();

@@ -1,5 +1,7 @@
 package net.commoble.exmachina.internal;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
 
 import com.mojang.serialization.MapCodec;
@@ -9,9 +11,13 @@ import net.commoble.exmachina.api.CircuitManager;
 import net.commoble.exmachina.api.Connector;
 import net.commoble.exmachina.api.DynamicProperty;
 import net.commoble.exmachina.api.ExMachinaDataMaps;
+import net.commoble.exmachina.api.ExMachinaGameEvents;
 import net.commoble.exmachina.api.ExMachinaRegistries;
 import net.commoble.exmachina.api.ExMachinaTags;
-import net.commoble.exmachina.api.ExMachinaGameEvents;
+import net.commoble.exmachina.api.MechanicalComponent;
+import net.commoble.exmachina.api.MechanicalNodeStates;
+import net.commoble.exmachina.api.MechanicalState;
+import net.commoble.exmachina.api.NodeShape;
 import net.commoble.exmachina.api.SignalComponent;
 import net.commoble.exmachina.api.StaticProperty;
 import net.commoble.exmachina.api.content.AllDirectionsConnector;
@@ -22,16 +28,21 @@ import net.commoble.exmachina.api.content.CubeSignalComponent;
 import net.commoble.exmachina.api.content.DefaultSignalComponent;
 import net.commoble.exmachina.api.content.DirectionsConnector;
 import net.commoble.exmachina.api.content.FloorSignalComponent;
+import net.commoble.exmachina.api.content.MultipartMechanicalComponent;
 import net.commoble.exmachina.api.content.NoneDynamicProperty;
+import net.commoble.exmachina.api.content.NoneMechanicalComponent;
 import net.commoble.exmachina.api.content.NoneTransmitter;
 import net.commoble.exmachina.api.content.UnionConnector;
+import net.commoble.exmachina.api.content.VariantsMechanicalComponent;
 import net.commoble.exmachina.api.content.WallFloorCeilingSignalComponent;
+import net.commoble.exmachina.internal.mechanical.MechanicalComponentBaker;
 import net.commoble.exmachina.internal.mechanical.MechanicalGraphBuffer;
 import net.commoble.exmachina.internal.power.ComponentBaker;
 import net.commoble.exmachina.internal.signal.SignalGraphBuffer;
 import net.commoble.exmachina.internal.util.ConfigHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -44,6 +55,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.VanillaGameEvent;
 import net.neoforged.neoforge.event.level.BlockEvent.NeighborNotifyEvent;
@@ -52,6 +64,7 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
 
 /**
@@ -87,13 +100,16 @@ public class ExMachina
 		var staticProperties = newRegistry(ExMachinaRegistries.STATIC_PROPERTY_TYPE);
 		var dynamicProperties = newRegistry(ExMachinaRegistries.DYNAMIC_PROPERTY_TYPE);
 		var transmitters =  newRegistry(ExMachinaRegistries.SIGNAL_COMPONENT_TYPE);
+		var mechanicalComponents = newRegistry(ExMachinaRegistries.MECHANICAL_COMPONENT_TYPE);
 		var gameEvents = defreg(Registries.GAME_EVENT);
+		var attachmentTypes = defreg(NeoForgeRegistries.Keys.ATTACHMENT_TYPES);
 		
 		BiConsumer<ResourceKey<MapCodec<? extends Connector>>, MapCodec<? extends Connector>> registerConnector = (key,codec) -> connectors.register(key.location().getPath(), () -> codec);
 		BiConsumer<ResourceKey<MapCodec<? extends StaticProperty>>, MapCodec<? extends StaticProperty>> registerStaticProperty = (key,codec) -> staticProperties.register(key.location().getPath(), () -> codec);
 		BiConsumer<ResourceKey<MapCodec<? extends DynamicProperty>>, MapCodec<? extends DynamicProperty>> registerDynamicProperty = (key,codec) -> dynamicProperties.register(key.location().getPath(), () -> codec);
 		
 		BiConsumer<ResourceKey<MapCodec<? extends SignalComponent>>, MapCodec<? extends SignalComponent>> registerTransmitter = (key,codec) -> transmitters.register(key.location().getPath(), () -> codec);
+		BiConsumer<ResourceKey<MapCodec<? extends MechanicalComponent>>, MapCodec<? extends MechanicalComponent>> registerMechanicalComponent = (key,codec) -> mechanicalComponents.register(key.location().getPath(), () -> codec);
 		
 		registerConnector.accept(AllDirectionsConnector.KEY, AllDirectionsConnector.CODEC);
 		registerConnector.accept(DirectionsConnector.KEY, DirectionsConnector.CODEC);
@@ -107,8 +123,14 @@ public class ExMachina
 		registerTransmitter.accept(CubeSignalComponent.KEY, CubeSignalComponent.CODEC);
 		registerTransmitter.accept(FloorSignalComponent.KEY, FloorSignalComponent.CODEC);
 		registerTransmitter.accept(WallFloorCeilingSignalComponent.KEY, WallFloorCeilingSignalComponent.CODEC);
+		registerMechanicalComponent.accept(NoneMechanicalComponent.KEY, NoneMechanicalComponent.CODEC);
+		registerMechanicalComponent.accept(VariantsMechanicalComponent.KEY, VariantsMechanicalComponent.CODEC);
+		registerMechanicalComponent.accept(MultipartMechanicalComponent.KEY, MultipartMechanicalComponent.CODEC);
 		
 		gameEvents.register(ExMachinaGameEvents.SIGNAL_GRAPH_UPDATE_KEY.location().getPath(), () -> new GameEvent(0));
+		attachmentTypes.register(MechanicalNodeStates.KEY.location().getPath(), () -> AttachmentType.<Map<NodeShape,MechanicalState>>builder(() -> new HashMap<>())
+			.serialize(MechanicalNodeStates.CODEC)
+			.build());
 		
 		// subscribe the rest of the mod event listeners
 		modBus.addListener(this::onRegisterDataPackRegistries);
@@ -125,22 +147,25 @@ public class ExMachina
 	private void onRegisterDataPackRegistries(DataPackRegistryEvent.NewRegistry event)
 	{
 		event.dataPackRegistry(ExMachinaRegistries.CIRCUIT_COMPONENT, CircuitComponent.CODEC);
+		event.dataPackRegistry(ExMachinaRegistries.MECHANICAL_COMPONENT, MechanicalComponent.CODEC);
 	}
 	
 	private void onRegisterDataMapTypes(RegisterDataMapTypesEvent event)
 	{
 		event.register(ExMachinaDataMaps.SIGNAL_COMPONENT);
-		event.register(ExMachinaDataMaps.MECHANICAL_COMPONENT);
 	}
 	
 	private void onServerStarting(ServerStartingEvent event)
 	{
-		ComponentBaker.get().preBake(event.getServer().registryAccess());
+		RegistryAccess registries = event.getServer().registryAccess();
+		ComponentBaker.get().preBake(registries);
+		MechanicalComponentBaker.INSTANCE.preBake(registries);
 	}
 	
 	private void onServerStopping(ServerStoppingEvent event)
 	{
 		ComponentBaker.get().clear();
+		MechanicalComponentBaker.INSTANCE.clear();
 	}
 	
 	private void onNeighborNotify(NeighborNotifyEvent event)
@@ -154,6 +179,7 @@ public class ExMachina
 			BlockState newState = event.getState();
 			BlockPos pos = event.getPos();
 			CircuitManager.get(serverLevel).onBlockUpdate(newState, pos);
+			MechanicalGraphBuffer.get(serverLevel.getServer()).enqueue(serverLevel.dimension(), pos);
 		}
 	}
 	

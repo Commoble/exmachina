@@ -1,10 +1,18 @@
 # 1.21.4-0.10.0.0
 * Added Mechanical Graph API which works similarly to the signal graph
-* Mechanical Components can be assigned via the exmachina:block/mechanical_component datamap
+* Mechanical Components can be assigned via the exmachina:mechanical_component datapack registry
 * Mechanical Component Types can be registered to the exmachina:mechanical_component_type registry, which define the nodes provided by a blockstate, their torque/inertia, and what connections they can form
 * Mechanical graph updates can be scheduled via ExMachinaGameEvents.scheduleMechanicalGraphUpdate or by triggering the exmachina:mechanical_graph_update game event
 * Added max_mechanical_graph_size to common config
-* Added exmachina:none mechanical component type (all blocks without components use this as a fallback)
+* Added builtin mechanical components:
+  * exmachina:none
+    * Provides no nodes
+    * This is used as a fallback when a block has no associated component
+  * exmachina:variants
+    * Assigns nodes to states using property-value matching using a format similar to variants blockstate files
+  * exmachina:multipart
+    * Assigns unions of nodes to states using a format similar multipart blockstate files
+  * Codecs and datagen builders are provided for variants and multipart components
 * Moved the helper method for scheduling signal graph updates to ExMachinaGameEvents
 
 # 1.21.4-0.9.0.0

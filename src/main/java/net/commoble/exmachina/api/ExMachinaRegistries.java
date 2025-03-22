@@ -44,4 +44,9 @@ public final class ExMachinaRegistries
 	 * Registry key of the datapack Registry for CircuitComponents. CircuitComponents form nodes of the power graph and are assigned to blocks which share an id with them.
 	 */
 	public static final ResourceKey<Registry<CircuitComponent>> CIRCUIT_COMPONENT = ResourceKey.createRegistryKey(ExMachina.id("circuit_component"));
+	
+	/**
+	 * Registry key of the datapack Registry for MechanicalComponents. MechanicalComponents form nodes of the mechanical graph and are assigned to blocks which share an id with them.
+	 */
+	public static final ResourceKey<Registry<MechanicalComponent>> MECHANICAL_COMPONENT = ResourceKey.createRegistryKey(ExMachina.id("mechanical_component"));
 }
