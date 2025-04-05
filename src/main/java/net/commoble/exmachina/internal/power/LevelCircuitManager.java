@@ -8,15 +8,16 @@ import java.util.Set;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.mojang.serialization.Codec;
+
 import net.commoble.exmachina.api.Circuit;
 import net.commoble.exmachina.api.CircuitManager;
 import net.commoble.exmachina.api.StateComponent;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
 
 /**
  * Transient cache of power graph circuits for a given ServerLevel
@@ -25,6 +26,16 @@ import net.minecraft.world.level.saveddata.SavedData;
 public class LevelCircuitManager extends SavedData implements CircuitManager
 {
 	private static final String ID = "exmachina/circuit_manager";
+	private static final SavedDataType<LevelCircuitManager> TYPE = new SavedDataType<>(ID, LevelCircuitManager::create, LevelCircuitManager::codec, null);
+
+	private static LevelCircuitManager create(SavedData.Context context)
+	{
+		return new LevelCircuitManager(context.level());
+	}
+	private static Codec<LevelCircuitManager> codec(SavedData.Context context)
+	{
+		return Codec.unit(() -> new LevelCircuitManager(context.level()));
+	}
 	
 	private Map<BlockPos, Circuit> circuitMap = new HashMap<>();
 	private final ServerLevel level;
@@ -37,11 +48,7 @@ public class LevelCircuitManager extends SavedData implements CircuitManager
 	@ApiStatus.Internal
 	public static LevelCircuitManager getOrCreate(ServerLevel level)
 	{
-		return level.getDataStorage().computeIfAbsent(
-			new SavedData.Factory<>(
-				() -> new LevelCircuitManager(level),
-				(tag,registries) -> new LevelCircuitManager(level)),
-			ID);
+		return level.getDataStorage().computeIfAbsent(TYPE);
 	}
 	
 	private LevelCircuitManager(ServerLevel level)
@@ -52,6 +59,9 @@ public class LevelCircuitManager extends SavedData implements CircuitManager
 	@Override
 	public Circuit getCircuit(BlockPos pos)
 	{
+		if (this.level == null)
+			return Circuit.empty();
+		
 		// if data has been reloaded, dump the circuit map
 		int actualGeneration = ComponentBaker.get().generation();
 		if (this.lastKnownGeneration != actualGeneration)
@@ -83,6 +93,9 @@ public class LevelCircuitManager extends SavedData implements CircuitManager
 	@Override
 	public void onBlockUpdate(BlockState newState, BlockPos updatedPos)
 	{
+		if (this.level == null)
+			return;
+		
 		List<BlockPos> positionsToRemove = new ArrayList<>(); // no two circuit instances *should* share any blockpos
 		
 		// first, if the block was in an extant circuit, mark the position for removal
@@ -156,13 +169,6 @@ public class LevelCircuitManager extends SavedData implements CircuitManager
 				this.circuitMap.remove(extantPos);
 			}
 		}
-	}
-
-	@Override
-	public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries)
-	{
-		// noop, data is transient
-		return tag;
 	}
 
 	@Override

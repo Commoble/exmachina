@@ -10,18 +10,18 @@ import java.util.Set;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.mojang.serialization.Codec;
+
 import net.commoble.exmachina.api.Channel;
 import net.commoble.exmachina.api.ExMachinaDataMaps;
+import net.commoble.exmachina.api.SignalComponent;
 import net.commoble.exmachina.api.SignalGraphKey;
 import net.commoble.exmachina.api.SignalStrength;
-import net.commoble.exmachina.api.SignalComponent;
 import net.commoble.exmachina.api.StateWirer;
 import net.commoble.exmachina.api.TransmissionNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -32,6 +32,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.redstone.ExperimentalRedstoneUtils;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
 
 /**
  * Buffer in which signal graph updates are enqueued.
@@ -40,11 +41,19 @@ import net.minecraft.world.level.saveddata.SavedData;
 @ApiStatus.Internal
 public final class SignalGraphBuffer extends SavedData
 {
-	private SignalGraphBuffer() {}
-	
 	private static final String ID = "exmachina/signalgraphbuffer";
-	
-	private static final SavedData.Factory<SignalGraphBuffer> FACTORY = new SavedData.Factory<>(SignalGraphBuffer::new, (tag,registries) -> new SignalGraphBuffer());
+	private static final Codec<SignalGraphBuffer> CODEC = Codec.unit(SignalGraphBuffer::new); 
+	private static final SavedDataType<SignalGraphBuffer> TYPE = new SavedDataType<>(ID, SignalGraphBuffer::create, SignalGraphBuffer::codec, null);
+
+	private SignalGraphBuffer() {}
+	private static SignalGraphBuffer create(SavedData.Context context)
+	{
+		return new SignalGraphBuffer();
+	}
+	private static Codec<SignalGraphBuffer> codec(SavedData.Context context)
+	{
+		return CODEC;
+	}
 	
 	private Map<ResourceKey<Level>, Set<BlockPos>> positions = new HashMap<>();
 
@@ -55,7 +64,7 @@ public final class SignalGraphBuffer extends SavedData
 	@ApiStatus.Internal
 	public static SignalGraphBuffer get(MinecraftServer server)
 	{
-		return server.overworld().getDataStorage().computeIfAbsent(FACTORY, ID);
+		return server.overworld().getDataStorage().computeIfAbsent(TYPE);
 	}
 
 	/**
@@ -188,12 +197,6 @@ public final class SignalGraphBuffer extends SavedData
 				level.neighborChanged(pos, Blocks.AIR, null); // redstone seems to ignore updates from block==redstone
 			}
 		});
-	}
-
-	@Override
-	public CompoundTag save(CompoundTag compound, HolderLookup.Provider registries)
-	{
-		return compound; //noop
 	}
 
 	@Override

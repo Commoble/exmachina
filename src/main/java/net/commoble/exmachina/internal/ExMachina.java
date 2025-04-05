@@ -41,6 +41,7 @@ import net.commoble.exmachina.internal.power.ComponentBaker;
 import net.commoble.exmachina.internal.signal.SignalGraphBuffer;
 import net.commoble.exmachina.internal.util.ConfigHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
@@ -198,7 +199,21 @@ public class ExMachina
 			}
 			else if (holder.is(ExMachinaGameEvents.MECHANICAL_GRAPH_UPDATE_KEY))
 			{
-				MechanicalGraphBuffer.get(serverLevel.getServer()).enqueue(serverLevel.dimension(), BlockPos.containing(event.getEventPosition()));
+				BlockPos sourcePos = BlockPos.containing(event.getEventPosition());
+				BlockState sourceState = serverLevel.getBlockState(sourcePos);
+				if (!sourceState.is(ExMachinaTags.Blocks.NO_AUTOMATIC_MECHANICAL_UPDATES))
+				{
+					MechanicalGraphBuffer.get(serverLevel.getServer()).enqueue(serverLevel.dimension(), sourcePos);
+					for (Direction directionToNeighbor : Direction.values())
+					{
+						BlockPos neighborPos = sourcePos.relative(directionToNeighbor);
+						BlockState neighborState = serverLevel.getBlockState(neighborPos);
+						if (!neighborState.is(ExMachinaTags.Blocks.NO_AUTOMATIC_MECHANICAL_UPDATES))
+						{
+							MechanicalGraphBuffer.get(serverLevel.getServer()).enqueue(serverLevel.dimension(), neighborPos);
+						}
+					}
+				}				
 			}
 		}
 	}

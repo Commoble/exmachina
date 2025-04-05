@@ -1,4 +1,13 @@
-# 1.21.4-0.10.0.0
+# 1.21.5-0.11.0.0-beta
+* Updated to 1.21.5
+* Very high gear ratios should now cause mechanical graphs to zero out instead of crashing
+* Added block tag exmachina:no_automatic_mechanical_updates
+* Reworked how mechanical updates work:
+  * When a block update occurs, if the new block is in the exmachina:no_automatic_mechanical_updates tag, automatic mechanical updates will not occur on that block or its neighbors
+  * When a block update occurs on a block which is not in that tag, mechanical updates on neighbors will only occur on neighbors which are not in that tag
+  * Manual updates invoked by firing the exmachina:mechanical_graph_update game event will now only enqueue an update at the game event position (and not the six neighbor positions)
+
+# 1.21.4-0.10.0.0-beta
 * Added Mechanical Graph API which works similarly to the signal graph
 * Mechanical Components can be assigned via the exmachina:mechanical_component datapack registry
 * Mechanical Component Types can be registered to the exmachina:mechanical_component_type registry, which define the nodes provided by a blockstate, their torque/inertia, and what connections they can form
@@ -15,19 +24,19 @@
   * Codecs and datagen builders are provided for variants and multipart components
 * Moved the helper method for scheduling signal graph updates to ExMachinaGameEvents
 
-# 1.21.4-0.9.0.0
+# 1.21.4-0.9.0.0-beta
 * Update to 1.21.4
 
-# 1.21.3-0.8.0.2
+# 1.21.3-0.8.0.2-beta
 * Fix origin nodes' source power being ignored in signal graphs
 
-# 1.21.3-0.8.0.1
+# 1.21.3-0.8.0.1-beta
 * Fix default signal component providing the set of nodes that shouldn't connect instead of the set of nodes that should
 
-# 1.21.3-0.8.0.0
+# 1.21.3-0.8.0.0-beta
 * signal_transmitter -> signal_component
 
-# 1.21.3-0.7.0.0
+# 1.21.3-0.7.0.0-beta
 * Combined SignalSource/Transmitter/Receiver into a single SignalComponent class
 * SignalComponents now must provide a collection of TransmissionNodes for a given context, which provide
   * A NodeShape, which must be unique for the level+pos+channel in context (multiple TransmissionNodes with different NodeShapes can exist for that context)
@@ -37,10 +46,10 @@
   * A listener callback which can perform internal side-effects of graph updates and provide a list of directions to update neighbors in
 * A SignalComponent can also declare whether the associated block can receive neighbor updates from a graph update (defaults to false)
 
-# 1.21.3-0.6.0.1
+# 1.21.3-0.6.0.1-beta
 * Enqueuing a position to the signal graph now automatically enqueues its six neighbors as well (to ensure receivers are shut off correctly)
 
-# 1.21.3-0.6.0.0
+# 1.21.3-0.6.0.0-beta
 * Signal graph APIs now use a "NodeShape" to determine whether a transmission node can connect to another node
 * Three categories of nodeshape:
 	* "Cube" shapes represent nodes which fill the entire block

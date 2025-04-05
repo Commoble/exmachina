@@ -25,5 +25,15 @@ public final class ExMachinaTags
 		 * it will NOT read signal from that block.
 		 */
 		public static final TagKey<Block> IGNORE_VANILLA_SIGNAL = tag("ignore_vanilla_signal");		
+		
+		/**
+		 * If a block is tagged with the exmachina:no_automatic_mechanical_updates block tag,
+		 * block updates which result in the new block being in the tag will not trigger mechanical
+		 * graph updates on that block or its neighbors,
+		 * and block updates on adjacent blocks will not trigger mechanical updates on that block.
+		 * 
+		 * Manual updates invoked via {@link ExMachinaGameEvents} will ignore this tag.
+		 */
+		public static final TagKey<Block> NO_AUTOMATIC_MECHANICAL_UPDATES = tag("no_automatic_mechanical_updates");
 	}
 }

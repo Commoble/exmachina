@@ -11,19 +11,19 @@ import java.util.function.Function;
 import org.apache.commons.lang3.math.Fraction;
 import org.jetbrains.annotations.ApiStatus;
 
+import com.mojang.serialization.Codec;
+
 import net.commoble.exmachina.api.MechanicalGraphKey;
 import net.commoble.exmachina.api.MechanicalNode;
 import net.commoble.exmachina.internal.mechanical.MechanicalGraph.GearRatio;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
 
 /**
  * Buffer in which mechanical graph updates in serverlevels are enqueued.
@@ -32,14 +32,19 @@ import net.minecraft.world.level.saveddata.SavedData;
 public final class MechanicalGraphBuffer extends SavedData
 {
 	private static final String ID = "exmachina/mechanicalgraphbuffer";
-	private static final SavedData.Factory<MechanicalGraphBuffer> FACTORY = new SavedData.Factory<MechanicalGraphBuffer>(MechanicalGraphBuffer::new, MechanicalGraphBuffer::load);
+	private static final Codec<MechanicalGraphBuffer> CODEC = Codec.unit(MechanicalGraphBuffer::new); 
+	private static final SavedDataType<MechanicalGraphBuffer> TYPE = new SavedDataType<>(ID, MechanicalGraphBuffer::create, MechanicalGraphBuffer::codec, null);
 	
 	private Map<ResourceKey<Level>, Set<BlockPos>> positions = new HashMap<>();
 	
 	private MechanicalGraphBuffer() {}
-	private static MechanicalGraphBuffer load(CompoundTag tag, HolderLookup.Provider registries)
+	private static MechanicalGraphBuffer create(SavedData.Context context)
 	{
 		return new MechanicalGraphBuffer();
+	}
+	private static Codec<MechanicalGraphBuffer> codec(SavedData.Context context)
+	{
+		return CODEC;
 	}
 	
 	/**
@@ -49,7 +54,7 @@ public final class MechanicalGraphBuffer extends SavedData
 	@ApiStatus.Internal
 	public static MechanicalGraphBuffer get(MinecraftServer server)
 	{
-		return server.overworld().getDataStorage().computeIfAbsent(FACTORY, ID);
+		return server.overworld().getDataStorage().computeIfAbsent(TYPE);
 	}
 	
 	/**
@@ -62,9 +67,6 @@ public final class MechanicalGraphBuffer extends SavedData
 	{
 		var levelPositions = this.positions.computeIfAbsent(levelKey, level -> new HashSet<>());
 		levelPositions.add(pos);
-		for (Direction dir : Direction.values()) {
-			levelPositions.add(pos.relative(dir));
-		}
 	}
 	
 	/**
@@ -126,12 +128,6 @@ public final class MechanicalGraphBuffer extends SavedData
 		{
 			graph.updateListeners(gearCache);
 		}
-	}
-	
-	@Override
-	public CompoundTag save(CompoundTag compound, HolderLookup.Provider registries)
-	{
-		return compound; //noop
 	}
 
 	@Override

@@ -19,6 +19,7 @@ import net.commoble.exmachina.api.MechanicalState;
 import net.commoble.exmachina.api.MechanicalStateComponent;
 import net.commoble.exmachina.api.Parity;
 import net.commoble.exmachina.internal.ExMachina;
+import net.commoble.exmachina.internal.util.Maths;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.BlockGetter;
@@ -115,7 +116,17 @@ public record MechanicalGraph(Map<GearGroup,Map<LevelAccessor,List<KeyedNode>>> 
 							// it's conceptually easy to think of the gear ratio as "number of teeth relative to the origin node"
 							GearRatio targetGearRatio = incomingConnectionTeeth < 1 || outgoingConnectionTeeth < 1
 								? trackedGearRatio
-								: gearCache.computeIfAbsent(Fraction.getFraction(incomingConnectionTeeth, outgoingConnectionTeeth).multiplyBy(trackedGearRatio.ratio), GearRatio::of);
+								: gearCache.computeIfAbsent(
+									Maths.safeMultiplyFraction(
+										Fraction.getFraction(incomingConnectionTeeth, outgoingConnectionTeeth),
+										trackedGearRatio.ratio,
+										Fraction.ZERO),
+									GearRatio::of);
+							if (!targetGearRatio.isValid())
+							{
+								zeroed = true;
+								continue;
+							}
 							if (nextKey.isValidFor(keyPreferredByTarget))
 							{
 								// skip target if it's already in graph
@@ -291,19 +302,36 @@ public record MechanicalGraph(Map<GearGroup,Map<LevelAccessor,List<KeyedNode>>> 
 		double gearDivisor,
 		double squareDivisor)
 	{
+		public static final GearRatio ZERO = new GearRatio(
+			Fraction.ZERO,
+			Fraction.ZERO,
+			0D,
+			0D,
+			0D,
+			0D);
 		/**
-		 * {@return GearRatio using the given fraction}
+		 * {@return GearRatio using the given fraction, or the ZERO ratio if fraction is zero or too big to square}
 		 * @param ratio Fraction of teeth counts
 		 */
 		public static GearRatio of(Fraction ratio)
 		{
+			if (ratio == Fraction.ZERO)
+				return ZERO;
+			
 			double gearMultiplier = ratio.doubleValue();
 			Fraction inverseRatio = ratio.invert();
 			double gearDivisor = inverseRatio.doubleValue();
-			Fraction gearSquared = ratio.multiplyBy(ratio);
-			double squareMultiplier = gearSquared.doubleValue();
-			double squareDivisor = gearSquared.invert().doubleValue();
+			double squareMultiplier = gearMultiplier * gearMultiplier;
+			double squareDivisor = gearDivisor * gearDivisor;
 			return new GearRatio(ratio, inverseRatio, gearMultiplier, squareMultiplier, gearDivisor, squareDivisor);
+		}
+		
+		/**
+		 * {@return if false, gear ratio is non-positive and the graph should be zeroed}
+		 */
+		public boolean isValid()
+		{
+			return this.gearMultiplier > 0D;
 		}
 	}
 	
