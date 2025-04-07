@@ -2,6 +2,7 @@ package net.commoble.exmachina.api;
 
 import com.mojang.serialization.Codec;
 
+import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 
 /**
@@ -38,6 +39,16 @@ public enum Parity implements StringRepresentable
 	{
 		this.value = value;
 		this.name = name;
+	}
+
+	/**
+	 * {@return Parity which will invert rotation in a way that appears correct for interlocking gears on the two given faces}
+	 * @param a Direction one gear faces
+	 * @param b Direction another gear faces
+	 */
+	public static Parity inversion(Direction a, Direction b)
+	{
+		return a.getAxisDirection() == b.getAxisDirection() ? Parity.NEGATIVE : Parity.POSITIVE;
 	}
 	
 	/**
