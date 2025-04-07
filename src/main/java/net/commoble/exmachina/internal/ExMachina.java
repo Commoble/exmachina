@@ -181,6 +181,21 @@ public class ExMachina
 			BlockPos pos = event.getPos();
 			CircuitManager.get(serverLevel).onBlockUpdate(newState, pos);
 			MechanicalGraphBuffer.get(serverLevel.getServer()).enqueue(serverLevel.dimension(), pos);
+			BlockState state = event.getState();
+			if (!state.is(ExMachinaTags.Blocks.NO_AUTOMATIC_MECHANICAL_UPDATES))
+			{
+				MechanicalGraphBuffer.get(serverLevel.getServer()).enqueue(serverLevel.dimension(), pos);
+				for (Direction directionToNeighbor : Direction.values())
+				{
+					BlockPos neighborPos = pos.relative(directionToNeighbor);
+					BlockState neighborState = serverLevel.getBlockState(neighborPos);
+					if (!neighborState.is(ExMachinaTags.Blocks.NO_AUTOMATIC_MECHANICAL_UPDATES))
+					{
+						MechanicalGraphBuffer.get(serverLevel.getServer()).enqueue(serverLevel.dimension(), neighborPos);
+					}
+				}
+			}	
+			
 		}
 	}
 	
@@ -199,21 +214,8 @@ public class ExMachina
 			}
 			else if (holder.is(ExMachinaGameEvents.MECHANICAL_GRAPH_UPDATE_KEY))
 			{
-				BlockPos sourcePos = BlockPos.containing(event.getEventPosition());
-				BlockState sourceState = serverLevel.getBlockState(sourcePos);
-				if (!sourceState.is(ExMachinaTags.Blocks.NO_AUTOMATIC_MECHANICAL_UPDATES))
-				{
-					MechanicalGraphBuffer.get(serverLevel.getServer()).enqueue(serverLevel.dimension(), sourcePos);
-					for (Direction directionToNeighbor : Direction.values())
-					{
-						BlockPos neighborPos = sourcePos.relative(directionToNeighbor);
-						BlockState neighborState = serverLevel.getBlockState(neighborPos);
-						if (!neighborState.is(ExMachinaTags.Blocks.NO_AUTOMATIC_MECHANICAL_UPDATES))
-						{
-							MechanicalGraphBuffer.get(serverLevel.getServer()).enqueue(serverLevel.dimension(), neighborPos);
-						}
-					}
-				}				
+				BlockPos pos = BlockPos.containing(event.getEventPosition());
+				MechanicalGraphBuffer.get(serverLevel.getServer()).enqueue(serverLevel.dimension(), pos);	
 			}
 		}
 	}

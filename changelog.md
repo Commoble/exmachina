@@ -1,3 +1,7 @@
+# 1.21.5-0.11.0.1-beta
+* Fix incorrect mechanical update behavior where manual updates were invoking updates on neighbors and automatic updates were not. It should be the other way around.
+* Added Parity.inversion(Direction, Direction) helper method to create a parity inversion for interlocking gears
+
 # 1.21.5-0.11.0.0-beta
 * Updated to 1.21.5
 * Very high gear ratios should now cause mechanical graphs to zero out instead of crashing
