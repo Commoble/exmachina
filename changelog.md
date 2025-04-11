@@ -1,3 +1,10 @@
+# 1.21.5-0.11.0.2-beta
+* Fix mechanical graph updates crashing when scheduled via game event
+* Fix common config erroneously being registered as a serverconfig, it now correctly generates in config/exmachina-common.toml
+* Added an actual serverconfig (at config/exmachina-server.toml) with a new 'machineCycleTicks' field
+  * The intent of this is for mechanical blocks to modulate gametime by this number to get a consistent rotation on both client and server, without doubles having rounding errors at high game times on clients
+  * Modulated gametime can be retrieved via MechanicalState#getMachineTicks
+
 # 1.21.5-0.11.0.1-beta
 * Fix incorrect mechanical update behavior where manual updates were invoking updates on neighbors and automatic updates were not. It should be the other way around.
 * Added Parity.inversion(Direction, Direction) helper method to create a parity inversion for interlocking gears

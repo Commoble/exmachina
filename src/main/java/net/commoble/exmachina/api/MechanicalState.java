@@ -4,8 +4,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import io.netty.buffer.ByteBuf;
+import net.commoble.exmachina.internal.ExMachina;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.level.Level;
 
 /**
  * Representation of a mechanical update provided to a node in the mechanical graph
@@ -40,4 +42,18 @@ public record MechanicalState(double power, double angularVelocity)
 		ByteBufCodecs.DOUBLE, MechanicalState::power,
 		ByteBufCodecs.DOUBLE, MechanicalState::angularVelocity,
 		MechanicalState::new);
+	
+	/**
+	 * Return a modulated game time suitable for determining machine rotation.
+	 * The intent of this is for machines to have a consistent rotation on both client and server,
+	 * while keeping the maximum tick count reasonably small to avoid visual artifacts from rounding errors in high double values.
+	 * 
+	 * This is configurable in config/exmachina-server.toml
+	 * @param level Level a machine exists in
+	 * @return integer number of ticks elapsed in current machine cycle
+	 */
+	public static int getMachineTicks(Level level)
+	{
+		return (int)(level.getGameTime() % ExMachina.SERVER_CONFIG.machineCycleTicks().getAsInt());
+	}
 }

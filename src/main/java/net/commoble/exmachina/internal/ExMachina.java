@@ -87,7 +87,9 @@ public class ExMachina
 	public static final String MODID = "exmachina";
 	
 	/** config/exmachina-common.toml **/
-	public static final CommonConfig COMMON_CONFIG = ConfigHelper.register(MODID, ModConfig.Type.SERVER, CommonConfig::create);
+	public static final CommonConfig COMMON_CONFIG = ConfigHelper.register(MODID, ModConfig.Type.COMMON, CommonConfig::create);
+	/** config/exmachina-server.toml **/
+	public static final ServerConfig SERVER_CONFIG = ConfigHelper.register(MODID, ModConfig.Type.SERVER, ServerConfig::create);
 	
 	/**
 	 * mod constructor
@@ -129,6 +131,7 @@ public class ExMachina
 		registerMechanicalComponent.accept(MultipartMechanicalComponent.KEY, MultipartMechanicalComponent.CODEC);
 		
 		gameEvents.register(ExMachinaGameEvents.SIGNAL_GRAPH_UPDATE_KEY.location().getPath(), () -> new GameEvent(0));
+		gameEvents.register(ExMachinaGameEvents.MECHANICAL_GRAPH_UPDATE_KEY.location().getPath(), () -> new GameEvent(0));
 		attachmentTypes.register(MechanicalNodeStates.KEY.location().getPath(), () -> AttachmentType.<Map<NodeShape,MechanicalState>>builder(() -> new HashMap<>())
 			.serialize(MechanicalNodeStates.CODEC)
 			.build());
