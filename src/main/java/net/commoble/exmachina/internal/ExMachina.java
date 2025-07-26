@@ -133,7 +133,8 @@ public class ExMachina
 		gameEvents.register(ExMachinaGameEvents.SIGNAL_GRAPH_UPDATE_KEY.location().getPath(), () -> new GameEvent(0));
 		gameEvents.register(ExMachinaGameEvents.MECHANICAL_GRAPH_UPDATE_KEY.location().getPath(), () -> new GameEvent(0));
 		attachmentTypes.register(MechanicalNodeStates.KEY.location().getPath(), () -> AttachmentType.<Map<NodeShape,MechanicalState>>builder(() -> new HashMap<>())
-			.serialize(MechanicalNodeStates.CODEC)
+			.serialize(MechanicalNodeStates.MAP_CODEC)
+			.sync(MechanicalNodeStates.STREAM_CODEC)
 			.build());
 		
 		// subscribe the rest of the mod event listeners

@@ -27,9 +27,7 @@ import net.commoble.exmachina.internal.util.CodecHelper;
 import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -39,8 +37,7 @@ import net.minecraft.world.level.block.state.properties.Property;
  * assigning nodes to blockstates by comparing states to property-value predicate Cases.
  * Multiple sets of nodes can be applied to individual blockstates.
  * 
- * @param save If true, mechanical updates will be stored in a {@link MechanicalNodeStates} data attachment. Defaults false.
- * Automatic syncing is currently not supported, but blockentities which wish to manually sync this can invoke {@link Level#sendBlockUpdated} from {@link BlockEntity#setChanged()}.
+ * @param save If true, mechanical updates will be stored in a {@link MechanicalNodeStates} synced data attachment. Defaults false.
  * @param multipart List of ApplyWhen cases
  */
 public record MultipartMechanicalComponent(boolean save, List<ApplyWhen> multipart) implements MechanicalComponent
@@ -122,7 +119,7 @@ public record MultipartMechanicalComponent(boolean save, List<ApplyWhen> multipa
 	}
 	/**
 	 * Datagen helper; Creates and returns a MultipartMechanicalComponent for whom cases can be defined.
-	 * @param save If true, mechanical updates will be stored in a {@link MechanicalNodeStates} data attachment. Defaults false.
+	 * @param save If true, mechanical updates will be stored in a {@link MechanicalNodeStates} synced data attachment. Defaults false.
 	 * @return a mutable MultipartMechanicalComponent
 	 */
 	public static MultipartMechanicalComponent builder(boolean save)

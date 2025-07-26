@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 import net.commoble.exmachina.api.MechanicalConnection;
@@ -25,7 +26,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 /**
  * MechanicalStateComponent used by {@link VariantsMechanicalComponent} and {@link MultipartMechanicalComponent}
  * to provide mechanical nodes
- * @param save boolean which if true causes mechanical update results to be automatically stored/persisted in {@link MechanicalNodeStates} data attachment
+ * @param save boolean which if true causes mechanical update results to be automatically stored/persisted in {@link MechanicalNodeStates} synced data attachment
  * @param bakedNodes List of RawNodes provided by this component's blockstate
  */
 public record SimpleMechanicalStateComponent(boolean save, List<RawNode> bakedNodes) implements MechanicalStateComponent
@@ -67,8 +68,12 @@ public record SimpleMechanicalStateComponent(boolean save, List<RawNode> bakedNo
 				if (be != null)
 				{
 					var nodeStates = be.getData(MechanicalNodeStates.HOLDER.get());
-					nodeStates.put(shape, update);
-					be.setChanged();
+					var old = nodeStates.put(shape, update);
+					if (!Objects.equals(update, old))
+					{
+						be.setChanged();
+						be.syncData(MechanicalNodeStates.HOLDER.get());
+					}
 				}
 			}
 			: NO_LISTENER;

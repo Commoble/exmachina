@@ -51,10 +51,19 @@ runs {
 
 repositories {
 	mavenCentral()
+    maven {
+        name = "Maven for PR #1823" // https://github.com/neoforged/NeoForge/pull/1823
+        url = uri("https://prmaven.neoforged.net/NeoForge/pr1823")
+        content {
+            includeModule("net.neoforged", "neoforge")
+            includeModule("net.neoforged", "testframework")
+        }
+    }
 }
 
 dependencies {
-	implementation "net.neoforged:neoforge:${neo_version}"
+	//implementation "net.neoforged:neoforge:${neo_version}"
+	implementation "net.neoforged:neoforge:21.7.36-beta-pr-1823-attachment-sync"
 }
 
 java

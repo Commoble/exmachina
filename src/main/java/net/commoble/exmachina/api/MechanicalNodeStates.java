@@ -3,9 +3,14 @@ package net.commoble.exmachina.api;
 import java.util.Map;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 
+import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.commoble.exmachina.internal.ExMachina;
 import net.commoble.exmachina.internal.util.CodecHelper;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -25,5 +30,9 @@ public final class MechanicalNodeStates
 	public static final DeferredHolder<AttachmentType<?>, AttachmentType<Map<NodeShape,MechanicalState>>> HOLDER = DeferredHolder.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, KEY.location());
 	/** Codec for the attachment map. Deserializes mutable maps. **/
 	public static final Codec<Map<NodeShape,MechanicalState>> CODEC = CodecHelper.pairListMap(NodeShape.CODEC, MechanicalState.CODEC);
-		
+	/** MapCodec for the attachment map **/
+	public static final MapCodec<Map<NodeShape,MechanicalState>> MAP_CODEC = CODEC.fieldOf("values");
+	/** StreamCodec for the attachment map **/
+	public static final StreamCodec<ByteBuf, Map<NodeShape,MechanicalState>> STREAM_CODEC = ByteBufCodecs.map(Object2ObjectOpenHashMap::new, NodeShape.STREAM_CODEC, MechanicalState.STREAM_CODEC);
+	
 }

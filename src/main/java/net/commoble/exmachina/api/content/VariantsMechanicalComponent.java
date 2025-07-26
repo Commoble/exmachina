@@ -26,16 +26,13 @@ import net.commoble.exmachina.internal.util.CodecHelper;
 import net.commoble.exmachina.internal.util.StateReader;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 
 /**
  * General-purpose MechanicalComponent which defines static mechanical nodes per-blockstate similar to how a blockstate file assigns model variants.
- * @param save If true, mechanical updates will be stored in a {@link MechanicalNodeStates} data attachment. Defaults false.
- * Automatic syncing is currently not supported, but blockentities which wish to manually sync this can invoke {@link Level#sendBlockUpdated} from {@link BlockEntity#setChanged()}.
+ * @param save If true, mechanical updates will be stored in a {@link MechanicalNodeStates} synced data attachment. Defaults false.
  * @param variants Map of blockstate selector string (e.g. "side=down,waterlogged=false") to any number of node definitions.
  * NodeShapes within a variant must be unique, and each state must be matched by exactly one selector.
  * The "" selector may be used to match all states.
@@ -76,7 +73,7 @@ public record VariantsMechanicalComponent(
 	
 	/**
 	 * Datagen helper which assigns the given nodes to all states
-	 * @param save If true, mechanical updates will be stored in a {@link MechanicalNodeStates} data attachment.
+	 * @param save If true, mechanical updates will be stored in a {@link MechanicalNodeStates} synced data attachment.
 	 * @param rawNodes RawNodes to assign to all blockstates 
 	 * @return VariantsMechanicalComponent where all blockstates use the provided nodes
 	 */
@@ -87,7 +84,7 @@ public record VariantsMechanicalComponent(
 	
 	/**
 	 * Datagen helper returning a mutable builder-like VariantsMechanicalComponent
-	 * @param save If true, mechanical updates will be stored in a {@link MechanicalNodeStates} data attachment.
+	 * @param save If true, mechanical updates will be stored in a {@link MechanicalNodeStates} synced data attachment.
 	 * @return VariantsMechanicalComponent with a mutable internal map to add nodes to
 	 */
 	public static VariantsMechanicalComponent builder(boolean save)

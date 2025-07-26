@@ -1,3 +1,13 @@
+# 1.21.8-0.13.0.2-beta
+* Updated to 1.21.8
+* VariantsMechanicalComponent and MultipartMechanicalComponent now automatically sync their MechanicalNodeStates data attachment if save=true
+
+#1.21.6-0.12.0.1-beta
+* Make MechanicalNodeStates.MAP_CODEC (the mapcodec for the data attachment) accessible
+
+#1.21.6-0.12.0.0-beta
+* Updated to MC 1.21.6 / Neoforge 21.6.6-beta
+
 # 1.21.5-0.11.0.2-beta
 * Fix mechanical graph updates crashing when scheduled via game event
 * Fix common config erroneously being registered as a serverconfig, it now correctly generates in config/exmachina-common.toml
