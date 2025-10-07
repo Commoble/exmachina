@@ -62,8 +62,7 @@ repositories {
 }
 
 dependencies {
-	//implementation "net.neoforged:neoforge:${neo_version}"
-	implementation "net.neoforged:neoforge:21.7.36-beta-pr-1823-attachment-sync"
+	implementation "net.neoforged:neoforge:${neo_version}"
 }
 
 java

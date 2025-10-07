@@ -1,3 +1,7 @@
+## 21.9.1-beta
+* Updated to MC 1.21.9
+* MechanicalState.getMachineTicks API now accepts a nullable level, returning 0 if level is null
+
 # 1.21.8-0.13.0.2-beta
 * Updated to 1.21.8
 * VariantsMechanicalComponent and MultipartMechanicalComponent now automatically sync their MechanicalNodeStates data attachment if save=true

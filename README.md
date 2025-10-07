@@ -11,11 +11,12 @@ repositories {
 }
 
 dependencies {
-	implementation "net.commoble.exmachina:exmachina-${mc_version}:${exmachina_version}
+	implementation "net.commoble.exmachina:exmachina:${exmachina_version}
 }
 ```
-where ${mc_version} is (for example) 1.21.1 and ${exmachina_version} is the 4-digit version number of exmachina.
 
-You can view the available versions in [the maven](https://maven.commoble.net/net/commoble/exmachina/).
+As of MC 1.21.9, Ex Machina versions follow the MCMINOR.MCPATCH.MODVERSION schema, e.g. exmachina 21.9.0 is the first release of Ex Machina for MC 1.21.9.
+
+You can view the available versions in [the maven](https://maven.commoble.net/net/commoble/exmachina/exmachina).
 
 Documentation WIP, see More Red for usage examples

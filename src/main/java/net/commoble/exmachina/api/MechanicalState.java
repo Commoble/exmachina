@@ -1,5 +1,7 @@
 package net.commoble.exmachina.api;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -50,10 +52,10 @@ public record MechanicalState(double power, double angularVelocity)
 	 * 
 	 * This is configurable in config/exmachina-server.toml
 	 * @param level Level a machine exists in
-	 * @return integer number of ticks elapsed in current machine cycle
+	 * @return integer number of ticks elapsed in current machine cycle, or 0 if level is null
 	 */
-	public static int getMachineTicks(Level level)
+	public static int getMachineTicks(@Nullable Level level)
 	{
-		return (int)(level.getGameTime() % ExMachina.SERVER_CONFIG.machineCycleTicks().getAsInt());
+		return level == null ? 0 : (int)(level.getGameTime() % ExMachina.SERVER_CONFIG.machineCycleTicks().getAsInt());
 	}
 }

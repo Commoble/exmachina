@@ -49,14 +49,14 @@ public record VariantsMechanicalComponent(
 	 * {
 	 *   "type": "exmachina:variants",
 	 *   "save": true, // automatically persists updates in data attached to blockentity, defaults to false
-	 *   "variants": [
+	 *   "variants": {
 	 *     "side=down,waterlogged=false": [ // same format as blockstate json variant selectors
 	 *       // list of RawNode objects, see that class for additional docs
 	 *     ],
 	 *     "side=up": {
 	 *     	// singular RawNode object is fine too
 	 *     }
-	 *   ]
+	 *   }
 	 * }
 	 * </pre>
 	 */
