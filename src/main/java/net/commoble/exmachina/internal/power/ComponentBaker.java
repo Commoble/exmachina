@@ -17,7 +17,7 @@ import net.commoble.exmachina.api.StaticProperty;
 import net.commoble.exmachina.api.StaticProperty.BakedStaticProperty;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -91,7 +91,7 @@ public final class ComponentBaker
 		var components = registries.lookupOrThrow(ExMachinaRegistries.CIRCUIT_COMPONENT);
 		for (var entry : components.entrySet())
 		{
-			ResourceLocation blockId = entry.getKey().location();
+			Identifier blockId = entry.getKey().identifier();
 			CircuitComponent circuitComponent = entry.getValue();
 			
 			// blocks with invalid connectors are ignored by the circuit builder

@@ -9,6 +9,7 @@ import java.util.Set;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 
 import net.commoble.exmachina.api.Circuit;
 import net.commoble.exmachina.api.CircuitManager;
@@ -28,13 +29,13 @@ public class LevelCircuitManager extends SavedData implements CircuitManager
 	private static final String ID = "exmachina/circuit_manager";
 	private static final SavedDataType<LevelCircuitManager> TYPE = new SavedDataType<>(ID, LevelCircuitManager::create, LevelCircuitManager::codec, null);
 
-	private static LevelCircuitManager create(SavedData.Context context)
+	private static LevelCircuitManager create(ServerLevel level)
 	{
-		return new LevelCircuitManager(context.level());
+		return new LevelCircuitManager(level);
 	}
-	private static Codec<LevelCircuitManager> codec(SavedData.Context context)
+	private static Codec<LevelCircuitManager> codec(ServerLevel level)
 	{
-		return Codec.unit(() -> new LevelCircuitManager(context.level()));
+		return MapCodec.unitCodec(() -> new LevelCircuitManager(level));
 	}
 	
 	private Map<BlockPos, Circuit> circuitMap = new HashMap<>();

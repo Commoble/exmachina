@@ -11,6 +11,7 @@ import java.util.Set;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 
 import net.commoble.exmachina.api.Channel;
 import net.commoble.exmachina.api.ExMachinaDataMaps;
@@ -42,15 +43,15 @@ import net.minecraft.world.level.saveddata.SavedDataType;
 public final class SignalGraphBuffer extends SavedData
 {
 	private static final String ID = "exmachina/signalgraphbuffer";
-	private static final Codec<SignalGraphBuffer> CODEC = Codec.unit(SignalGraphBuffer::new); 
+	private static final Codec<SignalGraphBuffer> CODEC = MapCodec.unitCodec(SignalGraphBuffer::new); 
 	private static final SavedDataType<SignalGraphBuffer> TYPE = new SavedDataType<>(ID, SignalGraphBuffer::create, SignalGraphBuffer::codec, null);
 
 	private SignalGraphBuffer() {}
-	private static SignalGraphBuffer create(SavedData.Context context)
+	private static SignalGraphBuffer create(ServerLevel level)
 	{
 		return new SignalGraphBuffer();
 	}
-	private static Codec<SignalGraphBuffer> codec(SavedData.Context context)
+	private static Codec<SignalGraphBuffer> codec(ServerLevel level)
 	{
 		return CODEC;
 	}

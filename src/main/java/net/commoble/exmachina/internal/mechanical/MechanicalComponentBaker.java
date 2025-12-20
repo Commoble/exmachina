@@ -13,7 +13,7 @@ import net.commoble.exmachina.api.MechanicalStateComponent;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -68,7 +68,7 @@ public enum MechanicalComponentBaker
 		for (var entry : registries.lookupOrThrow(ExMachinaRegistries.MECHANICAL_COMPONENT).entrySet())
 		{
 			ResourceKey<MechanicalComponent> key = entry.getKey();
-			ResourceLocation blockId = key.location();
+			Identifier blockId = key.identifier();
 			MechanicalComponent mechanicalComponent = entry.getValue();
 			Block block = BuiltInRegistries.BLOCK.getValue(blockId);
 			// make sure block exists and isn't air

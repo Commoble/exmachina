@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.world.item.DyeColor;
 
 /**

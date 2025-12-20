@@ -46,7 +46,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelAccessor;
@@ -107,12 +107,12 @@ public class ExMachina
 		var gameEvents = defreg(Registries.GAME_EVENT);
 		var attachmentTypes = defreg(NeoForgeRegistries.Keys.ATTACHMENT_TYPES);
 		
-		BiConsumer<ResourceKey<MapCodec<? extends Connector>>, MapCodec<? extends Connector>> registerConnector = (key,codec) -> connectors.register(key.location().getPath(), () -> codec);
-		BiConsumer<ResourceKey<MapCodec<? extends StaticProperty>>, MapCodec<? extends StaticProperty>> registerStaticProperty = (key,codec) -> staticProperties.register(key.location().getPath(), () -> codec);
-		BiConsumer<ResourceKey<MapCodec<? extends DynamicProperty>>, MapCodec<? extends DynamicProperty>> registerDynamicProperty = (key,codec) -> dynamicProperties.register(key.location().getPath(), () -> codec);
+		BiConsumer<ResourceKey<MapCodec<? extends Connector>>, MapCodec<? extends Connector>> registerConnector = (key,codec) -> connectors.register(key.identifier().getPath(), () -> codec);
+		BiConsumer<ResourceKey<MapCodec<? extends StaticProperty>>, MapCodec<? extends StaticProperty>> registerStaticProperty = (key,codec) -> staticProperties.register(key.identifier().getPath(), () -> codec);
+		BiConsumer<ResourceKey<MapCodec<? extends DynamicProperty>>, MapCodec<? extends DynamicProperty>> registerDynamicProperty = (key,codec) -> dynamicProperties.register(key.identifier().getPath(), () -> codec);
 		
-		BiConsumer<ResourceKey<MapCodec<? extends SignalComponent>>, MapCodec<? extends SignalComponent>> registerTransmitter = (key,codec) -> transmitters.register(key.location().getPath(), () -> codec);
-		BiConsumer<ResourceKey<MapCodec<? extends MechanicalComponent>>, MapCodec<? extends MechanicalComponent>> registerMechanicalComponent = (key,codec) -> mechanicalComponents.register(key.location().getPath(), () -> codec);
+		BiConsumer<ResourceKey<MapCodec<? extends SignalComponent>>, MapCodec<? extends SignalComponent>> registerTransmitter = (key,codec) -> transmitters.register(key.identifier().getPath(), () -> codec);
+		BiConsumer<ResourceKey<MapCodec<? extends MechanicalComponent>>, MapCodec<? extends MechanicalComponent>> registerMechanicalComponent = (key,codec) -> mechanicalComponents.register(key.identifier().getPath(), () -> codec);
 		
 		registerConnector.accept(AllDirectionsConnector.KEY, AllDirectionsConnector.CODEC);
 		registerConnector.accept(DirectionsConnector.KEY, DirectionsConnector.CODEC);
@@ -130,9 +130,9 @@ public class ExMachina
 		registerMechanicalComponent.accept(VariantsMechanicalComponent.KEY, VariantsMechanicalComponent.CODEC);
 		registerMechanicalComponent.accept(MultipartMechanicalComponent.KEY, MultipartMechanicalComponent.CODEC);
 		
-		gameEvents.register(ExMachinaGameEvents.SIGNAL_GRAPH_UPDATE_KEY.location().getPath(), () -> new GameEvent(0));
-		gameEvents.register(ExMachinaGameEvents.MECHANICAL_GRAPH_UPDATE_KEY.location().getPath(), () -> new GameEvent(0));
-		attachmentTypes.register(MechanicalNodeStates.KEY.location().getPath(), () -> AttachmentType.<Map<NodeShape,MechanicalState>>builder(() -> new HashMap<>())
+		gameEvents.register(ExMachinaGameEvents.SIGNAL_GRAPH_UPDATE_KEY.identifier().getPath(), () -> new GameEvent(0));
+		gameEvents.register(ExMachinaGameEvents.MECHANICAL_GRAPH_UPDATE_KEY.identifier().getPath(), () -> new GameEvent(0));
+		attachmentTypes.register(MechanicalNodeStates.KEY.identifier().getPath(), () -> AttachmentType.<Map<NodeShape,MechanicalState>>builder(() -> new HashMap<>())
 			.serialize(MechanicalNodeStates.MAP_CODEC)
 			.sync(MechanicalNodeStates.STREAM_CODEC)
 			.build());
@@ -232,12 +232,12 @@ public class ExMachina
 	}
 	
 	/**
-	 * {@return ResourceLocation of exmachina:${name}}
-	 * @param name ResourceLocation path
+	 * {@return Identifier of exmachina:${name}}
+	 * @param name Identifier path
 	 */
-	public static ResourceLocation id(String name)
+	public static Identifier id(String name)
 	{
-		return ResourceLocation.fromNamespaceAndPath(ExMachina.MODID, name);
+		return Identifier.fromNamespaceAndPath(ExMachina.MODID, name);
 	}
 	
 	private static <T> DeferredRegister<T> newRegistry(ResourceKey<Registry<T>> key)

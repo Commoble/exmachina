@@ -1,3 +1,6 @@
+## 21.11.0
+* Updated to MC 1.21.11
+
 ## 21.9.1-beta
 * Updated to MC 1.21.9
 * MechanicalState.getMachineTicks API now accepts a nullable level, returning 0 if level is null

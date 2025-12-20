@@ -12,6 +12,7 @@ import org.apache.commons.lang3.math.Fraction;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 
 import net.commoble.exmachina.api.MechanicalGraphKey;
 import net.commoble.exmachina.api.MechanicalNode;
@@ -32,17 +33,17 @@ import net.minecraft.world.level.saveddata.SavedDataType;
 public final class MechanicalGraphBuffer extends SavedData
 {
 	private static final String ID = "exmachina/mechanicalgraphbuffer";
-	private static final Codec<MechanicalGraphBuffer> CODEC = Codec.unit(MechanicalGraphBuffer::new); 
+	private static final Codec<MechanicalGraphBuffer> CODEC = MapCodec.unitCodec(MechanicalGraphBuffer::new); 
 	private static final SavedDataType<MechanicalGraphBuffer> TYPE = new SavedDataType<>(ID, MechanicalGraphBuffer::create, MechanicalGraphBuffer::codec, null);
 	
 	private Map<ResourceKey<Level>, Set<BlockPos>> positions = new HashMap<>();
 	
 	private MechanicalGraphBuffer() {}
-	private static MechanicalGraphBuffer create(SavedData.Context context)
+	private static MechanicalGraphBuffer create(ServerLevel level)
 	{
 		return new MechanicalGraphBuffer();
 	}
-	private static Codec<MechanicalGraphBuffer> codec(SavedData.Context context)
+	private static Codec<MechanicalGraphBuffer> codec(ServerLevel level)
 	{
 		return CODEC;
 	}
