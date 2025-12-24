@@ -118,7 +118,7 @@ public sealed interface NodeShape permits NodeShape.Cube, NodeShape.Side, NodeSh
 		{
 			return switch(otherNode)
 			{
-				case Cube thatCube -> true;
+				case Cube _ -> true;
 				case Side thatSide -> this.face == thatSide.face;
 				case SideSide thatSideSide -> this.face == thatSideSide.face;
 			};
@@ -148,7 +148,7 @@ public sealed interface NodeShape permits NodeShape.Cube, NodeShape.Side, NodeSh
 		{
 			return switch(otherNode)
 			{
-				case Cube thatCube -> true;
+				case Cube _ -> true;
 				case Side thatSide -> this.face == thatSide.face;
 				case SideSide thatSideSide -> this.equals(thatSideSide);
 			};

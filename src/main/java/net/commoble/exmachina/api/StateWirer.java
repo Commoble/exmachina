@@ -25,7 +25,7 @@ public record StateWirer(BlockState state, SignalComponent component)
 	{
 		BlockState state = blockGetter.getBlockState(pos);
 		SignalComponent transmitter = Objects.requireNonNullElse(
-			BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_COMPONENT, state.getBlockHolder().getKey()),
+			BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_COMPONENT, state.typeHolder().getKey()),
 			DefaultSignalComponent.INSTANCE);
 		return new StateWirer(state, transmitter);
 	}

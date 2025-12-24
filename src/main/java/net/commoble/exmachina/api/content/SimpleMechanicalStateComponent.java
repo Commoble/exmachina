@@ -31,7 +31,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
  */
 public record SimpleMechanicalStateComponent(boolean save, List<RawNode> bakedNodes) implements MechanicalStateComponent
 {
-	private static final BiConsumer<LevelAccessor, MechanicalState> NO_LISTENER = ($,$$) -> {};
+	private static final BiConsumer<LevelAccessor, MechanicalState> NO_LISTENER = (_,_) -> {};
 	
 	@Override
 	public Collection<MechanicalNode> getNodes(ResourceKey<Level> levelKey, BlockGetter level, BlockPos pos)
