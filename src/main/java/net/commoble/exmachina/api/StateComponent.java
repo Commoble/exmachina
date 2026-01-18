@@ -1,7 +1,5 @@
 package net.commoble.exmachina.api;
 
-import org.jetbrains.annotations.NotNull;
-
 import net.commoble.exmachina.api.Connector.StateConnector;
 import net.commoble.exmachina.api.content.NoneDynamicProperty;
 
@@ -14,11 +12,11 @@ import net.commoble.exmachina.api.content.NoneDynamicProperty;
  * @param dynamicSource DynamicSource providing voltage for the blockstate
  */
 public record StateComponent(
-	@NotNull StateConnector connector,
+	StateConnector connector,
 	double staticLoad,
 	double staticSource,
-	@NotNull DynamicProperty dynamicLoad,
-	@NotNull DynamicProperty dynamicSource)
+	DynamicProperty dynamicLoad,
+	DynamicProperty dynamicSource)
 {	
 	/** no-op StateComponent representing a componentless blockstate or invalid component */
 	public static final StateComponent EMPTY = new StateComponent(

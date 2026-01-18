@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import org.jspecify.annotations.NonNull;
+
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Either;
@@ -202,7 +204,7 @@ public record MultipartMechanicalComponent(boolean save, List<ApplyWhen> multipa
 	 * 
 	 * @param conditions Map of property-value conditions.
 	 */
-	public static record Case(Map<String,String> conditions) implements Function<Block, DataResult<Predicate<BlockState>>>
+	public static record Case(Map<String,String> conditions) implements Function<@NonNull Block, DataResult<Predicate<BlockState>>>
 	{
 		/** codec **/
 		public static final Codec<Case> CODEC = Codec.unboundedMap(Codec.STRING, Codec.STRING)
@@ -305,7 +307,7 @@ public record MultipartMechanicalComponent(boolean save, List<ApplyWhen> multipa
 	 * 
 	 * @param cases List of Cases and/or OrCases to predicate blockstates with
 	 */
-	public static record OrCase(List<Either<OrCase, Case>> cases) implements Function<Block, DataResult<Predicate<BlockState>>>
+	public static record OrCase(List<Either<OrCase, Case>> cases) implements Function<@NonNull Block, @NonNull DataResult<Predicate<BlockState>>>
 	{
 		/** codec **/
 		public static final Codec<OrCase> CODEC =

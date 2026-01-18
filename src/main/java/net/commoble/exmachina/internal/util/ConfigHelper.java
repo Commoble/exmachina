@@ -4,8 +4,9 @@ import java.util.function.Function;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
@@ -60,7 +61,7 @@ public final class ConfigHelper
 		final Function<ModConfigSpec.Builder, T> configFactory,
 		final @Nullable String configName)
 	{
-		final var mod = ModList.get().getModContainerById(modid).get();
+		final ModContainer mod = ModList.get().getModContainerById(modid).orElseThrow();
 		final org.apache.commons.lang3.tuple.Pair<T, ModConfigSpec> entry = new ModConfigSpec.Builder()
 			.configure(configFactory);
 		final T config = entry.getLeft();

@@ -1,7 +1,5 @@
 package net.commoble.exmachina.api;
 
-import org.jetbrains.annotations.NotNull;
-
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -31,11 +29,11 @@ import net.commoble.exmachina.api.content.NoneDynamicProperty;
  * @param dynamicSource DynamicProperty designating the dynamic (worldpos-sensitive) source from the block
  */
 public record CircuitComponent(
-	@NotNull Connector connector,
-	@NotNull StaticProperty staticLoad,
-	@NotNull StaticProperty staticSource,
-	@NotNull DynamicProperty dynamicLoad,
-	@NotNull DynamicProperty dynamicSource)
+	Connector connector,
+	StaticProperty staticLoad,
+	StaticProperty staticSource,
+	DynamicProperty dynamicLoad,
+	DynamicProperty dynamicSource)
 {
 	public static final Codec<CircuitComponent> CODEC = RecordCodecBuilder.create(builder -> builder.group(
 			Connector.CODEC.optionalFieldOf("connector", NoneConnector.INSTANCE).forGetter(CircuitComponent::connector),

@@ -2,6 +2,7 @@ package net.commoble.exmachina.internal;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 import com.mojang.serialization.MapCodec;
@@ -45,8 +46,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelAccessor;
@@ -178,24 +179,26 @@ public class ExMachina
 		// called when a block update occurs at a given position (including when a blockstate change occurs at that position)
 		// if the blockstate changed, the event's given state is the new blockstate
 		LevelAccessor level = event.getLevel();
-		
+
 		if (level instanceof ServerLevel serverLevel)
 		{
 			BlockState newState = event.getState();
 			BlockPos pos = event.getPos();
 			CircuitManager.get(serverLevel).onBlockUpdate(newState, pos);
-			MechanicalGraphBuffer.get(serverLevel.getServer()).enqueue(serverLevel.dimension(), pos);
+			MinecraftServer server = Objects.requireNonNull(serverLevel.getServer());
+			
+			MechanicalGraphBuffer.get(server).enqueue(serverLevel.dimension(), pos);
 			BlockState state = event.getState();
 			if (!state.is(ExMachinaTags.Blocks.NO_AUTOMATIC_MECHANICAL_UPDATES))
 			{
-				MechanicalGraphBuffer.get(serverLevel.getServer()).enqueue(serverLevel.dimension(), pos);
+				MechanicalGraphBuffer.get(server).enqueue(serverLevel.dimension(), pos);
 				for (Direction directionToNeighbor : Direction.values())
 				{
 					BlockPos neighborPos = pos.relative(directionToNeighbor);
 					BlockState neighborState = serverLevel.getBlockState(neighborPos);
 					if (!neighborState.is(ExMachinaTags.Blocks.NO_AUTOMATIC_MECHANICAL_UPDATES))
 					{
-						MechanicalGraphBuffer.get(serverLevel.getServer()).enqueue(serverLevel.dimension(), neighborPos);
+						MechanicalGraphBuffer.get(server).enqueue(serverLevel.dimension(), neighborPos);
 					}
 				}
 			}	
@@ -211,15 +214,16 @@ public class ExMachina
 		
 		if (level instanceof ServerLevel serverLevel)
 		{
+			MinecraftServer server = Objects.requireNonNull(serverLevel.getServer());
 			var holder = event.getVanillaEvent();
 			if (holder.is(ExMachinaGameEvents.SIGNAL_GRAPH_UPDATE_KEY))
 			{
-				SignalGraphBuffer.get(serverLevel.getServer()).enqueue(serverLevel.dimension(), BlockPos.containing(event.getEventPosition()));				
+				SignalGraphBuffer.get(server).enqueue(serverLevel.dimension(), BlockPos.containing(event.getEventPosition()));				
 			}
 			else if (holder.is(ExMachinaGameEvents.MECHANICAL_GRAPH_UPDATE_KEY))
 			{
 				BlockPos pos = BlockPos.containing(event.getEventPosition());
-				MechanicalGraphBuffer.get(serverLevel.getServer()).enqueue(serverLevel.dimension(), pos);	
+				MechanicalGraphBuffer.get(server).enqueue(serverLevel.dimension(), pos);	
 			}
 		}
 	}

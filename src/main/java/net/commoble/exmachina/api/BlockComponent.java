@@ -1,7 +1,5 @@
 package net.commoble.exmachina.api;
 
-import org.jetbrains.annotations.NotNull;
-
 import net.commoble.exmachina.api.Connector.BlockConnector;
 import net.commoble.exmachina.api.StaticProperty.BakedStaticProperty;
 import net.commoble.exmachina.api.content.NoneDynamicProperty;
@@ -15,11 +13,11 @@ import net.commoble.exmachina.api.content.NoneDynamicProperty;
  * @param dynamicSource DynamicProperty for the block voltage
  */
 public record BlockComponent(
-	@NotNull BlockConnector connector,
-	@NotNull BakedStaticProperty staticLoad,
-	@NotNull BakedStaticProperty staticSource,
-	@NotNull DynamicProperty dynamicLoad,
-	@NotNull DynamicProperty dynamicSource)
+	BlockConnector connector,
+	BakedStaticProperty staticLoad,
+	BakedStaticProperty staticSource,
+	DynamicProperty dynamicLoad,
+	DynamicProperty dynamicSource)
 {
 	/** BlockComponent for blocks which do not have assigned CircuitComponents or are otherwise invalid */
 	public static final BlockComponent EMPTY = new BlockComponent(

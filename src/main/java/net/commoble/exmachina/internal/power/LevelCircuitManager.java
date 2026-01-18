@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jetbrains.annotations.ApiStatus;
+import org.jspecify.annotations.Nullable;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -29,17 +30,17 @@ public class LevelCircuitManager extends SavedData implements CircuitManager
 	private static final String ID = "exmachina/circuit_manager";
 	private static final SavedDataType<LevelCircuitManager> TYPE = new SavedDataType<>(ID, LevelCircuitManager::create, LevelCircuitManager::codec, null);
 
-	private static LevelCircuitManager create(ServerLevel level)
+	private static LevelCircuitManager create(@Nullable ServerLevel level)
 	{
 		return new LevelCircuitManager(level);
 	}
-	private static Codec<LevelCircuitManager> codec(ServerLevel level)
+	private static Codec<LevelCircuitManager> codec(@Nullable ServerLevel level)
 	{
 		return MapCodec.unitCodec(() -> new LevelCircuitManager(level));
 	}
 	
 	private Map<BlockPos, Circuit> circuitMap = new HashMap<>();
-	private final ServerLevel level;
+	private final @Nullable ServerLevel level;
 	private int lastKnownGeneration = 0;
 	
 	/**
@@ -52,7 +53,7 @@ public class LevelCircuitManager extends SavedData implements CircuitManager
 		return level.getDataStorage().computeIfAbsent(TYPE);
 	}
 	
-	private LevelCircuitManager(ServerLevel level)
+	private LevelCircuitManager(@Nullable ServerLevel level)
 	{
 		this.level = level;
 	}
@@ -60,7 +61,8 @@ public class LevelCircuitManager extends SavedData implements CircuitManager
 	@Override
 	public Circuit getCircuit(BlockPos pos)
 	{
-		if (this.level == null)
+		ServerLevel serverLevel = this.level;
+		if (serverLevel == null)
 			return Circuit.empty();
 		
 		// if data has been reloaded, dump the circuit map
@@ -78,7 +80,7 @@ public class LevelCircuitManager extends SavedData implements CircuitManager
 		}
 		else // try to build new circuit here if possible
 		{
-			Circuit builtCircuit = CircuitBuilder.attemptToBuildCircuitFrom(this.level, pos);
+			Circuit builtCircuit = CircuitBuilder.attemptToBuildCircuitFrom(serverLevel, pos);
 			// if we built a valid circuit, keep track of where it is
 			if (builtCircuit.isPresent())
 			{
@@ -94,7 +96,8 @@ public class LevelCircuitManager extends SavedData implements CircuitManager
 	@Override
 	public void onBlockUpdate(BlockState newState, BlockPos updatedPos)
 	{
-		if (this.level == null)
+		ServerLevel serverLevel = this.level;
+		if (serverLevel == null)
 			return;
 		
 		List<BlockPos> positionsToRemove = new ArrayList<>(); // no two circuit instances *should* share any blockpos
@@ -125,10 +128,10 @@ public class LevelCircuitManager extends SavedData implements CircuitManager
 				// if the old blockstate changed, we handled it above
 				// if the old blockstate didn't change, we ignore it and rely on the block's developer to
 				// call a circuit invalidation if necessary
-		StateComponent newComponent = ComponentBaker.get().getComponent(newState, this.level.registryAccess());
+		StateComponent newComponent = ComponentBaker.get().getComponent(newState, serverLevel.registryAccess());
 		if (newComponent.isPresent())
 		{
-			Set<BlockPos> newConnections = newComponent.connector().connectedPositions(this.level, updatedPos);
+			Set<BlockPos> newConnections = newComponent.connector().connectedPositions(serverLevel, updatedPos);
 			for (BlockPos newConnectionPos : newConnections)
 			{
 				Circuit circuitToConnectTo = this.getCircuit(newConnectionPos);
@@ -140,7 +143,7 @@ public class LevelCircuitManager extends SavedData implements CircuitManager
 					{
 						var componentToConnectTo = componentsToConnectTo.get(newConnectionPos);
 						// and if the extant circuit can mutually connect to the new block
-						if (componentToConnectTo != null && componentToConnectTo.getRight().connector().connectedPositions(this.level, newConnectionPos).contains(updatedPos))
+						if (componentToConnectTo != null && componentToConnectTo.getRight().connector().connectedPositions(serverLevel, newConnectionPos).contains(updatedPos))
 						{
 							// mark the circuit for invalidation and removal from the manager
 							// circuit won't be in the set of circuits to remove yet because it would have been invalidated already

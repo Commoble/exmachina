@@ -3,6 +3,7 @@ package net.commoble.exmachina.internal.signal;
 import java.util.function.Function;
 
 import org.jetbrains.annotations.ApiStatus;
+import org.jspecify.annotations.Nullable;
 
 import net.commoble.exmachina.api.StateWirer;
 import net.minecraft.core.BlockPos;
@@ -23,7 +24,7 @@ public record WireIgnoringSignalGetter(LevelReader delegate, Function<BlockPos, 
 {
 
 	@Override
-	public BlockEntity getBlockEntity(BlockPos pos)
+	public @Nullable BlockEntity getBlockEntity(BlockPos pos)
 	{
 		return delegate.getBlockEntity(pos);
 	}

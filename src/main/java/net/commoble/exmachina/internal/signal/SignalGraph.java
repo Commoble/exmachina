@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
@@ -56,7 +57,7 @@ public record SignalGraph(Map<SignalGraphKey, TransmissionNode> nodesInGraph, Ma
 	public static SignalGraph fromOriginNode(ServerLevel level, SignalGraphKey originKey, TransmissionNode originNode, Map<ServerLevel, Map<BlockPos, StateWirer>> knownWirers)
 	{
 		// build graph
-		MinecraftServer server = level.getServer();
+		MinecraftServer server = Objects.requireNonNull(level.getServer()); // ServerLevel#getLevel is nonnull but eclipse isn't aware
 		Map<SignalGraphKey, TransmissionNode> nodesInGraph = new HashMap<>();
 		Map<ServerLevel, Set<BlockPos>> blocksInGraph = new IdentityHashMap<>();
 		Map<ServerLevel, Set<BlockPos>> nodesUpdatingSelf = new HashMap<>();

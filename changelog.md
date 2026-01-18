@@ -1,3 +1,7 @@
+## 26.1.0
+* Updated to MC 26.1
+* Now uses JSpecify nullness annotations; all API packages are @NullMarked, indicating everything is considered non-nullable except where marked with @Nullable
+
 ## 21.11.0
 * Updated to MC 1.21.11
 

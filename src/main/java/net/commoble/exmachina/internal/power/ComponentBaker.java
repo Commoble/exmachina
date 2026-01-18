@@ -3,6 +3,7 @@ package net.commoble.exmachina.internal.power;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
+import org.jspecify.annotations.Nullable;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -38,7 +39,7 @@ public final class ComponentBaker
 	public static ComponentBaker get() { return INSTANCE; }
 	
 	private int generation = 0;
-	private Object2ObjectMap<Block, BlockComponent> bakedBlockComponents = null;
+	private @Nullable Object2ObjectMap<Block, BlockComponent> bakedBlockComponents = null;
 	private Object2ObjectMap<BlockState, StateComponent> bakedStateComponents = new Object2ObjectOpenHashMap<>();
 	
 	/** Clears the cache */
@@ -67,11 +68,13 @@ public final class ComponentBaker
 
 	private Object2ObjectMap<Block, BlockComponent> getBlockComponents(RegistryAccess registries)
 	{
-		if (this.bakedBlockComponents == null)
+		var results = this.bakedBlockComponents;
+		if (results == null)
 		{
-			this.bakedBlockComponents = this.bakeBlockComponents(registries);
+			results = this.bakeBlockComponents(registries);
+			this.bakedBlockComponents = results;
 		}
-		return this.bakedBlockComponents;
+		return results;
 	}
 	
 	/**

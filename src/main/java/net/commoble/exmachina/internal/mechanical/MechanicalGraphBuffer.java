@@ -10,6 +10,7 @@ import java.util.function.Function;
 
 import org.apache.commons.lang3.math.Fraction;
 import org.jetbrains.annotations.ApiStatus;
+import org.jspecify.annotations.Nullable;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -39,11 +40,11 @@ public final class MechanicalGraphBuffer extends SavedData
 	private Map<ResourceKey<Level>, Set<BlockPos>> positions = new HashMap<>();
 	
 	private MechanicalGraphBuffer() {}
-	private static MechanicalGraphBuffer create(ServerLevel level)
+	private static MechanicalGraphBuffer create(@Nullable ServerLevel level)
 	{
 		return new MechanicalGraphBuffer();
 	}
-	private static Codec<MechanicalGraphBuffer> codec(ServerLevel level)
+	private static Codec<MechanicalGraphBuffer> codec(@Nullable ServerLevel level)
 	{
 		return CODEC;
 	}

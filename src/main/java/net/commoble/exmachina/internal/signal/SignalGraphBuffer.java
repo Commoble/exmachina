@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jetbrains.annotations.ApiStatus;
+import org.jspecify.annotations.Nullable;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -47,11 +48,11 @@ public final class SignalGraphBuffer extends SavedData
 	private static final SavedDataType<SignalGraphBuffer> TYPE = new SavedDataType<>(ID, SignalGraphBuffer::create, SignalGraphBuffer::codec, null);
 
 	private SignalGraphBuffer() {}
-	private static SignalGraphBuffer create(ServerLevel level)
+	private static SignalGraphBuffer create(@Nullable ServerLevel level)
 	{
 		return new SignalGraphBuffer();
 	}
-	private static Codec<SignalGraphBuffer> codec(ServerLevel level)
+	private static Codec<SignalGraphBuffer> codec(@Nullable ServerLevel level)
 	{
 		return CODEC;
 	}

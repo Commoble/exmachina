@@ -2,11 +2,15 @@ package net.commoble.exmachina.api;
 
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
+
 import net.commoble.exmachina.api.content.DefaultSignalComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
@@ -24,9 +28,12 @@ public record StateWirer(BlockState state, SignalComponent component)
 	public static StateWirer getOrDefault(BlockGetter blockGetter, BlockPos pos)
 	{
 		BlockState state = blockGetter.getBlockState(pos);
-		SignalComponent transmitter = Objects.requireNonNullElse(
-			BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_COMPONENT, state.typeHolder().getKey()),
-			DefaultSignalComponent.INSTANCE);
+		@Nullable ResourceKey<Block> key = state.typeHolder().getKey();
+		SignalComponent transmitter = key == null
+			? DefaultSignalComponent.INSTANCE
+			: Objects.requireNonNullElse(
+				BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_COMPONENT, key),
+				DefaultSignalComponent.INSTANCE);
 		return new StateWirer(state, transmitter);
 	}
 	
