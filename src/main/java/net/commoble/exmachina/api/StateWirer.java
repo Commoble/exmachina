@@ -1,7 +1,5 @@
 package net.commoble.exmachina.api;
 
-import java.util.Objects;
-
 import org.jspecify.annotations.Nullable;
 
 import net.commoble.exmachina.api.content.DefaultSignalComponent;
@@ -29,12 +27,10 @@ public record StateWirer(BlockState state, SignalComponent component)
 	{
 		BlockState state = blockGetter.getBlockState(pos);
 		@Nullable ResourceKey<Block> key = state.typeHolder().getKey();
-		SignalComponent transmitter = key == null
-			? DefaultSignalComponent.INSTANCE
-			: Objects.requireNonNullElse(
-				BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_COMPONENT, key),
-				DefaultSignalComponent.INSTANCE);
-		return new StateWirer(state, transmitter);
+		if (key == null)
+			return new StateWirer(state, DefaultSignalComponent.INSTANCE);
+		@Nullable SignalComponent transmitter = BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_COMPONENT, key);
+		return new StateWirer(state, transmitter == null ? DefaultSignalComponent.INSTANCE : transmitter);
 	}
 	
 	/**

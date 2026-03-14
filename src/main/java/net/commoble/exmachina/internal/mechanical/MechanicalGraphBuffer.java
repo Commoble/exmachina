@@ -17,6 +17,7 @@ import com.mojang.serialization.MapCodec;
 
 import net.commoble.exmachina.api.MechanicalGraphKey;
 import net.commoble.exmachina.api.MechanicalNode;
+import net.commoble.exmachina.internal.ExMachina;
 import net.commoble.exmachina.internal.mechanical.MechanicalGraph.GearRatio;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
@@ -33,9 +34,8 @@ import net.minecraft.world.level.saveddata.SavedDataType;
  */
 public final class MechanicalGraphBuffer extends SavedData
 {
-	private static final String ID = "exmachina/mechanicalgraphbuffer";
 	private static final Codec<MechanicalGraphBuffer> CODEC = MapCodec.unitCodec(MechanicalGraphBuffer::new); 
-	private static final SavedDataType<MechanicalGraphBuffer> TYPE = new SavedDataType<>(ID, MechanicalGraphBuffer::create, MechanicalGraphBuffer::codec, null);
+	private static final SavedDataType<MechanicalGraphBuffer> TYPE = new SavedDataType<>(ExMachina.id("mechanicalgraphbuffer"), MechanicalGraphBuffer::create, MechanicalGraphBuffer::codec);
 	
 	private Map<ResourceKey<Level>, Set<BlockPos>> positions = new HashMap<>();
 	

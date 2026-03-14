@@ -21,6 +21,7 @@ import net.commoble.exmachina.api.SignalGraphKey;
 import net.commoble.exmachina.api.SignalStrength;
 import net.commoble.exmachina.api.StateWirer;
 import net.commoble.exmachina.api.TransmissionNode;
+import net.commoble.exmachina.internal.ExMachina;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -43,9 +44,8 @@ import net.minecraft.world.level.saveddata.SavedDataType;
 @ApiStatus.Internal
 public final class SignalGraphBuffer extends SavedData
 {
-	private static final String ID = "exmachina/signalgraphbuffer";
 	private static final Codec<SignalGraphBuffer> CODEC = MapCodec.unitCodec(SignalGraphBuffer::new); 
-	private static final SavedDataType<SignalGraphBuffer> TYPE = new SavedDataType<>(ID, SignalGraphBuffer::create, SignalGraphBuffer::codec, null);
+	private static final SavedDataType<SignalGraphBuffer> TYPE = new SavedDataType<>(ExMachina.id("signalgraphbuffer"), SignalGraphBuffer::create, SignalGraphBuffer::codec, null);
 
 	private SignalGraphBuffer() {}
 	private static SignalGraphBuffer create(@Nullable ServerLevel level)

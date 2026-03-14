@@ -15,6 +15,7 @@ import com.mojang.serialization.MapCodec;
 import net.commoble.exmachina.api.Circuit;
 import net.commoble.exmachina.api.CircuitManager;
 import net.commoble.exmachina.api.StateComponent;
+import net.commoble.exmachina.internal.ExMachina;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,8 +28,7 @@ import net.minecraft.world.level.saveddata.SavedDataType;
 @ApiStatus.Internal
 public class LevelCircuitManager extends SavedData implements CircuitManager
 {
-	private static final String ID = "exmachina/circuit_manager";
-	private static final SavedDataType<LevelCircuitManager> TYPE = new SavedDataType<>(ID, LevelCircuitManager::create, LevelCircuitManager::codec, null);
+	private static final SavedDataType<LevelCircuitManager> TYPE = new SavedDataType<>(ExMachina.id("circuit_manager"), LevelCircuitManager::create, LevelCircuitManager::codec);
 
 	private static LevelCircuitManager create(@Nullable ServerLevel level)
 	{
