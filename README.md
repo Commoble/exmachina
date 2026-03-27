@@ -15,7 +15,11 @@ dependencies {
 }
 ```
 
-As of MC 1.21.9, Ex Machina versions follow the MCMINOR.MCPATCH.MODVERSION schema, e.g. exmachina 21.9.0 is the first release of Ex Machina for MC 1.21.9.
+As of MC 26.1, Ex Machina versions follow the MCYEAR.MCMAJOR.MCPATCH.MODVERSION schema,
+e.g. exmachina 26.1.0.0 is the first release of Ex Machina for MC 26.1.0.
+
+Ex Machina APIs will not break within an MCMAJOR version but may break between MCMAJOR versions,
+so mods should declare version compatibility ranges as e.g. [26.1,26.2)
 
 You can view the available versions in [the maven](https://maven.commoble.net/net/commoble/exmachina/exmachina).
 
