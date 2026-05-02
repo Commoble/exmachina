@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.mojang.serialization.MapCodec;
 
@@ -39,7 +40,7 @@ import net.neoforged.neoforge.common.extensions.IBlockStateExtension;
  * <li>and this block's support shape on the touching face is at least 2x2 sixteenths on the center edge:</li>
  * </ul>
 <pre> 
-/----------------\
+/----------------\1
 |       xx       |
 |       xx       |
 |                |
@@ -112,7 +113,8 @@ public enum DefaultSignalComponent implements SignalComponent
 	public Collection<TransmissionNode> getTransmissionNodes(ResourceKey<Level> levelKey, BlockGetter level, BlockPos pos, BlockState state, Channel channel)
 	{
 		List<TransmissionNode> nodes = new ArrayList<>();
-		if (channel != Channel.redstone())
+		// annoying hack to prevent redstone diodes from shorting bitwise connections
+		if (channel == Channel.redstone())
 			return nodes;
 		
 		for (Direction directionToNeighbor : Direction.values())
@@ -136,7 +138,7 @@ public enum DefaultSignalComponent implements SignalComponent
 						NodeShape.ofSideSide(faceSide, directionToNeighbor),
 						reader -> reader.getSignal(pos, directionFromNeighbor),
 						Set.of(),
-						Set.of(new SignalGraphKey(levelKey, neighborPos, NodeShape.ofSideSide(faceSide, directionFromNeighbor), Channel.redstone())),
+						Set.of(new SignalGraphKey(levelKey, neighborPos, NodeShape.ofSideSide(faceSide, directionFromNeighbor), channel)),
 						(levelAccess, power) -> Map.of()
 					));
 				}

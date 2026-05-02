@@ -1,4 +1,7 @@
-## 26.1.0
+## 26.1.0.1
+* Fix default signal component shorting bitwise channels on input sides of blocks
+
+## 26.1.0.0
 * Updated to MC 26.1
 * Now uses JSpecify nullness annotations; all API packages are @NullMarked, indicating everything is considered non-nullable except where marked with @Nullable
 
