@@ -1,3 +1,7 @@
+## 26.1.0.2
+* In the signal graph API, transmission nodes can now now specify that they are only visible for redstone cables
+  * This indicates that blocks which don't transmit vanilla signals should not visually connect to them
+
 ## 26.1.0.1
 * Fix default signal component shorting bitwise channels on input sides of blocks
 

@@ -18,12 +18,35 @@ import net.minecraft.world.level.LevelReader;
  * @param graphListener BiFunction to run when a graph update occurs.
  * The provided integer is the graph's new signal power level in the range [0,15],
  * while the Map indicates what adjacent directions should receive neighbor updates after the signal graph updates.
+ * @param onlyVisibleForRedstoneCables Indicates the node exists to allow redstone cables to visually connect,
+ * but blocks which do not transmit vanilla signal should not visually connect to these
  */
 public record TransmissionNode(
 	NodeShape shape,
 	ToIntFunction<LevelReader> source,
 	Set<Direction> powerReaders,
 	Set<SignalGraphKey> connectableNodes,
-	BiFunction<LevelAccessor,Integer,Map<Direction, SignalStrength>> graphListener)
+	BiFunction<LevelAccessor,Integer,Map<Direction, SignalStrength>> graphListener,
+	boolean onlyVisibleForRedstoneCables)
 {
+
+	/**
+	 * Creates a {@link SignalComponent} graph node with standard connectivity for automatic graphing.
+	 * @param shape NodeShape of the node
+	 * @param source ToIntFunction which provides power to the graph (which should NOT be based on neighbor power, use powerReaders for that instead)
+	 * @param powerReaders Set of Directions to read adjacent vanilla redstone signal power into this graph from (only blocks outside of the graph are read from)
+	 * @param connectableNodes Set of Nodes which this graph node can connect to. This should specify the smallest connectable NodeShape; larger nodeshapes at the target pos will form connections, while smaller nodeshapes will not.
+	 * @param graphListener BiFunction to run when a graph update occurs.
+	 * The provided integer is the graph's new signal power level in the range [0,15],
+	 * while the Map indicates what adjacent directions should receive neighbor updates after the signal graph updates.
+	 */
+	public TransmissionNode(
+		NodeShape shape,
+		ToIntFunction<LevelReader> source,
+		Set<Direction> powerReaders,
+		Set<SignalGraphKey> connectableNodes,
+		BiFunction<LevelAccessor,Integer,Map<Direction, SignalStrength>> graphListener)
+	{
+		this(shape, source, powerReaders, connectableNodes, graphListener, false);
+	}
 }
