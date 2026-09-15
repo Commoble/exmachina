@@ -65,10 +65,21 @@ public final class MechanicalGraphBuffer extends SavedData
 	 * @param pos BlockPos to enqueue a mechanical graph update at
 	 */
 	@ApiStatus.Internal
-	public void enqueue(ResourceKey<Level> levelKey, BlockPos pos)
+	public synchronized void enqueue(ResourceKey<Level> levelKey, BlockPos pos)
 	{
 		var levelPositions = this.positions.computeIfAbsent(levelKey, level -> new HashSet<>());
 		levelPositions.add(pos);
+	}
+	
+	/**
+	 * Takes the enqueued positions and leaves an empty buffer for the next tick.
+	 * Synchronized with enqueue so that no position lands in a buffer already taken by tick.
+	 */
+	private synchronized Map<ResourceKey<Level>, Set<BlockPos>> drain()
+	{
+		Map<ResourceKey<Level>, Set<BlockPos>> drained = this.positions;
+		this.positions = new HashMap<>();
+		return drained;
 	}
 	
 	/**
@@ -78,11 +89,9 @@ public final class MechanicalGraphBuffer extends SavedData
 	@ApiStatus.Internal
 	public void tick(MinecraftServer server)
 	{
-		if (this.positions.isEmpty())
+		Map<ResourceKey<Level>, Set<BlockPos>> originPositionsByLevel = this.drain();
+		if (originPositionsByLevel.isEmpty())
 			return;
-		
-		Map<ResourceKey<Level>, Set<BlockPos>> originPositionsByLevel = this.positions;
-		this.positions = new HashMap<>();
 		
 		// construct graph from each origin node
 		List<MechanicalGraph> graphs = new ArrayList<>();
