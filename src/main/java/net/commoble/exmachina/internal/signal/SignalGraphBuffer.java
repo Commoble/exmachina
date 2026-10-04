@@ -6,9 +6,11 @@ import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.jetbrains.annotations.ApiStatus;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.serialization.Codec;
@@ -24,6 +26,7 @@ import net.commoble.exmachina.api.TransmissionNode;
 import net.commoble.exmachina.internal.ExMachina;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -117,7 +120,10 @@ public final class SignalGraphBuffer extends SavedData
 				BlockState originState = originLevel.getBlockState(originPos);
 				Block originBlock = originState.getBlock();
 				@SuppressWarnings("deprecation")
-				SignalComponent originTransmitter = BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_COMPONENT, originBlock.builtInRegistryHolder().key());
+				Holder.Reference<Block> blockHolder = originBlock.builtInRegistryHolder();
+				// TODO remove this requireNonNull if neoforge undoes the IHolderExtension#key patch
+				@NonNull ResourceKey<Block> blockKey = Objects.requireNonNull(blockHolder.key());
+				SignalComponent originTransmitter = BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_COMPONENT, blockKey);
 				if (originTransmitter != null)
 				{
 					for (Channel channel : Channel.ALL)

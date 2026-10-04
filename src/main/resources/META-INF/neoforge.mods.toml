@@ -13,7 +13,8 @@ displayName="Ex Machina" #mandatory
 # A URL for the "homepage" for this mod, displayed in the mod UI
 displayURL="https://www.curseforge.com/minecraft/mc-mods/exmachina" #optional
 # A file name (in the root of the mod JAR) containing a logo for display
-logoFile="exmachina_logo_large.png" #optional
+iconFile="exmachina_logo_large.png" #optional
+bannerFile="exmachina_logo_large.png" #optional
 # A text field displayed in the mod UI
 credits="I hear the Minecraft Mod Development discord is the cat's bananas" #optional
 # A text field displayed in the mod UI
@@ -29,7 +30,7 @@ Ex Machina is a power API that uses JSON data to assign power properties to bloc
     # Does this dependency have to exist - if not, ordering below must be specified
     mandatory=true #mandatory
     # The version range of the dependency
-    versionRange="[21.9.0-beta,)" #mandatory
+    versionRange="[26.3.0.23-beta,)" #mandatory
     # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
     ordering="NONE"
     # Side this dependency is applied on - BOTH, CLIENT or SERVER
@@ -38,6 +39,6 @@ Ex Machina is a power API that uses JSON data to assign power properties to bloc
 [[dependencies.exmachina]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.21.9,)"
+    versionRange="[26.3,26.4)"
     ordering="NONE"
     side="BOTH"

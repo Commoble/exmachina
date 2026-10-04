@@ -11,8 +11,8 @@ import com.mojang.serialization.MapCodec;
 import net.commoble.exmachina.api.Channel;
 import net.commoble.exmachina.api.ExMachinaRegistries;
 import net.commoble.exmachina.api.NodeShape;
-import net.commoble.exmachina.api.SignalGraphKey;
 import net.commoble.exmachina.api.SignalComponent;
+import net.commoble.exmachina.api.SignalGraphKey;
 import net.commoble.exmachina.api.TransmissionNode;
 import net.commoble.exmachina.internal.ExMachina;
 import net.minecraft.core.BlockPos;
@@ -22,17 +22,17 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.common.extensions.IBlockStateExtension;
 
 /**
  * Default SignalComponent used for blocks that have no source assigned to them.
  * Permits a given Face in the block to connect to a graph if: if the block's support shape touches the outer side of the blockpos cube
  * <ul>
- * <li>{@link IBlockStateExtension#canRedstoneConnectTo} is true for this block</li>
+ * <li>{@link BlockBehaviour#shouldRedstoneWireConnectTo} is true for this block</li>
  * <li>The Face of this block shares the same Direction as the connecting face</li>
  * <li>The connecting block is adjacent to this block</li>
  * <li>This block's support shape touches the outer side of the blockpos cube</li>
@@ -119,7 +119,7 @@ public enum DefaultSignalComponent implements SignalComponent
 		for (Direction directionToNeighbor : Direction.values())
 		{
 			Direction directionFromNeighbor = directionToNeighbor.getOpposite();
-			if (!state.canRedstoneConnectTo(level, pos, directionFromNeighbor))
+			if (!state.shouldRedstoneWireConnectTo(level, pos, directionFromNeighbor))
 				continue;
 			BlockPos neighborPos = pos.relative(directionToNeighbor);
 			for (Direction faceSide : Direction.values())

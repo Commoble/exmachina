@@ -26,7 +26,7 @@ public record StateWirer(BlockState state, SignalComponent component)
 	public static StateWirer getOrDefault(BlockGetter blockGetter, BlockPos pos)
 	{
 		BlockState state = blockGetter.getBlockState(pos);
-		@Nullable ResourceKey<Block> key = state.typeHolder().getKey();
+		@Nullable ResourceKey<Block> key = state.typeHolder().key();
 		if (key == null)
 			return new StateWirer(state, DefaultSignalComponent.INSTANCE);
 		@Nullable SignalComponent transmitter = BuiltInRegistries.BLOCK.getData(ExMachinaDataMaps.SIGNAL_COMPONENT, key);

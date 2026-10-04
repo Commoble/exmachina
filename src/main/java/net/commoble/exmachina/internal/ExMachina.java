@@ -64,9 +64,9 @@ import net.neoforged.neoforge.event.level.BlockEvent.NeighborNotifyEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.registries.NewDatapackRegistryEvent;
 import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
 
 /**
@@ -87,10 +87,10 @@ public class ExMachina
 	/** Mod ID **/
 	public static final String MODID = "exmachina";
 	
-	/** config/exmachina-common.toml **/
-	public static final CommonConfig COMMON_CONFIG = ConfigHelper.register(MODID, ModConfig.Type.COMMON, CommonConfig::create);
-	/** config/exmachina-server.toml **/
-	public static final ServerConfig SERVER_CONFIG = ConfigHelper.register(MODID, ModConfig.Type.SERVER, ServerConfig::create);
+	/** config/exmachina-local.toml **/
+	public static final CommonConfig COMMON_CONFIG = ConfigHelper.register(MODID, ModConfig.Type.LOCAL, CommonConfig::create);
+	/** config/exmachina-synced.toml **/
+	public static final ServerConfig SERVER_CONFIG = ConfigHelper.register(MODID, ModConfig.Type.SYNCED, ServerConfig::create);
 	
 	/**
 	 * mod constructor
@@ -150,10 +150,10 @@ public class ExMachina
 		gameBus.addListener(this::onEndOfServerTickEvent);
 	}
 	
-	private void onRegisterDataPackRegistries(DataPackRegistryEvent.NewRegistry event)
+	private void onRegisterDataPackRegistries(NewDatapackRegistryEvent event)
 	{
-		event.dataPackRegistry(ExMachinaRegistries.CIRCUIT_COMPONENT, CircuitComponent.CODEC);
-		event.dataPackRegistry(ExMachinaRegistries.MECHANICAL_COMPONENT, MechanicalComponent.CODEC);
+		event.worldRegistry(ExMachinaRegistries.CIRCUIT_COMPONENT, CircuitComponent.CODEC);
+		event.worldRegistry(ExMachinaRegistries.MECHANICAL_COMPONENT, MechanicalComponent.CODEC);
 	}
 	
 	private void onRegisterDataMapTypes(RegisterDataMapTypesEvent event)

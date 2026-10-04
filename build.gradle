@@ -16,6 +16,11 @@ tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
 }
 
+// shrinks javadoc jar by like 90%
+tasks.named("javadoc", Javadoc) {
+    options.addBooleanOption("-no-fonts", true)
+}
+
 group = "net.commoble.${modid}"
 base { archivesName="${modid}" }
 version = "${mod_version}"
