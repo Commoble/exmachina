@@ -246,7 +246,7 @@ public class ExMachina
 	
 	private static <T> DeferredRegister<T> newRegistry(ResourceKey<Registry<T>> key)
 	{
-		IEventBus modBus = ModList.get().getModContainerById(MODID).get().getEventBus();
+		IEventBus modBus = Objects.requireNonNull(ModList.get().getModContainerById(MODID).get().getEventBus());
 		var defreg = DeferredRegister.create(key, ExMachina.MODID);
 		defreg.makeRegistry(builder -> {});
 		defreg.register(modBus);
@@ -255,7 +255,7 @@ public class ExMachina
 	
 	private static <T> DeferredRegister<T> defreg(ResourceKey<Registry<T>> key)
 	{
-		IEventBus modBus = ModList.get().getModContainerById(MODID).get().getEventBus();
+		IEventBus modBus = Objects.requireNonNull(ModList.get().getModContainerById(MODID).get().getEventBus());
 		var defreg = DeferredRegister.create(key, MODID);
 		defreg.register(modBus);
 		return defreg;

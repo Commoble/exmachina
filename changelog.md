@@ -1,3 +1,6 @@
+## 26.3.0.1
+* Update to MC 26.3 / Neoforge 26.3.0.86
+
 ## 26.1.0.2
 * In the signal graph API, transmission nodes can now now specify that they are only visible for redstone cables
   * This indicates that blocks which don't transmit vanilla signals should not visually connect to them
