@@ -16,11 +16,6 @@ tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
 }
 
-// shrinks javadoc jar by like 90%
-tasks.named("javadoc", Javadoc) {
-    options.addBooleanOption("-no-fonts", true)
-}
-
 group = "net.commoble.${modid}"
 base { archivesName="${modid}" }
 version = "${mod_version}"
@@ -82,12 +77,6 @@ repositories {
 dependencies {
 }
 
-java
-{
-	withSourcesJar()
-	withJavadocJar()
-}
-
 // Example for how to get properties into the manifest for reading by the runtime..
 jar {
     manifest {
@@ -103,23 +92,38 @@ jar {
     }
 }
 
-artifacts {
-	archives javadocJar
-	archives sourcesJar
+java
+{
+	withSourcesJar()
+	withJavadocJar()
 }
 
-// run "gradlew build publish" to build jars and generate a maven repo for them
+tasks.named("javadoc", Javadoc) {
+	options.addBooleanOption("-no-fonts", true)
+}
+
+
 // run "gradlew build" to build the jars without mavening them
+// run "gradlew build publishToMavenLocal" to publish to local maven
+// to publish to remote maven, add mavenUsername and mavenPassword and url properties to USERHOME/.gradle/gradle.properties (in user folder, not project folder)
+// run "gradlew build publish" to publish snapshot
+// run "gradlew build -Prelease publish" to publish release
 publishing {
+	repositories {
+		maven {
+			def releasesRepoUrl = "${mavenReleasesUrl}"
+			def snapshotsRepoUrl = "${mavenSnapshotsUrl}"
+			url = project.hasProperty('release') ? releasesRepoUrl : snapshotsRepoUrl
+			credentials {
+				username = "${mavenUsername}"
+				password = "${mavenPassword}"
+			}
+			authentication{ basic(BasicAuthentication) }
+		}
+	}
 	publications {
 		register('mavenJava', MavenPublication) {
 			from components.java
-		}
-	}
-	repositories {
-		maven {
-			name="localMaven"
-			url = "./maven"
 		}
 	}
 }
